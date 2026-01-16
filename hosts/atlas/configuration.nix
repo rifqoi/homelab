@@ -43,6 +43,13 @@
     efiSupport = true;
     device = "nodev";
     timeoutStyle = "menu";
+    gfxmodeEfi = "1024x768";
+    gfxpayloadEfi = "keep";
+
+    extraConfig = ''
+      terminal_input console
+      terminal_output console
+    '';
 
     zfsSupport = true;
   };
@@ -51,6 +58,13 @@
 
   boot.supportedFilesystems = ["zfs"];
   boot.initrd.supportedFilesystems = ["zfs"];
+
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      vpl-gpu-rt
+    ];
+  };
 
   fileSystems."/" = {
     device = "rpool/root/ROOT/nixos";
@@ -106,17 +120,15 @@
     vlans = {
       vlan30 = {
         id = 30;
-        interface = "br30";
+        interface = "eno2";
       };
     };
 
     bridges = {
-      br30 = {
-        interfaces = ["eno2"];
-      };
+      br30 = {interfaces = ["vlan30"];};
     };
 
-    interfaces.br30.useDHCP = true;
+    interfaces.br30.useDHCP = true; # Only assigned to host
   };
 
   features = {
