@@ -12,6 +12,9 @@
 
     # Common configuration
     ../../modules/common
+
+    # MicroVM support
+    ../../modules/virtualization/microvms
   ];
 
   sops = {
@@ -132,6 +135,7 @@
   };
 
   features = {
+    microvm.garage.enable = true;
     monitoring = {
       prometheus = {
         enable = true;
