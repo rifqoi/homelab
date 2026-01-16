@@ -106,10 +106,17 @@
     vlans = {
       vlan30 = {
         id = 30;
-        interface = "eno2";
+        interface = "br30";
       };
     };
-    interfaces.vlan30.useDHCP = true;
+
+    bridges = {
+      br30 = {
+        interfaces = ["eno2"];
+      };
+    };
+
+    interfaces.br30.useDHCP = true;
   };
 
   features = {
