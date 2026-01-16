@@ -42,24 +42,15 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
-    timeout = 5;
     timeoutStyle = "menu";
 
     zfsSupport = true;
   };
+  boot.loader.timeout = 5;
   boot.loader.efi.canTouchEfiVariables = true;
 
   boot.supportedFilesystems = ["zfs"];
   boot.initrd.supportedFilesystems = ["zfs"];
-
-  boot.kernelModules = [
-    "nf_nat"
-    "nf_nat_ipv4"
-    "nf_nat_ipv6"
-    "iptable_nat"
-    "iptable_mangle"
-    "xt_MASQUERADE"
-  ];
 
   fileSystems."/" = {
     device = "rpool/root/ROOT/nixos";
@@ -110,10 +101,15 @@
   networking.hostId = "6b53000e";
 
   networking = {
-    networkmanager = {
-      enable = true;
-      wifi.powersave = false;
+    useDHCP = false;
+    nameservers = ["1.1.1.1" "8.8.8.8"];
+    vlans = {
+      vlan30 = {
+        id = 30;
+        interface = "eno2";
+      };
     };
+    interfaces.vlan30.useDHCP = true;
   };
 
   features = {
@@ -164,7 +160,7 @@
           {
             name = "openwrt-exporter";
             url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/openwrt-dashboard.json";
-            sha256 = "sha256-pXMvsz0nemZHzM1oPUe/ItVgu3TR7MStT3Y47burju4=";
+            sha256 = "0fvakggsnj2rwylqlg9s6bsdfxwaacmbj7i6rg3arn9hyc4ldjdy";
           }
         ];
       };
@@ -274,15 +270,6 @@
       };
     };
   };
-
-  networking.networkmanager.insertNameservers = ["1.1.1.1" "8.8.8.8"];
-  networking.vlans = {
-    vlan30 = {
-      id = 30;
-      interface = "eno2";
-    };
-  };
-  networking.interfaces.vlan30.useDHCP = true;
 
   programs = {
     zsh = {

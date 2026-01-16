@@ -56,7 +56,7 @@
                 --flake .#${hostName} \
                 --target-host rifqoi@${hostName} \
                 --build-host rifqoi@${hostName} \
-                --use-remote-sudo
+                --sudo
             '');
           };
         })
