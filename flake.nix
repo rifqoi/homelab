@@ -18,7 +18,32 @@
     ...
   }: let
     lib = nixpkgs.lib;
+    allSystems = [
+      "x86_64-linux" # 64-bit Intel/AMD Linux
+      "aarch64-linux" # 64-bit ARM Linux
+      "x86_64-darwin" # 64-bit Intel macOS
+      "aarch64-darwin" # 64-bit ARM macOS
+    ];
+
+    # Helper to provide system-specific attributes
+    forAllSystems = f: nixpkgs.lib.genAttrs allSystems f;
   in {
+    formatter = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in
+      pkgs.alejandra);
+
+    devShells = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      default = pkgs.mkShell {
+        packages = [
+          pkgs.nixd
+          pkgs.alejandra
+        ];
+      };
+    });
+
     nixosConfigurations = {
       vm = lib.nixosSystem {
         system = "aarch64-linux";
