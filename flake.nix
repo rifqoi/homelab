@@ -44,6 +44,35 @@
       };
     });
 
+    apps = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+      buildApps =
+        lib.mapAttrs' (hostName: _: {
+          name = "build-${hostName}";
+          value = {
+            type = "app";
+            program = toString (pkgs.writeShellScript "build-${hostName}" ''
+              exec nix run nixpkgs#nixos-rebuild -- switch \
+                --flake .#${hostName} \
+                --target-host rifqoi@${hostName} \
+                --build-host rifqoi@${hostName} \
+                --use-remote-sudo
+            '');
+          };
+        })
+        self.nixosConfigurations;
+    in
+      buildApps
+      // {
+        # Add custom apps here
+        # example = {
+        #   type = "app";
+        #   program = toString (pkgs.writeShellScript "example" ''
+        #     echo "Hello from custom app"
+        #   '');
+        # };
+      });
+
     nixosConfigurations = {
       vm = lib.nixosSystem {
         system = "aarch64-linux";
