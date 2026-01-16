@@ -8,9 +8,10 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    ../common.nix
     ../../modules
-    # (modulesPath + "/installer/scan/not-detected.nix")
+
+    # Common configuration
+    ../../modules/common
   ];
 
   sops = {
@@ -50,6 +51,15 @@
 
   boot.supportedFilesystems = ["zfs"];
   boot.initrd.supportedFilesystems = ["zfs"];
+
+  boot.kernelModules = [
+    "nf_nat"
+    "nf_nat_ipv4"
+    "nf_nat_ipv6"
+    "iptable_nat"
+    "iptable_mangle"
+    "xt_MASQUERADE"
+  ];
 
   fileSystems."/" = {
     device = "rpool/root/ROOT/nixos";
@@ -114,6 +124,7 @@
           "${monitoring.nodeExporter.listenAddress}:${builtins.toString monitoring.nodeExporter.port}"
           "${monitoring.pingExporter.listenAddress}:${builtins.toString monitoring.pingExporter.port}"
           "100.71.151.87:9100"
+          "192.168.11.1:9000"
         ];
         scrapeConfigs = [
           {
@@ -149,6 +160,11 @@
             name = "garage-exporter";
             url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/garage-exporter.json";
             sha256 = "sha256-k+lWwFHYwcpMhraDnZwmbMKDZHAGjfcBqJ32n9nXpDQ=";
+          }
+          {
+            name = "openwrt-exporter";
+            url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/openwrt-dashboard.json";
+            sha256 = "sha256-pXMvsz0nemZHzM1oPUe/ItVgu3TR7MStT3Y47burju4=";
           }
         ];
       };
@@ -219,8 +235,8 @@
             config = {
               "ipv4.address" = "auto";
               "ipv4.nat" = "true";
-              "ipv6.address" = "auto";
-              "ipv6.nat" = "true";
+              # "ipv6.address" = "auto";
+              # "ipv6.nat" = "true";
             };
           }
         ];
@@ -258,6 +274,15 @@
       };
     };
   };
+
+  networking.networkmanager.insertNameservers = ["1.1.1.1" "8.8.8.8"];
+  networking.vlans = {
+    vlan30 = {
+      id = 30;
+      interface = "eno2";
+    };
+  };
+  networking.interfaces.vlan30.useDHCP = true;
 
   programs = {
     zsh = {
