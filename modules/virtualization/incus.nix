@@ -66,6 +66,15 @@ in {
 
     networking.firewall.allowedTCPPorts = [8443 8999];
 
+    networking.firewall.interfaces.incusbr0.allowedTCPPorts = [
+      53
+      67
+    ];
+    networking.firewall.interfaces.incusbr0.allowedUDPPorts = [
+      53
+      67
+    ];
+
     # networking.firewall.incusbr0 = config.virtualisation.incus.preseed.networks {
     #   allowedTCPPorts = cfg.networking.allowedTCPPorts;
     #   allowedUDPPorts = cfg.networking.allowedUDPPorts;
