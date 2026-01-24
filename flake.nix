@@ -5,12 +5,12 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
+    microvm.url = "github:microvm-nix/microvm.nix";
+    microvm.inputs.nixpkgs.follows = "nixpkgs";
+    deploy-rs.url = "github:serokell/deploy-rs";
 
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-
-    microvm.url = "github:astro/microvm.nix";
-    microvm.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -18,6 +18,8 @@
     nixpkgs,
     disko,
     sops-nix,
+    deploy-rs,
+    microvm,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -43,6 +45,7 @@
         packages = [
           pkgs.nixd
           pkgs.alejandra
+          pkgs.deploy-rs
         ];
       };
     });
@@ -55,11 +58,12 @@
           value = {
             type = "app";
             program = toString (pkgs.writeShellScript "build-${hostName}" ''
-              exec nix run nixpkgs#nixos-rebuild -- switch \
-                --flake .#${hostName} \
-                --target-host rifqoi@${hostName} \
-                --build-host rifqoi@${hostName} \
-                --sudo
+              ${pkgs.deploy-rs}/bin/deploy .#${hostName}
+                    # exec nix run nixpkgs#nixos-rebuild -- switch \
+                    #   --flake .#${hostName} \
+                    #   --target-host rifqoi@${hostName} \
+                    #   --build-host rifqoi@${hostName} \
+                    #   --sudo
             '');
           };
         })
@@ -88,12 +92,38 @@
 
       atlas = lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = {inherit sops-nix;};
         modules = [
           disko.nixosModules.disko
           sops-nix.nixosModules.sops
+          # microvm.nixosModules.host
           ./hosts/atlas/configuration.nix
           ./hosts/atlas/disko.nix
         ];
+      };
+    };
+    deploy = {
+      # If the previous profile should be re-activated if activation fails.
+      # This defaults to `true`
+      autoRollback = true;
+
+      # See the earlier section about Magic Rollback for more information.
+      # This defaults to `true`
+      magicRollback = true;
+
+      remoteBuild = true;
+
+      nodes = {
+        atlas = {
+          hostname = "atlas";
+          sshUser = "rifqoi";
+          user = "rifqoi";
+
+          profiles.system = {
+            user = "root";
+            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.atlas;
+          };
+        };
       };
     };
   };
