@@ -11,6 +11,9 @@
 
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    dewclaw.url = "github:MakiseKurisu/dewclaw";
+    dewclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -20,6 +23,7 @@
     sops-nix,
     deploy-rs,
     microvm,
+    dewclaw,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -37,6 +41,14 @@
       pkgs = import nixpkgs {inherit system;};
     in
       pkgs.alejandra);
+
+    packages = forAllSystems (system: let
+      pkgs = import nixpkgs {inherit system;};
+    in {
+      openwrt = pkgs.callPackage dewclaw {
+        configuration = ./hosts/openwrt/configuration.nix;
+      };
+    });
 
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs {inherit system;};
