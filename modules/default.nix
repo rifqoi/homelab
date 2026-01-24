@@ -4,5 +4,6 @@
     ./virtualization
     ./storage
     ./networking
+    ./container
   ];
 }
