@@ -175,7 +175,7 @@
             job_name = "garage";
             static_configs = [
               {
-                targets = [config.features.storage.garage.settings.admin.api_bind_addr];
+                targets = ["garage.home.lab"];
               }
             ];
             authorization = {
@@ -226,40 +226,6 @@
               };
             }
           ];
-        };
-      };
-    };
-
-    storage = {
-      garage = {
-        enable = true;
-        ui.enable = true;
-        package = pkgs.garage_2;
-        data_dir = "/var/lib/garage/data";
-        metadata_dir = "/var/lib/garage/metadata";
-        settings = {
-          replication_factor = 1;
-          consistency_mode = "consistent";
-          db_engine = "sqlite";
-          rpc_bind_addr = "[::]:3901";
-          rpc_public_addr = "127.0.0.1:3901";
-          rpc_secret_file = config.sops.secrets.garage_rpc_secret.path;
-          s3_api = {
-            api_bind_addr = "[::]:3900";
-            s3_region = "garage";
-            root_domain = ".s3.garage";
-          };
-          s3_web = {
-            bind_addr = "[::]:3902";
-            add_host_to_metrics = true;
-            root_domain = ".web.garage";
-          };
-          admin = {
-            api_bind_addr = "127.0.0.1:3903";
-            metrics_token_file = config.sops.secrets.garage_metrics_token.path;
-            metrics_require_token = true;
-            admin_token_file = config.sops.secrets.garage_admin_token.path;
-          };
         };
       };
     };
