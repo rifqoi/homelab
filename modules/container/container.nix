@@ -32,5 +32,11 @@ in {
         };
       };
     };
+
+    blocky-dns = mkContainer {
+      hostBridge = "br31";
+      localAddress = "192.168.31.11/24";
+      configModule = ./blocky-dns.nix;
+    };
   };
 }
