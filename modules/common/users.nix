@@ -14,6 +14,8 @@
     ];
   };
 
+  programs.zsh.enable = true;
+
   security.sudo.extraRules = [
     {
       users = ["rifqoi"];

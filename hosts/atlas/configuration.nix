@@ -3,6 +3,7 @@
   lib,
   pkgs,
   modulesPath,
+  sops-nix,
   ...
 }: {
   imports = [
@@ -14,7 +15,7 @@
     ../../modules/common
 
     # MicroVM support
-    ../../modules/virtualization/microvms
+    # ../../modules/virtualization/microvms/garage
   ];
 
   sops = {
@@ -120,22 +121,46 @@
   networking = {
     useDHCP = false;
     nameservers = ["1.1.1.1" "8.8.8.8"];
+
+    firewall = {
+      enable = true;
+      # trustedInterfaces = ["br31"]; # Trust the bridge
+      checkReversePath = false; # Set to disabled for containers to work. Because packet comes from different interface in container.
+    };
+
     vlans = {
       vlan30 = {
         id = 30;
         interface = "eno2";
       };
+      vlan31 = {
+        id = 31;
+        interface = "eno2";
+      };
+    };
+
+    # Add default gateway
+    defaultGateway = {
+      address = "192.168.30.1";
+      interface = "br30";
     };
 
     bridges = {
       br30 = {interfaces = ["vlan30"];};
+      br31 = {interfaces = ["vlan31"];};
     };
 
-    interfaces.br30.useDHCP = true; # Only assigned to host
+    interfaces.br30.useDHCP = false; # Only assigned to host
+    interfaces.br30.ipv4.addresses = [
+      {
+        address = "192.168.30.101";
+        prefixLength = 24;
+      }
+    ];
+    interfaces.br31.useDHCP = false;
   };
 
   features = {
-    microvm.garage.enable = true;
     monitoring = {
       prometheus = {
         enable = true;
@@ -307,4 +332,33 @@
       enable = true;
     };
   };
+
+  # microvm.vms = {
+  #   my-microvm = {
+  #     # The package set to use for the microvm. This also determines the microvm's architecture.
+  #     # Defaults to the host system's package set if not given.
+  #     inherit pkgs;
+  #
+  #     # (Optional) A set of special arguments to be passed to the MicroVM's NixOS modules.
+  #     #specialArgs = {};
+  #
+  #     # The configuration for the MicroVM.
+  #     # Multiple definitions will be merged as expected.
+  #     config = {
+  #       # It is highly recommended to share the host's nix-store
+  #       # with the VMs to prevent building huge images.
+  #       microvm.shares = [
+  #         {
+  #           source = "/nix/store";
+  #           mountPoint = "/nix/.ro-store";
+  #           tag = "ro-store";
+  #           proto = "virtiofs";
+  #         }
+  #       ];
+  #
+  #       # Any other configuration for your MicroVM
+  #       # [...]
+  #     };
+  #   };
+  # };
 }
