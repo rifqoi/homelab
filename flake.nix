@@ -58,7 +58,7 @@
           value = {
             type = "app";
             program = toString (pkgs.writeShellScript "build-${hostName}" ''
-              ${pkgs.deploy-rs}/bin/deploy .#${hostName}
+              ${pkgs.deploy-rs}/bin/deploy .#${hostName} --debug-logs
                     # exec nix run nixpkgs#nixos-rebuild -- switch \
                     #   --flake .#${hostName} \
                     #   --target-host rifqoi@${hostName} \

@@ -14,8 +14,8 @@
     # Common configuration
     ../../modules/common
 
-    # MicroVM support
-    # ../../modules/virtualization/microvms/garage
+    # NixOs container configuration
+    ../../modules/container
   ];
 
   sops = {
