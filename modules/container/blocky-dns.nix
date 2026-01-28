@@ -35,17 +35,17 @@
       customDNS = {
         customTTL = "1h";
         mapping = {
-          "router.home.lab" = "192.168.30.1";
-          "garage.home.lab" = "192.168.31.10";
-          "grafana.home.lab" = "192.168.30.101";
-          "blocky.home.lab" = "192.168.31.11";
+          "router.home.arpa.com" = "192.168.11.1";
+          "garage.home.arpa.com" = "192.168.31.10";
+          "grafana.home.arpa.com" = "192.168.30.101";
+          "blocky.home.arpa.com" = "192.168.31.11";
         };
       };
 
       # Conditional forwarding for home.lab domain
       conditional = {
         mapping = {
-          "home.lab" = "192.168.31.11"; # Self-reference for home.lab queries
+          "home.arpa.com" = "192.168.31.11"; # Self-reference for home.lab queries
         };
       };
 
