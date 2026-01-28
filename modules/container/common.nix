@@ -10,6 +10,7 @@
     nameservers = ["1.1.1.1" "8.8.8.8"];
     firewall.enable = true;
     firewall.allowedTCPPorts = [22];
+    defaultGateway = "192.168.31.1";
   };
 
   # SSH configuration

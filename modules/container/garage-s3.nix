@@ -8,7 +8,6 @@
   ];
 
   # Override/extend common configuration
-  networking.defaultGateway = "192.168.31.1";
   networking.firewall.allowedTCPPorts = [22 3909 3900 3902 3901 3903];
 
   # Garage-specific SOPS secrets

@@ -38,5 +38,11 @@ in {
       localAddress = "192.168.31.11/24";
       configModule = ./blocky-dns.nix;
     };
+
+    # grafana = mkContainer {
+    #   hostBridge = "br31";
+    #   localAddress = "192.168.31.12/24";
+    #   configModule = ./grafana.nix;
+    # };
   };
 }

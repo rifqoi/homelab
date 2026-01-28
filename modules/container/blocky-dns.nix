@@ -8,7 +8,6 @@
   ];
 
   # Override/extend common configuration
-  networking.defaultGateway = "192.168.31.1";
   networking.firewall.allowedTCPPorts = [22 53 4000]; # DNS and metrics
   networking.firewall.allowedUDPPorts = [53]; # DNS
 
@@ -35,17 +34,17 @@
       customDNS = {
         customTTL = "1h";
         mapping = {
-          "router.home.arpa.com" = "192.168.11.1";
-          "garage.home.arpa.com" = "192.168.31.10";
-          "grafana.home.arpa.com" = "192.168.30.101";
-          "blocky.home.arpa.com" = "192.168.31.11";
+          "router.home.local" = "192.168.11.1";
+          "garage.home.local" = "192.168.31.10";
+          "blocky.home.local" = "192.168.31.11";
+          "grafana.home.local" = "192.168.31.12";
         };
       };
 
-      # Conditional forwarding for home.lab domain
+      # Conditional forwarding for home.local domain
       conditional = {
         mapping = {
-          "home.arpa.com" = "192.168.31.11"; # Self-reference for home.lab queries
+          "home.local" = "192.168.31.11"; # Self-reference for home.lab queries
         };
       };
 
