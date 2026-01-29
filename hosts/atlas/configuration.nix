@@ -120,7 +120,7 @@
 
   networking = {
     useDHCP = false;
-    nameservers = ["1.1.1.1" "8.8.8.8"];
+    nameservers = ["192.168.31.11" "1.1.1.1" "8.8.8.8"];
 
     firewall = {
       enable = true;
@@ -167,15 +167,15 @@
         nodeExporterTargets = with config.features; [
           "${monitoring.nodeExporter.listenAddress}:${builtins.toString monitoring.nodeExporter.port}"
           "${monitoring.pingExporter.listenAddress}:${builtins.toString monitoring.pingExporter.port}"
-          "100.71.151.87:9100"
-          "192.168.11.1:9000"
+          "nongkee.home.local:9100"
+          "router.home.local:9000"
         ];
         scrapeConfigs = [
           {
             job_name = "garage";
             static_configs = [
               {
-                targets = ["garage.home.lab"];
+                targets = ["garage.home.local:3903"];
               }
             ];
             authorization = {
