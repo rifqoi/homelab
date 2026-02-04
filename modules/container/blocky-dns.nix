@@ -38,7 +38,7 @@
           "garage.home.local" = "192.168.31.10";
           "blocky.home.local" = "192.168.31.11";
           "grafana.home.local" = "192.168.31.12";
-          "home.rifqoi.com" = "192.168.31.30";
+          "rifqoi.com" = "192.168.31.30";
           "authelia.home.local" = "192.168.31.13";
           "nongkee.home.local" = "100.71.151.87";
         };

@@ -6,8 +6,9 @@
   imports = [./common.nix];
 
   sops.secrets.cloudflare = {
+    sopsFile = ../../secrets/cloudflare.env;
     key = "";
-    file = "../../secrets/cloudflare.yaml";
+    format = "dotenv";
   };
 
   networking.firewall.allowedTCPPorts = [80 443];
@@ -15,6 +16,20 @@
     acceptTerms = true;
     certs = {
       "home.rifqoi.com" = {
+        email = "rifqoi@rifqoi.com";
+        dnsProvider = "cloudflare";
+        dnsResolver = "1.1.1.1:53";
+        credentialsFile = config.sops.secrets.cloudflare.path;
+        webroot = null;
+      };
+      "garage.rifqoi.com" = {
+        email = "rifqoi@rifqoi.com";
+        dnsProvider = "cloudflare";
+        dnsResolver = "1.1.1.1:53";
+        credentialsFile = config.sops.secrets.cloudflare.path;
+        webroot = null;
+      };
+      "grafana.rifqoi.com" = {
         email = "rifqoi@rifqoi.com";
         dnsProvider = "cloudflare";
         dnsResolver = "1.1.1.1:53";
@@ -30,7 +45,26 @@
       forceSSL = true;
       enableACME = true;
       locations."/" = {
-        proxyPass = "http://192.168.31.30:80";
+        return = "301 https://rifqoi.com";
+        # root = "/usr/share/nginx/html";
+      };
+    };
+    "garage.rifqoi.com" = {
+      forceSSL = true;
+      enableACME = true;
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.10:3909";
+        };
+      };
+    };
+    "grafana.rifqoi.com" = {
+      forceSSL = true;
+      enableACME = true;
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.12:3000";
+        };
       };
     };
   };
