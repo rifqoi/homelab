@@ -45,10 +45,16 @@ in {
       configModule = ./grafana.nix;
     };
 
-    authelia = mkContainer {
+    nginx = mkContainer {
       hostBridge = "br31";
-      localAddress = "192.168.31.13/24";
-      configModule = ./authelia.nix;
+      localAddress = "192.168.31.30/24";
+      configModule = ./nginx.nix;
     };
+
+    # authelia = mkContainer {
+    #   hostBridge = "br31";
+    #   localAddress = "192.168.31.13/24";
+    #   configModule = ./authelia.nix;
+    # };
   };
 }
