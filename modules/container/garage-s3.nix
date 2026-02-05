@@ -69,7 +69,6 @@
 
   # Garage-specific packages
   environment.systemPackages = [pkgs.garage-webui];
-  users.users.root.password = "changeme";
 
   systemd.services.garage.serviceConfig.LoadCredential = [
     "garage_rpc_secret:${config.sops.secrets.garage_rpc_secret.path}"

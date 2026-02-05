@@ -16,29 +16,31 @@
   sops.secrets = {
     authelia_jwt_secret = {
       sopsFile = ../../secrets/secrets.yaml;
-      owner = "authelia";
-      mode = "0400";
+      owner = "authelia-main";
+      group = "authelia-main";
+      mode = "0440";
     };
-    authelia_session_secret = {
-      sopsFile = ../../secrets/secrets.yaml;
-      owner = "authelia";
-      mode = "0400";
-    };
+    # authelia_session_secret = {
+    #   sopsFile = ../../secrets/secrets.yaml;
+    #   owner = "authelia";
+    #   mode = "0400";
+    # };
     authelia_storage_encryption_key = {
       sopsFile = ../../secrets/secrets.yaml;
-      owner = "authelia";
-      mode = "0400";
+      owner = "authelia-main";
+      group = "authelia-main";
+      mode = "0440";
     };
-    authelia_oidc_hmac_secret = {
-      sopsFile = ../../secrets/secrets.yaml;
-      owner = "authelia";
-      mode = "0400";
-    };
-    authelia_oidc_issuer_private_key = {
-      sopsFile = ../../secrets/secrets.yaml;
-      owner = "authelia";
-      mode = "0400";
-    };
+    # authelia_oidc_hmac_secret = {
+    #   sopsFile = ../../secrets/secrets.yaml;
+    #   owner = "authelia";
+    #   mode = "0400";
+    # };
+    # authelia_oidc_issuer_private_key = {
+    #   sopsFile = ../../secrets/secrets.yaml;
+    #   owner = "authelia";
+    #   mode = "0400";
+    # };
   };
 
   services.authelia.instances.main = {
@@ -47,8 +49,8 @@
     secrets = {
       jwtSecretFile = config.sops.secrets.authelia_jwt_secret.path;
       storageEncryptionKeyFile = config.sops.secrets.authelia_storage_encryption_key.path;
-      oidcHmacSecretFile = config.sops.secrets.authelia_oidc_hmac_secret.path;
-      oidcIssuerPrivateKeyFile = config.sops.secrets.authelia_oidc_issuer_private_key.path;
+      # oidcHmacSecretFile = config.sops.secrets.authelia_oidc_hmac_secret.path;
+      # oidcIssuerPrivateKeyFile = config.sops.secrets.authelia_oidc_issuer_private_key.path;
     };
 
     settings = {
@@ -56,8 +58,7 @@
       default_2fa_method = "totp";
 
       server = {
-        host = "0.0.0.0";
-        port = 9091;
+        address = "tcp://0.0.0.0:9091";
       };
 
       log = {
@@ -65,10 +66,10 @@
         format = "text";
       };
 
-      totp = {
-        disable = false;
-        issuer = "authelia.home.local";
-      };
+      # totp = {
+      #   disable = false;
+      #   issuer = "authelia.home.local";
+      # };
 
       authentication_backend = {
         file = {
@@ -129,58 +130,51 @@
       };
 
       # Identity providers (OIDC)
-      identity_providers = {
-        oidc = {
-          hmac_secret = "insecure_hmac_secret"; # Will be overridden by secret file
-          issuer_private_key = ""; # Will be overridden by secret file
+      # identity_providers = {
+      #   oidc = {
+      #     hmac_secret = "insecure_hmac_secret"; # Will be overridden by secret file
+      #     issuer_private_key = ""; # Will be overridden by secret file
 
-          access_token_lifespan = "1h";
-          authorize_code_lifespan = "1m";
-          id_token_lifespan = "1h";
-          refresh_token_lifespan = "90m";
+      #     access_token_lifespan = "1h";
+      #     authorize_code_lifespan = "1m";
+      #     id_token_lifespan = "1h";
+      #     refresh_token_lifespan = "90m";
 
-          enable_client_debug_messages = false;
-          minimum_parameter_entropy = 8;
+      #     enable_client_debug_messages = false;
+      #     minimum_parameter_entropy = 8;
 
-          clients = [
-            {
-              id = "grafana";
-              description = "Grafana";
-              secret = "$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng";
-              public = false;
-              authorization_policy = "one_factor";
-              redirect_uris = [
-                "http://grafana.home.local:3000/login/generic_oauth"
-              ];
-              scopes = [
-                "openid"
-                "profile"
-                "email"
-                "groups"
-              ];
-              grant_types = [
-                "authorization_code"
-                "refresh_token"
-              ];
-              response_types = [
-                "code"
-              ];
-            }
-          ];
-        };
-      };
+      #     clients = [
+      #       {
+      #         id = "grafana";
+      #         description = "Grafana";
+      #         secret = "$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng";
+      #         public = false;
+      #         authorization_policy = "one_factor";
+      #         redirect_uris = [
+      #           "http://grafana.home.local:3000/login/generic_oauth"
+      #         ];
+      #         scopes = [
+      #           "openid"
+      #           "profile"
+      #           "email"
+      #           "groups"
+      #         ];
+      #         grant_types = [
+      #           "authorization_code"
+      #           "refresh_token"
+      #         ];
+      #         response_types = [
+      #           "code"
+      #         ];
+      #       }
+      #     ];
+      #   };
+      # };
     };
   };
-
-  # Create initial users file if it doesn't exist
-  systemd.tmpfiles.rules = [
-    "d /var/lib/authelia-main 0700 authelia authelia -"
-  ];
 
   # Additional packages
   environment.systemPackages = with pkgs; [
     authelia
   ];
-
-  users.users.root.password = "changeme";
 }

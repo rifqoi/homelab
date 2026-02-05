@@ -51,6 +51,18 @@ in {
       configModule = ./nginx.nix;
     };
 
+    pocket-id = mkContainer {
+      hostBridge = "br31";
+      localAddress = "192.168.31.13/24";
+      configModule = ./pocket-id.nix;
+      extraBindMounts = {
+        "/var/lib/pocket-id" = {
+          hostPath = "/var/lib/pocket-id";
+          isReadOnly = false;
+        };
+      };
+    };
+
     # authelia = mkContainer {
     #   hostBridge = "br31";
     #   localAddress = "192.168.31.13/24";

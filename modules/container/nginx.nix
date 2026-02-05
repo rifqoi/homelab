@@ -36,6 +36,13 @@
         credentialsFile = config.sops.secrets.cloudflare.path;
         webroot = null;
       };
+      "pocket.rifqoi.com" = {
+        email = "rifqoi@rifqoi.com";
+        dnsProvider = "cloudflare";
+        dnsResolver = "1.1.1.1:53";
+        credentialsFile = config.sops.secrets.cloudflare.path;
+        webroot = null;
+      };
     };
   };
 
@@ -64,6 +71,15 @@
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.12:3000";
+        };
+      };
+    };
+    "pocket.rifqoi.com" = {
+      forceSSL = true;
+      enableACME = true;
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.13:1411";
         };
       };
     };
