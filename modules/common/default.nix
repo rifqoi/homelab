@@ -9,6 +9,7 @@
     ./services.nix
     ./users.nix
     ./acme.nix
+    ./gpg.nix
   ];
 
   system.stateVersion = "25.11";
