@@ -14,7 +14,15 @@
 in {
   imports = [./common.nix];
 
-  users.users.nginx.extraGroups = ["acme"];
+  users.mutableUsers = false;
+  users.users.nginx = {
+    isSystemUser = true;
+    group = "nginx";
+    extraGroups = ["acme"];
+  };
+  users.groups.acme = {
+    gid = 988; # Match host acme group
+  };
 
   networking.firewall.allowedTCPPorts = [80 443];
 
@@ -22,7 +30,8 @@ in {
   services.nginx.virtualHosts = {
     "home.rifqoi.com" = {
       forceSSL = true;
-      enableACME = true;
+      sslCertificate = "/var/lib/acme/home.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/home.rifqoi.com/key.pem";
       locations."/" = {
         return = "301 https://rifqoi.com";
         # root = "/usr/share/nginx/html";
@@ -30,7 +39,8 @@ in {
     };
     "garage.rifqoi.com" = {
       forceSSL = true;
-      enableACME = true;
+      sslCertificate = "/var/lib/acme/garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/garage.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.10:3909";
@@ -41,7 +51,8 @@ in {
     "s3.garage.rifqoi.com" = {
       forceSSL = true;
 
-      useACMEHost = "garage-s3";
+      sslCertificate = "/var/lib/acme/s3.garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/s3.garage.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.10:3900";
@@ -51,7 +62,8 @@ in {
     };
     "*.s3.garage.rifqoi.com" = {
       forceSSL = true;
-      useACMEHost = "garage-s3";
+      sslCertificate = "/var/lib/acme/s3.garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/s3.garage.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.10:3900";
@@ -61,7 +73,9 @@ in {
     };
     "grafana.rifqoi.com" = {
       forceSSL = true;
-      enableACME = true;
+
+      sslCertificate = "/var/lib/acme/grafana.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/grafana.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.12:3000";
@@ -71,7 +85,8 @@ in {
     };
     "pocket.rifqoi.com" = {
       forceSSL = true;
-      enableACME = true;
+      sslCertificate = "/var/lib/acme/pocket.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/pocket.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.13:1411";
@@ -81,7 +96,8 @@ in {
     };
     "omni.rifqoi.com" = {
       forceSSL = true;
-      enableACME = true;
+      sslCertificate = "/var/lib/acme/omni.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/omni.rifqoi.com/key.pem";
       locations = {
         "/" = {
           proxyPass = "http://192.168.31.20:80";

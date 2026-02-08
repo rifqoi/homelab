@@ -12,18 +12,6 @@
     "pocket.rifqoi.com"
     "omni.rifqoi.com"
   ];
-
-  mkCert = domains:
-    lib.attrsets.genAttrs domains (domain: {
-      email = "rifqoi@rifqoi.com";
-      domain =
-        if domain == "garage-s3"
-        then "*.s3.garage.rifqoi.com"
-        else domain;
-      dnsProvider = "cloudflare";
-      dnsResolver = "1.1.1.1:53";
-      credentialsFile = config.sops.secrets.cloudflare.path;
-    });
 in {
   sops.secrets.cloudflare = {
     sopsFile = ../../secrets/cloudflare.env;
@@ -31,8 +19,30 @@ in {
     format = "dotenv";
   };
 
+  users.users.rifqoi.extraGroups = ["acme"];
+  users.groups.acme = {
+    gid = 988;
+  };
+
   security.acme = {
     acceptTerms = true;
-    certs = mkCert certs;
+    defaults = {
+      email = "rifqoi@rifqoi.com";
+      dnsProvider = "cloudflare";
+      dnsResolver = "1.1.1.1:53";
+      environmentFile = "/run/secrets/cloudflare";
+      group = "acme";
+    };
+    certs = {
+      "home.rifqoi.com" = {};
+      "garage.rifqoi.com" = {};
+      "s3.garage.rifqoi.com" = {
+        domain = "*.s3.garage.rifqoi.com";
+        extraDomainNames = ["s3.garage.rifqoi.com"];
+      };
+      "grafana.rifqoi.com" = {};
+      "pocket.rifqoi.com" = {};
+      "omni.rifqoi.com" = {};
+    };
   };
 }
