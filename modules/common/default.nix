@@ -8,6 +8,7 @@
     ./programs.nix
     ./services.nix
     ./users.nix
+    ./acme.nix
   ];
 
   system.stateVersion = "25.11";

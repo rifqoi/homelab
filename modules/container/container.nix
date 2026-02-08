@@ -1,8 +1,18 @@
-{sops-nix, ...}: let
+{
+  pkgs,
+  sops-nix,
+  ...
+}: let
+  acmeCertFolder = "/var/lib/acme";
+
   defaultBindMounts = {
     "/var/lib/sops-nix/key.txt" = {
       hostPath = "/var/lib/sops-nix/keys-container.txt";
       isReadOnly = true;
+    };
+    "${acmeCertFolder}" = {
+      hostPath = acmeCertFolder;
+      isReadOnly = false;
     };
   };
 
@@ -13,11 +23,17 @@
     extraBindMounts ? {},
     autoStart ? true,
     privateNetwork ? true,
+    isDockerContainer ? false,
   }: {
     inherit autoStart privateNetwork hostBridge localAddress;
     bindMounts = defaultBindMounts // extraBindMounts;
     config = configModule;
     specialArgs = {inherit sops-nix;};
+    extraFlags = pkgs.lib.mkIf isDockerContainer [
+      # These extra flags are required for docker usage
+      "--system-call-filter=keyctl"
+      "--system-call-filter=bpf"
+    ];
   };
 in {
   containers = {
@@ -55,18 +71,13 @@ in {
       hostBridge = "br31";
       localAddress = "192.168.31.13/24";
       configModule = ./pocket-id.nix;
-      extraBindMounts = {
-        "/var/lib/pocket-id" = {
-          hostPath = "/var/lib/pocket-id";
-          isReadOnly = false;
-        };
-      };
     };
 
-    # authelia = mkContainer {
-    #   hostBridge = "br31";
-    #   localAddress = "192.168.31.13/24";
-    #   configModule = ./authelia.nix;
-    # };
+    omni = mkContainer {
+      hostBridge = "br31";
+      localAddress = "192.168.31.20/24";
+      configModule = ./omni.nix;
+      isDockerContainer = true;
+    };
   };
 }
