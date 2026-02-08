@@ -51,7 +51,7 @@
       s3_api = {
         api_bind_addr = "[::]:3900";
         s3_region = "garage";
-        root_domain = ".s3.garage";
+        root_domain = ".s3.garage.rifqoi.com";
       };
       s3_web = {
         bind_addr = "[::]:3902";

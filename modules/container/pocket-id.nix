@@ -7,9 +7,9 @@
 
   networking.firewall.allowedTCPPorts = [1411];
 
-  config.sops.secrets.pocketid_encription_key = {
+  sops.secrets.pocketid_encryption_key = {
+    sopsFile = ../../secrets/secrets.yaml;
     owner = "pocket-id";
-    group = "pocket-id";
     mode = "0400";
   };
 
@@ -18,7 +18,7 @@
     dataDir = "/var/lib/pocket-id";
     settings = {
       APP_URL = "https://pocket.rifqoi.com";
-      ENCRIPTION_KEY_FILE = config.sops.secrets.pocketid_encription_key.path;
+      ENCRYPTION_KEY_FILE = config.sops.secrets.pocketid_encryption_key.path;
       TRUST_PROXY = true;
     };
   };

@@ -10,7 +10,8 @@
   features.monitoring.grafana = {
     enable = true;
     prometheusUrl = "http://192.168.30.101:9090";
-    domain = "localhost";
+    domain = "grafana.rifqoi.com";
+    rootUrl = "https://grafana.rifqoi.com";
     dashboards = [
       {
         name = "node-exporter";

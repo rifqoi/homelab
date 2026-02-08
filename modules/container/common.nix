@@ -7,7 +7,7 @@
   # Common container network configuration
   networking = {
     useHostResolvConf = false;
-    nameservers = ["1.1.1.1" "8.8.8.8"];
+    nameservers = ["192.168.31.11" "1.1.1.1" "8.8.8.8"];
     firewall.enable = true;
     firewall.allowedTCPPorts = [22];
     defaultGateway = "192.168.31.1";
@@ -41,6 +41,7 @@
     vim
     htop
     curl
+    dnsutils
   ];
 
   system.stateVersion = "26.05";

@@ -54,6 +54,12 @@ in {
       default = [];
       description = "List of dashboards to be added to Grafana";
     };
+
+    rootUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "Root URL for Grafana (overrides default if set)";
+    };
   };
 
   # ============================================================================
@@ -72,12 +78,17 @@ in {
           http_port = cfg.port;
           http_addr = "0.0.0.0";
           domain = cfg.domain;
-          root_url = "http://${cfg.domain}:${toString cfg.port}/";
+          root_url = cfg.rootUrl;
+          enforce_domain = true;
         };
 
         security = {
           admin_user = "admin";
           admin_password = "admin";
+        };
+
+        auth = {
+          oauth_allow_insecure_email_lookup = true;
         };
 
         "auth.anonymous" = {
