@@ -3,7 +3,7 @@ keys:
   - &age_atlas age1dypg22w5fnhvxjwqqqnye3aqnx328av6ngqfgjwuf9pv5vydhycsge04ez
   - &age_atlas_container age1zjzfg3ukj4p6vvmzp54fkt4p5x6nmp7x0gahwn6qkj6ne483t9eqdpkh97
 creation_rules:
-  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+  - path_regex: ^secrets(/[^/]+){0,2}\.(yaml|json|env|ini)$
     key_groups:
       - age:
           - *age_rifqoi
