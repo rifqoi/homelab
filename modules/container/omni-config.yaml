@@ -1,0 +1,119 @@
+# Omni Configuration
+# Based on: https://github.com/siderolabs/omni/blob/main/internal/pkg/config/schema.json
+
+account:
+  id: "58a27371-66d0-443b-ab3c-2c1d01b6f946"
+  name: "omni"
+  userPilot:
+    appToken: ""
+services:
+  api:
+    endpoint: "0.0.0.0:443"
+    advertisedURL: "https://omni.rifqoi.com"
+    certFile: "/var/lib/acme/omni.rifqoi.com/cert.pem"
+    keyFile: "/var/lib/acme/omni.rifqoi.com/key.pem"
+  devServerProxy:
+    endpoint: ""
+  metrics:
+    endpoint: "0.0.0.0:8092"
+  kubernetesProxy:
+    endpoint: "0.0.0.0:8100"
+    advertisedURL: "https://omni.rifqoi.com:8100/"
+    certFile: "/var/lib/acme/omni.rifqoi.com/cert.pem"
+    keyFile: "/var/lib/acme/omni.rifqoi.com/key.pem"
+  siderolink:
+    wireGuard:
+      endpoint: ""
+      advertisedEndpoint: "192.168.31.20:50180"
+    eventSinkPort: 8091
+  machineAPI:
+    endpoint: "0.0.0.0:8090"
+    advertisedURL: "https://omni.rifqoi.com:8090/"
+    certFile: "/var/lib/acme/omni.rifqoi.com/cert.pem"
+    keyFile: "/var/lib/acme/omni.rifqoi.com/key.pem"
+  localResourceService:
+    enabled: false
+  embeddedDiscoveryService:
+    enabled: false
+  loadBalancer:
+    minPort: 30000
+    maxPort: 32767
+  workloadProxy:
+    enabled: false
+auth:
+  auth0:
+    enabled: false
+  webauthn:
+    enabled: false
+    required: false
+  saml:
+    enabled: false
+    labelRules: {}
+    attributeRules: {}
+  oidc:
+    enabled: true
+    providerURL: "https://pocket.rifqoi.com"
+    clientID: "58a27371-66d0-443b-ab3c-2c1d01b6f946"
+    clientSecret: "esqVFFlVLac2j7tHsUWVU5zUo6BfM7me"
+    logoutURL: "https://pocket.rifqoi.com/api/oidc/end-session"
+    scopes:
+      - "openid"
+      - "profile"
+      - "email"
+  initialUsers:
+    - "alfurqon.rifqi@gmail.com"
+  keyPruner:
+    interval: "1h"
+  initialServiceAccount:
+    enabled: false
+logs:
+  machine:
+    storage:
+      enabled: true
+      sqliteTimeout: "5s"
+      cleanupInterval: "24h"
+      cleanupOlderThan: "720h" # 30 days
+  audit:
+    enabled: true
+    sqliteTimeout: "5s"
+  resourceLogger:
+    logLevel: "info"
+    types: []
+  stripe:
+    enabled: false
+storage:
+  default:
+    kind: "etcd"
+    etcd:
+      embedded: true
+      embeddedDBPath: "/_out/etcd"
+      privateKeySource: "file:///omni.asc"
+      runElections: false
+    boltdb:
+      path: ""
+  vault:
+    url: ""
+  secondary:
+    path: ""
+  sqlite:
+    path: "/var/lib/omni/db.sqlite3"
+etcdBackup:
+  s3Enabled: false
+  tickInterval: "5m"
+  minInterval: "1h"
+  maxInterval: "24h"
+registries:
+  talos: "ghcr.io/siderolabs/talos"
+  kubernetes: "registry.k8s.io"
+  imageFactoryBaseURL: "https://factory.talos.dev"
+debug:
+  server:
+    endpoint: ""
+  pprof:
+    endpoint: ""
+features:
+  enableTalosPreReleaseVersions: false
+  enableBreakGlassConfigs: false
+  enableConfigDataCompression: true
+  enableClusterImport: false
+  disableControllerRuntimeCache: false

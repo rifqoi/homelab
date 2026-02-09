@@ -24,11 +24,13 @@
     autoStart ? true,
     privateNetwork ? true,
     isDockerContainer ? false,
+    enableTun ? false,
   }: {
     inherit autoStart privateNetwork hostBridge localAddress;
     bindMounts = defaultBindMounts // extraBindMounts;
     config = configModule;
     specialArgs = {inherit sops-nix;};
+    enableTun = enableTun;
     extraFlags = pkgs.lib.mkIf isDockerContainer [
       # These extra flags are required for docker usage
       "--system-call-filter=keyctl"
@@ -36,6 +38,17 @@
     ];
   };
 in {
+  # For nginx user inside containers
+  users.users.nginx = {
+    isSystemUser = true;
+    group = "nginx";
+    uid = 10001;
+    extraGroups = ["acme"];
+  };
+  users.groups.nginx = {
+    gid = 10001;
+  };
+
   containers = {
     garage-s3 = mkContainer {
       hostBridge = "br31";
@@ -71,6 +84,12 @@ in {
       hostBridge = "br31";
       localAddress = "192.168.31.13/24";
       configModule = ./pocket-id.nix;
+      extraBindMounts = {
+        "/var/lib/pocket-id" = {
+          hostPath = "/var/lib/pocket-id";
+          isReadOnly = false;
+        };
+      };
     };
 
     omni = mkContainer {
@@ -78,6 +97,18 @@ in {
       localAddress = "192.168.31.20/24";
       configModule = ./omni.nix;
       isDockerContainer = true;
+      enableTun = true;
+
+      extraBindMounts = {
+        "/var/lib/omni" = {
+          hostPath = "/var/lib/omni";
+          isReadOnly = false;
+        };
+        "/var/run/libvirt/libvirt-sock" = {
+          hostPath = "/var/run/libvirt/libvirt-sock";
+          isReadOnly = false;
+        };
+      };
     };
   };
 }
