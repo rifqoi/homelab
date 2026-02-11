@@ -206,59 +206,59 @@
       };
     };
 
-    virtualization.incus = {
-      enable = true;
-      enableUI = true;
-      preseed = {
-        config = {
-          "core.https_address" = ":8999";
-        };
-        networks = [
-          {
-            name = "incusbr0";
-            type = "bridge";
-            description = "NAT bridge";
-            config = {
-              "ipv4.address" = "auto";
-              "ipv4.nat" = "true";
-              # "ipv6.address" = "auto";
-              # "ipv6.nat" = "true";
-            };
-          }
-        ];
-        profiles = [
-          {
-            name = "default";
-            description = "Default Incus Profile";
-            devices = {
-              eth0 = {
-                name = "eth0";
-                network = "incusbr0";
-                type = "nic";
-              };
-              root = {
-                path = "/";
-                pool = "default";
-                type = "disk";
-              };
-            };
-          }
-        ];
-        storage_pools = [
-          {
-            name = "default";
-            driver = "zfs";
-            config = {
-              source = "rpool/vm";
-            };
-          }
-        ];
-      };
-      networking = {
-        allowedTCPPorts = [53 67];
-        allowedUDPPorts = [53 67];
-      };
-    };
+    # virtualization.incus = {
+    #   enable = false;
+    #   enableUI = false;
+    #   preseed = {
+    #     config = {
+    #       "core.https_address" = ":8999";
+    #     };
+    #     networks = [
+    #       {
+    #         name = "incusbr0";
+    #         type = "bridge";
+    #         description = "NAT bridge";
+    #         config = {
+    #           "ipv4.address" = "auto";
+    #           "ipv4.nat" = "true";
+    #           # "ipv6.address" = "auto";
+    #           # "ipv6.nat" = "true";
+    #         };
+    #       }
+    #     ];
+    #     profiles = [
+    #       {
+    #         name = "default";
+    #         description = "Default Incus Profile";
+    #         devices = {
+    #           eth0 = {
+    #             name = "eth0";
+    #             network = "incusbr0";
+    #             type = "nic";
+    #           };
+    #           root = {
+    #             path = "/";
+    #             pool = "default";
+    #             type = "disk";
+    #           };
+    #         };
+    #       }
+    #     ];
+    #     storage_pools = [
+    #       {
+    #         name = "default";
+    #         driver = "zfs";
+    #         config = {
+    #           source = "rpool/vm";
+    #         };
+    #       }
+    #     ];
+    #   };
+    #   networking = {
+    #     allowedTCPPorts = [53 67];
+    #     allowedUDPPorts = [53 67];
+    #   };
+    # };
   };
 
   programs = {
@@ -275,7 +275,13 @@
     };
   };
 
-  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+    };
+  };
+
+  environment.defaultPackages = [pkgs.virt-manager];
 
   # microvm.vms = {
   #   my-microvm = {
