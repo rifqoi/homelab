@@ -1,0 +1,41 @@
+# omnictl cluster template sync -v -f cluster-template.yaml
+kind: Cluster
+name: talos-prod-cluster
+labels:
+  cluster-id: "1"
+kubernetes:
+  version: v1.35.0
+talos:
+  version: v1.12.0
+patches:
+  - name: disable-default-cni
+    inline:
+      cluster:
+        network:
+          cni:
+            name: none
+        proxy:
+          disabled: true
+  - name: dns-config
+    inline:
+      machine:
+        network:
+          nameservers:
+            - 192.168.31.11
+---
+kind: ControlPlane
+machineClass:
+  name: libvirt-controlplane
+  size: 1
+---
+kind: Workers
+name: workers
+machineClass:
+  name: libvirt-worker
+  size: 2
+patches:
+  - name: worker-labels
+    inline:
+      machine:
+        nodeLabels:
+          node-role.kubernetes.io/worker: ""
