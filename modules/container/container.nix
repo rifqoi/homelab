@@ -120,4 +120,15 @@ in {
       };
     };
   };
+  cockpit = mkContainer {
+    hostBridge = "br31";
+    localAddress = "192.168.31.21/24";
+    configModule = ./cockpit.nix;
+    extraBindMounts = {
+      "/var/run/libvirt/libvirt-sock" = {
+        hostPath = "/var/run/libvirt/libvirt-sock";
+        isReadOnly = false;
+      };
+    };
+  };
 }
