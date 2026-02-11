@@ -14,7 +14,7 @@
 in {
   imports = [./common.nix];
 
-  networking.firewall.allowedTCPPorts = [80 443 8090 8091 8100];
+  networking.firewall.allowedTCPPorts = [80 443 8090 8091 8100 50180];
 
   sops.secrets.omni_config_file = {
     sopsFile = ../../secrets/omni/omni.yaml;
@@ -48,7 +48,8 @@ in {
         "${config.sops.secrets.omni_config_file.path}:/omni-config.yaml:ro"
       ];
 
-      cmd = ["--config-path=/omni-config.yaml"];
+      # Change to ghcr.io because of docker rate limits
+      cmd = ["--config-path=/omni-config.yaml" "--kubernetes-registry=ghcr.io/siderolabs/kubelet"];
     };
 
     containers.omni-libvirt-provider = {

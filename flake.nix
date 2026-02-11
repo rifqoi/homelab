@@ -51,13 +51,18 @@
     });
 
     devShells = forAllSystems (system: let
-      pkgs = import nixpkgs {inherit system;};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
     in {
       default = pkgs.mkShell {
         packages = [
           pkgs.nixd
           pkgs.alejandra
           pkgs.deploy-rs
+          pkgs.omnictl
+          pkgs.talosctl
         ];
       };
     });

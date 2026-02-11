@@ -25,11 +25,13 @@
     privateNetwork ? true,
     isDockerContainer ? false,
     enableTun ? false,
+    forwardPorts ? [],
   }: {
     inherit autoStart privateNetwork hostBridge localAddress;
     bindMounts = defaultBindMounts // extraBindMounts;
     config = configModule;
     specialArgs = {inherit sops-nix;};
+    forwardPorts = forwardPorts;
     enableTun = enableTun;
     extraFlags = pkgs.lib.mkIf isDockerContainer [
       # These extra flags are required for docker usage
@@ -98,6 +100,13 @@ in {
       configModule = ./omni.nix;
       isDockerContainer = true;
       enableTun = true;
+      forwardPorts = [
+        {
+          containerPort = 8090;
+          hostPort = 8090;
+          protocol = "tcp";
+        }
+      ];
 
       extraBindMounts = {
         "/var/lib/omni" = {
