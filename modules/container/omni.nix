@@ -16,6 +16,9 @@ in {
 
   networking.firewall.allowedTCPPorts = [80 443 8090 8091 8100 50180];
 
+  # THIS IS REQUIRED FOR WIREGUARD SIDEROLINK
+  networking.firewall.allowedUDPPorts = [50180];
+
   sops.secrets.omni_config_file = {
     sopsFile = ../../secrets/omni/omni.yaml;
     key = "";
