@@ -8,7 +8,7 @@ spec:
     providerdata: |
       cores: 2
       memory: 4096 # MB
-      disk_size: 5368709120 # SHOULD BE IN BYTES
+      disk_size: 40
       storage_pool: "tank-vm"
       network_interfaces:
         - driver: bridge

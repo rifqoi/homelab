@@ -27,12 +27,18 @@ kind: ControlPlane
 machineClass:
   name: libvirt-controlplane
   size: 1
+systemExtensions:
+  - siderolabs/qemu-guest-agent
+  - siderolabs/util-linux-tools
 ---
 kind: Workers
 name: workers
 machineClass:
   name: libvirt-worker
   size: 3
+systemExtensions:
+  - siderolabs/qemu-guest-agent
+  - siderolabs/util-linux-tools
 patches:
   - name: worker-labels
     inline:
