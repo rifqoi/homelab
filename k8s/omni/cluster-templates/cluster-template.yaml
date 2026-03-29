@@ -30,6 +30,20 @@ machineClass:
 systemExtensions:
   - siderolabs/qemu-guest-agent
   - siderolabs/util-linux-tools
+patches:
+  - name: controlplane-static-ip
+    inline:
+      machine:
+        network:
+          interfaces:
+            - deviceSelector:
+                busPath: "0*"
+              addresses:
+                - 192.168.31.200/24
+              routes:
+                - network: 0.0.0.0/0
+                  gateway: 192.168.31.1
+              dhcp: false
 ---
 kind: Workers
 name: workers

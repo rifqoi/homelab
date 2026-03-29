@@ -8,8 +8,8 @@ spec:
     providerdata: |
       cores: 4
       memory: 6096 # MB
-      disk_size: 40
+      disk_size: 42949672960 # bytes
       storage_pool: "tank-vm"
       network_interfaces:
-        - driver: bridge
+        - driver: virtio
           network_name: "br31"

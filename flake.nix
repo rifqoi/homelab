@@ -9,6 +9,8 @@
     microvm.inputs.nixpkgs.follows = "nixpkgs";
     deploy-rs.url = "github:serokell/deploy-rs";
 
+    talos-pilot.url = "github:Handfish/talos-pilot";
+
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -23,6 +25,7 @@
     sops-nix,
     deploy-rs,
     microvm,
+    talos-pilot,
     dewclaw,
     ...
   }: let
@@ -53,6 +56,7 @@
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [talos-pilot.overlays.default];
         config.allowUnfree = true;
       };
     in {
@@ -63,6 +67,12 @@
           pkgs.deploy-rs
           pkgs.omnictl
           pkgs.talosctl
+          pkgs.talos-pilot
+          pkgs.kubectl
+          pkgs.cilium-cli
+          pkgs.hubble
+          pkgs.helmfile
+          pkgs.kubernetes-helm
         ];
       };
     });

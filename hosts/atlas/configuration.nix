@@ -277,6 +277,9 @@
 
   virtualisation.libvirtd = {
     enable = true;
+    extraConfig = ''
+      max_client_requests = 100
+    '';
     qemu = {
     };
   };
