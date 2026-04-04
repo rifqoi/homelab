@@ -1,0 +1,7 @@
+resources: # @schema required: true
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests: # @schema default: {"cpu":"100m","memory":"64Mi"}
+    cpu: 100m
+    memory: 64Mi
