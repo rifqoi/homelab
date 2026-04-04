@@ -2,6 +2,7 @@ keys:
   - &age_rifqoi age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
   - &age_atlas age1dypg22w5fnhvxjwqqqnye3aqnx328av6ngqfgjwuf9pv5vydhycsge04ez
   - &age_atlas_container age1zjzfg3ukj4p6vvmzp54fkt4p5x6nmp7x0gahwn6qkj6ne483t9eqdpkh97
+  - &age_k8s_production age1erhez0jk608f3xcq8z07q8znz5qm6txfpedntk72n5xtwjd9cq4q7s39rv
 creation_rules:
   - path_regex: ^secrets(/[^/]+){0,2}\.(yaml|json|env|ini)$
     key_groups:
@@ -9,3 +10,6 @@ creation_rules:
           - *age_rifqoi
           - *age_atlas
           - *age_atlas_container
+  - path_regex: ^secrets/k8s/production(/[^/]+){0,2}\.(yaml|json|env|ini)$
+    encrypted_regex: ^(data|stringData)$
+    age: *age_k8s_production

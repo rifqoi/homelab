@@ -76,6 +76,7 @@
           pkgs.fluxcd
           pkgs.sops
           pkgs.age
+          pkgs.flux9s
         ];
       };
     });
