@@ -73,6 +73,9 @@
           pkgs.hubble
           pkgs.helmfile
           pkgs.kubernetes-helm
+          pkgs.fluxcd
+          pkgs.sops
+          pkgs.age
         ];
       };
     });
