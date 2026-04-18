@@ -6,7 +6,7 @@ labels:
 kubernetes:
   version: v1.35.0
 talos:
-  version: v1.12.0
+  version: v1.12.1
 patches:
   - name: disable-default-cni
     inline:
@@ -53,9 +53,9 @@ machineClass:
 systemExtensions:
   - siderolabs/qemu-guest-agent
   - siderolabs/util-linux-tools
-patches:
-  - name: worker-labels
-    inline:
-      machine:
-        nodeLabels:
-          node-role.kubernetes.io/worker: ""
+# patches:
+#   - name: worker-labels
+#     inline:
+#       machine:
+#         nodeLabels:
+#           node-role.kubernetes.io/worker: ""
