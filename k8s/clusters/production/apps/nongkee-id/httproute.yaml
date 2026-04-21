@@ -4,7 +4,7 @@ metadata:
   name: nongkee-id
 spec:
   parentRefs:
-    - name: nongkee-id
+    - name: nongkee-id-gw
   hostnames:
     - nongkee.id
   rules:
