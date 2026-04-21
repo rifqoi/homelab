@@ -28,6 +28,12 @@ in {
 
   services.nginx.enable = true;
   services.nginx.virtualHosts = {
+    "_" = {
+      default = true;
+      locations."/" = {
+        return = "444"; # drop the connection
+      };
+    };
     "home.rifqoi.com" = {
       forceSSL = true;
       sslCertificate = "/var/lib/acme/home.rifqoi.com/cert.pem";
