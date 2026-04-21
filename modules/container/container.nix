@@ -51,6 +51,10 @@ in {
     gid = 10001;
   };
 
+  systemd.tmpfiles.rules = [
+    "d /var/lib/registry 0755 root root -"
+  ];
+
   containers = {
     garage-s3 = mkContainer {
       hostBridge = "br31";
@@ -89,6 +93,18 @@ in {
       extraBindMounts = {
         "/var/lib/pocket-id" = {
           hostPath = "/var/lib/pocket-id";
+          isReadOnly = false;
+        };
+      };
+    };
+
+    registry = mkContainer {
+      hostBridge = "br31";
+      localAddress = "192.168.31.14/24";
+      configModule = ./registry.nix;
+      extraBindMounts = {
+        "/var/lib/registry" = {
+          hostPath = "/var/lib/registry";
           isReadOnly = false;
         };
       };

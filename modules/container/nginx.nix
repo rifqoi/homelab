@@ -1,9 +1,4 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: let
+{...}: let
   nginxDefaultConfigs = ''
       proxy_set_header Host $host;
     client_max_body_size 0;
@@ -11,6 +6,11 @@
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
   '';
+  registryProxyConfigs =
+    nginxDefaultConfigs
+    + ''
+      proxy_request_buffering off;
+    '';
 in {
   imports = [./common.nix];
 
@@ -83,6 +83,20 @@ in {
         };
       };
     };
+
+    "registry.rifqoi.com" = {
+      forceSSL = true;
+
+      sslCertificate = "/var/lib/acme/registry.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/registry.rifqoi.com/key.pem";
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.14:5000";
+          extraConfig = registryProxyConfigs;
+        };
+      };
+    };
+
     "pocket.rifqoi.com" = {
       forceSSL = true;
       sslCertificate = "/var/lib/acme/pocket.rifqoi.com/cert.pem";

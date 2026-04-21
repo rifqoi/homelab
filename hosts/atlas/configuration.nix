@@ -100,6 +100,10 @@
     fsType = "zfs";
   };
 
+  # IMPORTANT: Only declare a ZFS mount here after its dataset already exists.
+  # `nixos-rebuild` does not create new datasets from disko declarations.
+  # Create dataset first (imperatively), verify with `zfs list`, then add mount.
+
   #  Bind this dataset to /var/lib/private/garage via a systemd mount unit.
   #  Because garage use DynamicUser=true and StateDirectory=garage
   #  the actual persistent data is stored in a private, highly

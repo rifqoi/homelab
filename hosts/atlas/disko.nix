@@ -130,6 +130,21 @@
             sync = "disabled";
           };
         };
+
+        registry = {
+          type = "zfs_fs";
+          mountpoint = "/var/lib/private/registry";
+          options = {
+            mountpoint = "legacy";
+            recordsize = "1M";
+            relatime = "off";
+            compression = "zstd";
+            xattr = "sa";
+            acltype = "posixacl";
+            primarycache = "metadata";
+            secondarycache = "none";
+          };
+        };
       };
     };
   };

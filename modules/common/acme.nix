@@ -1,18 +1,4 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: let
-  certs = [
-    "home.rifqoi.com"
-    "garage.rifqoi.com"
-    "garage-s3"
-    "grafana.rifqoi.com"
-    "pocket.rifqoi.com"
-    "omni.rifqoi.com"
-  ];
-in {
+{...}: {
   sops.secrets.cloudflare = {
     sopsFile = ../../secrets/cloudflare.env;
     key = "";
@@ -41,6 +27,7 @@ in {
         extraDomainNames = ["s3.garage.rifqoi.com"];
       };
       "grafana.rifqoi.com" = {};
+      "registry.rifqoi.com" = {};
       "pocket.rifqoi.com" = {};
       "omni.rifqoi.com" = {};
     };
