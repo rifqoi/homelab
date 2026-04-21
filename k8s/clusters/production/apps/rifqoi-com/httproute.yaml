@@ -6,7 +6,7 @@ spec:
   parentRefs:
     - name: rifqoi-com-gw
   hostnames:
-    - nongkee.id
+    - rifqoi.com
   rules:
     - backendRefs:
         - name: rifqoi-com
