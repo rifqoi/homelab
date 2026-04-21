@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rifqoi-com
+spec:
+  selector:
+    matchLabels:
+      app: rifqoi-com
+  template:
+    metadata:
+      labels:
+        app: rifqoi-com
+    spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
+      containers:
+        - name: rifqoi-com
+          image: registry.rifqoi.com/rifqoi-com:latest
+          ports:
+            - containerPort: 4321
