@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nongkee-id
+spec:
+  selector:
+    matchLabels:
+      app: nongkee-id
+  template:
+    metadata:
+      labels:
+        app: nongkee-id
+    spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
+      containers:
+        - name: nongkee-id
+          image: registry.rifqoi.com/nongkee-id:latest
+          ports:
+            - containerPort: 3000
