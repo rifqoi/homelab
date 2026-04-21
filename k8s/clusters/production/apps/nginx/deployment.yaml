@@ -11,6 +11,8 @@ spec:
       labels:
         app: nginx
     spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
       containers:
         - name: nginx
           image: nginx

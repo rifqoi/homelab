@@ -11,6 +11,8 @@ spec:
       labels:
         app: netshoot
     spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
       containers:
         - name: netshoot
           image: nicolaka/netshoot
