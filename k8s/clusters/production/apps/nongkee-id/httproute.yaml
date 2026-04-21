@@ -1,0 +1,13 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nongkee-id
+spec:
+  parentRefs:
+    - name: nongkee-id
+  hostnames:
+    - nongkee.id
+  rules:
+    - backendRefs:
+        - name: nongkee-id
+          port: 3000
