@@ -1,0 +1,6 @@
+keys:
+  - &age_rifqoi age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+creation_rules:
+  - path_regex: .*(yaml|json|env|ini|yml)
+    encrypted_regex: ^(data|stringData)$
+    age: *age_rifqoi
