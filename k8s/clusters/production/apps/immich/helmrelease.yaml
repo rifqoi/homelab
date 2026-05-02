@@ -26,7 +26,7 @@ spec:
         containers:
           main:
             image:
-              tag: v1.132.3 # pin your Immich version here
+              tag: v2.7.5 # pin your Immich version here
             env:
               TZ: "Asia/Jakarta"
               # Redis — points to bundled valkey
