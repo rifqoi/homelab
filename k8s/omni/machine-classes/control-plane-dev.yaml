@@ -1,17 +1,17 @@
 metadata:
   namespace: default
   type: MachineClasses.omni.sidero.dev
-  id: libvirt-controlplane
+  id: libvirt-controlplane-dev
 spec:
   autoprovision:
     providerid: libvirt
     providerdata: |
-      cores: 2
-      memory: 4096 # MB
+      cores: 1
+      memory: 2048 # MB
       disk_size: 40 # bytes, this didnt work, ill just resize it manually
                              # sudo zfs set volsize=50G rpool/vm/talos-prod-cluster-workers-hh95cw.qcow2
                              # sudo virsh blockresize  talos-prod-cluster-workers-gh6gvs   vda 50G
-      storage_pool: "vm-images"
+      storage_pool: "tank-vm"
       network_interfaces:
         - driver: virtio
           network_name: "br31"

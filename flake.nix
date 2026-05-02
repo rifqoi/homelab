@@ -66,6 +66,7 @@
           pkgs.alejandra
           pkgs.deploy-rs
           pkgs.omnictl
+          pkgs.qemu-utils
           pkgs.talosctl
           pkgs.talos-pilot
           pkgs.kubectl

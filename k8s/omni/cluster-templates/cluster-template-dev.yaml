@@ -1,8 +1,6 @@
 # omnictl cluster template sync -v -f cluster-template.yaml
 kind: Cluster
-name: talos-prod-cluster
-labels:
-  cluster-id: "1"
+name: talos-dev-cluster-2
 kubernetes:
   version: v1.35.0
 talos:
@@ -25,12 +23,11 @@ patches:
 ---
 kind: ControlPlane
 machineClass:
-  name: libvirt-controlplane
+  name: libvirt-controlplane-dev
   size: 1
 systemExtensions:
   - siderolabs/qemu-guest-agent
   - siderolabs/util-linux-tools
-  - siderolabs/iscsi-tools
 patches:
   - name: controlplane-static-ip
     inline:
@@ -40,7 +37,7 @@ patches:
             - deviceSelector:
                 busPath: "0*"
               addresses:
-                - 192.168.31.200/24
+                - 192.168.31.210/24
               routes:
                 - network: 0.0.0.0/0
                   gateway: 192.168.31.1
@@ -49,17 +46,14 @@ patches:
 kind: Workers
 name: workers
 machineClass:
-  name: libvirt-worker
-  size: 4
+  name: libvirt-worker-dev
+  size: 1
 systemExtensions:
   - siderolabs/qemu-guest-agent
   - siderolabs/util-linux-tools
-  - siderolabs/iscsi-tools
-patches:
-
-# - name: zfs-kernel-module
-#   inline:
-#     machine:
-#       kernel:
-#         modules:
-#           - name: zfs
+# patches:
+#   - name: worker-labels
+#     inline:
+#       machine:
+#         nodeLabels:
+#           node-role.kubernetes.io/worker: ""
