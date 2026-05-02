@@ -5,6 +5,11 @@ metadata:
   namespace: democratic-csi
 spec:
   interval: 1h
+  # valuesFrom:
+  #   - kind: Secret
+  #     name: csi-ssh-key
+  #     valuesKey: ssh-privatekey
+  #     targetPath: driver.config.sshConnection.privateKey
   chart:
     spec:
       chart: democratic-csi
@@ -44,7 +49,7 @@ spec:
           privateKey:
             valueFrom:
               secretKeyRef:
-                name: democratic-csi-ssh-key
+                name: csi-ssh-key
                 key: ssh-privatekey
         zfs:
           cli:
