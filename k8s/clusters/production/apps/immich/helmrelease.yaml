@@ -72,9 +72,10 @@ spec:
       ingress:
         main:
           enabled: true
+          labels:
+            announce: "true"
           annotations:
             nginx.ingress.kubernetes.io/proxy-body-size: "0"
-            announce: "true"
           className: cilium
           hosts:
             - host: immich.rifqoi.com
