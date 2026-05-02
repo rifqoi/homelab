@@ -40,12 +40,12 @@ spec:
               DB_USERNAME:
                 valueFrom:
                   secretKeyRef:
-                    name: immich-pg-app
+                    name: immich-pg-user
                     key: username
               DB_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: immich-pg-app
+                    name: immich-pg-user
                     key: password
     # ── Immich specific ────────────────────────────────────────────
     immich:
