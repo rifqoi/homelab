@@ -6,4 +6,5 @@ resources:
   - democratic-csi
   - cloudflare-gateway
   - cilium-l2-announcements
+  - cloudnative-pg
   - ./secrets.enc.yaml
