@@ -5,7 +5,7 @@
   ...
 }: let
   omniDataDir = "/var/lib/omni";
-  omniVersion = "v1.5.0";
+  omniVersion = "v1.6.1";
 
   libvirtConfig = pkgs.writeText "libvirt-config" ''
     libvirt:
@@ -29,6 +29,10 @@ in {
     sopsFile = ../../secrets/omni/libvirt-provider.env;
     key = "";
     format = "dotenv";
+  };
+
+  sops.secrets.registry_password = {
+    sopsFile = ../../secrets/secrets.yaml;
   };
 
   virtualisation.oci-containers = {
@@ -56,6 +60,11 @@ in {
     };
 
     containers.omni-libvirt-provider = {
+      # login = {
+      #   username = "rifqoi-registry";
+      #   passwordFile = config.sops.secrets.registry_password.path;
+      #   registry = "https://registry.rifqoi.com";
+      # };
       image = "ghcr.io/siderolabs/omni-infra-provider-libvirt";
       volumes = [
         "${libvirtConfig}:/config.yaml"
