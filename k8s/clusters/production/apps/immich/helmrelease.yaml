@@ -75,7 +75,7 @@ spec:
           annotations:
             nginx.ingress.kubernetes.io/proxy-body-size: "0"
             announce: "true"
-          ingressClassName: cilium
+          className: cilium
           hosts:
             - host: immich.rifqoi.com
               paths:
