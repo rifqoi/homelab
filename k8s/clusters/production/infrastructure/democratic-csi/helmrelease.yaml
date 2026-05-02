@@ -5,11 +5,11 @@ metadata:
   namespace: democratic-csi
 spec:
   interval: 1h
-  # valuesFrom:
-  #   - kind: Secret
-  #     name: csi-ssh-key
-  #     valuesKey: ssh-privatekey
-  #     targetPath: driver.config.sshConnection.privateKey
+  valuesFrom:
+    - kind: Secret
+      name: csi-ssh-key
+      valuesKey: ssh-privatekey
+      targetPath: driver.config.sshConnection.privateKey
   chart:
     spec:
       chart: democratic-csi
@@ -46,11 +46,11 @@ spec:
           host: "192.168.30.101"
           port: 22
           username: "csi-user"
-          privateKey:
-            valueFrom:
-              secretKeyRef:
-                name: csi-ssh-key
-                key: ssh-privatekey
+          # privateKey:
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: csi-ssh-key
+          #       key: ssh-privatekey
         zfs:
           cli:
             sudoEnabled: true
