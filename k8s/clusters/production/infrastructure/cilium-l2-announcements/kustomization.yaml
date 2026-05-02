@@ -2,3 +2,4 @@ kind: Kustomization
 resources:
   - ciliuml2announcementpolicy.yaml
   - ciliumloadbalancerippool.yaml
+  - ciliuml2announcementpolicy-ingress.yaml
