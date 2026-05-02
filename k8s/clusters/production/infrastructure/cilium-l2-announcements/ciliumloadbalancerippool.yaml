@@ -1,0 +1,7 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: libvirt-pool
+spec:
+  blocks:
+    - cidr: "192.168.31.200/29"

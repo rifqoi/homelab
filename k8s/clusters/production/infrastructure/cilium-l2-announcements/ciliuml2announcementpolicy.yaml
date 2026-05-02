@@ -1,0 +1,18 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: ingress-l2
+spec:
+  # which services to announce
+  serviceSelector:
+    matchLabels:
+      announce: "true" # or use matchExpressions for broader selection
+  # which nodes participate in announcement (all nodes if omitted)
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist # workers only, or remove this for all nodes
+  interfaces:
+    - ^eth0$ # regex — match your VM's NIC name (eth0, ens3, enp1s0…)
+  externalIPs: false
+  loadBalancerIPs: true

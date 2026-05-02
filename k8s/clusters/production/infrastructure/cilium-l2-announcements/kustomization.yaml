@@ -1,0 +1,4 @@
+kind: Kustomization
+resources:
+  - ciliuml2announcementpolicy.yaml
+  - ciliumloadbalancerippool.yaml

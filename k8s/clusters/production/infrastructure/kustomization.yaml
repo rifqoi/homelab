@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - namespaces
   - democratic-csi
-  - ./cloudflare-gateway
+  - cloudflare-gateway
+  - cilium-l2-announcements
   - ./secrets.enc.yaml
