@@ -7,7 +7,7 @@ spec:
   interval: 1h
   targetNamespace: immich
   dependsOn:
-    - name: cloudnative-pg # operator must be ready
+    - name: cloudnative-pg
   chartRef:
     kind: OCIRepository
     name: immich
@@ -20,63 +20,60 @@ spec:
       retries: 3
       remediateLastFailure: true
   values:
-    # ── Immich version ─────────────────────────────────────────────
-    # Must be set explicitly — chart does NOT auto-update with releases
-    image:
-      tag: v1.132.3 # pin to a specific Immich release
-    # ── Shared env (applied to ALL components) ─────────────────────
-    env:
-      TZ: "Asia/Jakarta"
-      # Database — point to CloudNativePG service
-      DB_HOSTNAME: immich-pg-rw.immich.svc
-      DB_PORT: "5432"
-      DB_DATABASE_NAME: immich
-      DB_USERNAME:
-        valueFrom:
-          secretKeyRef:
-            name: immich-pg-app
-            key: username
-      DB_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: immich-pg-app
-            key: password
-      # Redis — use bundled valkey (auto-configured)
-      REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
-      # Machine learning URL (auto-configured)
-      IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
-    # ── Immich-specific config ──────────────────────────────────────
+    # ── Shared across ALL components ───────────────────────────────
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              tag: v1.132.3 # pin your Immich version here
+            env:
+              TZ: "Asia/Jakarta"
+              # Redis — points to bundled valkey
+              REDIS_HOSTNAME: '{{ printf "%s-valkey" .Release.Name }}'
+              # Machine learning URL
+              IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+              # Database — CloudNativePG service + secret
+              DB_HOSTNAME: immich-pg-rw
+              DB_PORT: "5432"
+              DB_DATABASE_NAME: immich
+              DB_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: immich-pg-app
+                    key: username
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: immich-pg-app
+                    key: password
+    # ── Immich specific ────────────────────────────────────────────
     immich:
       persistence:
         library:
-          existingClaim: immich-library # the PVC you created above
+          existingClaim: immich-library
       metrics:
-        enabled: false # set true if Prometheus operator installed
-      configuration: {} # use Immich web UI for app config (recommended)
-    # ── Valkey (Redis-compatible, bundled) ──────────────────────────
+        enabled: false
+      configuration: {}
+    # ── Valkey (bundled Redis) ─────────────────────────────────────
     valkey:
       enabled: true
       persistence:
-        data: # named volume, not enabled/size
-          enabled: true
+        data:
           type: persistentVolumeClaim
           accessMode: ReadWriteOnce
           size: 1Gi
-    # ── Server ─────────────────────────────────────────────────────
+    # ── Server ────────────────────────────────────────────────────
     server:
-      enabled: true
-      resources:
-        requests:
-          memory: "512Mi"
-          cpu: "100m"
-        limits:
-          memory: "2Gi"
-          cpu: "2000m"
+      service:
+        main:
+          annotations:
+            announce: "true"
       ingress:
         main:
           enabled: true
           annotations:
-            nginx.ingress.kubernetes.io/proxy-body-size: "0" # required for large uploads
+            nginx.ingress.kubernetes.io/proxy-body-size: "0"
             announce: "true"
           hosts:
             - host: immich.rifqoi.com
@@ -86,20 +83,12 @@ spec:
                   # tls:
                   #   - secretName: immich-tls
                   #     hosts:
-                  #       - immich.rifqoi.com
-    # ── Machine Learning ───────────────────────────────────────────
+                  #       - immich.yourdomain.com
+    # ── Machine Learning ──────────────────────────────────────────
     machine-learning:
       enabled: true
-      resources:
-        requests:
-          memory: "1Gi"
-          cpu: "100m"
-        limits:
-          memory: "2Gi"
-          cpu: "2000m"
       persistence:
         cache:
-          enabled: true # persist ML models — avoids re-download on restart
-          size: 10Gi
           type: persistentVolumeClaim
           accessMode: ReadWriteOnce
+          size: 10Gi
