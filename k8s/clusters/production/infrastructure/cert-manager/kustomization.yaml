@@ -5,3 +5,4 @@ resources:
   - helmrelease.yaml
   - cloudflare-api-token.enc.yaml
   - cluster-issuer.yaml
+  - certificates/
