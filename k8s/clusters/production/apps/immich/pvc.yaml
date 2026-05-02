@@ -5,7 +5,7 @@ metadata:
   namespace: immich
 spec:
   accessModes:
-    - ReadWriteMany # required — shared between server + machine-learning pods
+    - ReadWriteOnce # required — shared between server + machine-learning pods (ReadWriteMany)
   resources:
     requests:
       storage: 100Gi
