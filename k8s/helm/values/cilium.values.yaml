@@ -25,3 +25,5 @@ l2announcements:
   enabled: true
 l2podAnnouncements:
   enabled: false # this is for pod IPs
+ingressController:
+  enabled: true
