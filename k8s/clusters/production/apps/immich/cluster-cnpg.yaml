@@ -6,9 +6,7 @@ metadata:
 spec:
   instances: 2
   # ── PostgreSQL version ─────────────────────────────────────────
-  # Immich requires pgvecto.rs extension for AI vector similarity search
-  # Use the official image with vectors extension bundled
-  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:pg16-latest
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
   # ── Storage ────────────────────────────────────────────────────
   storage:
     size: 20Gi
@@ -20,12 +18,19 @@ spec:
       database: immich
       owner: immich
       secret:
-        name: immich-pg-user # create this secret manually (see below)
+        name: immich-pg-user
+      dataChecksums: true
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
+      postInitApplicationSQL:
+        - ALTER USER immich WITH SUPERUSER;
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS cube;
+        - CREATE EXTENSION IF NOT EXISTS earthdistance;
   # ── PostgreSQL config ──────────────────────────────────────────
   postgresql:
     parameters:
-      # Required for pgvecto.rs
-      shared_preload_libraries: "vectors.so"
       # Memory tuning (adjust based on your node size)
       shared_buffers: "256MB"
       effective_cache_size: "768MB"
@@ -40,10 +45,10 @@ spec:
     # Allow immich user to connect
     pg_hba:
       - host immich immich all md5
+    shared_preload_libraries:
+      - "vchord.so" # VectorChord (replaces vectors.so)
   # ── Superuser ──────────────────────────────────────────────────
-  enableSuperuserAccess: true
-  superuserSecret:
-    name: immich-pg-superuser # create this secret manually (see below)
+  enableSuperuserAccess: false
   # ── Resources ──────────────────────────────────────────────────
   resources:
     requests:
