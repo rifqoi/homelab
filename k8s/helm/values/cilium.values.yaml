@@ -27,3 +27,4 @@ l2podAnnouncements:
   enabled: false # this is for pod IPs
 ingressController:
   enabled: true
+  loadBalancerMode: dedicated

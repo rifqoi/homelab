@@ -40,6 +40,7 @@
           "grafana.home.local" = "192.168.31.12";
           "rifqoi.com" = "192.168.31.30";
           "omni.rifqoi.com" = "192.168.31.20";
+          "immich.rifqoi.com" = "192.168.31.130";
           # "pocket.rifqoi.com" = "192.168.31.30";
           # "grafana.rifqoi.com" = "192.168.31.30";
           # "garage.rifqoi.com" = "192.168.31.30";
