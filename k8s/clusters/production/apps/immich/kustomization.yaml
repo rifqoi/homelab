@@ -6,3 +6,6 @@ resources:
   - immich-pg-superuser.enc.yaml
   - immich-pg-user.enc.yaml
   - cluster-cnpg.yaml
+  - pvc.yaml
+  - ocirepository.yaml
+  - helmrelease.yaml
