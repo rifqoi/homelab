@@ -86,6 +86,9 @@ spec:
                   #       - immich.yourdomain.com
     # ── Machine Learning ──────────────────────────────────────────
     machine-learning:
+      controllers:
+        main:
+          replicas: 1
       enabled: true
       persistence:
         cache:
