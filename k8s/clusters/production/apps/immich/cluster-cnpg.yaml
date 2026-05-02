@@ -9,7 +9,7 @@ spec:
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
   # ── Storage ────────────────────────────────────────────────────
   storage:
-    size: 20Gi
+    size: 5Gi
     storageClass: zfs-iscsi
   # ── Bootstrap ──────────────────────────────────────────────────
   # Creates the initial database and user for Immich
