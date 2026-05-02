@@ -16,6 +16,9 @@
 
     # NixOs container configuration
     ../../modules/container
+
+    # iSCSI
+    ../../modules/storage/iscsi.nix
   ];
 
   sops = {
