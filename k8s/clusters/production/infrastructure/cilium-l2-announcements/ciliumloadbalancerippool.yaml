@@ -4,4 +4,4 @@ metadata:
   name: libvirt-pool
 spec:
   blocks:
-    - cidr: "192.168.31.200/29"
+    - cidr: "192.168.31.150/26"
