@@ -57,8 +57,11 @@ spec:
     valkey:
       enabled: true
       persistence:
-        enabled: true # persist job queues across restarts
-        size: 1Gi
+        data: # named volume, not enabled/size
+          enabled: true
+          type: persistentVolumeClaim
+          accessMode: ReadWriteOnce
+          size: 1Gi
     # ── Server ─────────────────────────────────────────────────────
     server:
       enabled: true
