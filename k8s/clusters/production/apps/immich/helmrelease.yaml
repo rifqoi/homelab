@@ -101,5 +101,5 @@ spec:
         cache:
           enabled: true # persist ML models — avoids re-download on restart
           size: 10Gi
-          type: pvc
+          type: persistentVolumeClaim
           accessMode: ReadWriteOnce
