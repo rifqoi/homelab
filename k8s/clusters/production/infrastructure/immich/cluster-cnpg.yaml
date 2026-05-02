@@ -1,0 +1,57 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-pg
+  namespace: immich
+spec:
+  instances: 2
+  # ── PostgreSQL version ─────────────────────────────────────────
+  # Immich requires pgvecto.rs extension for AI vector similarity search
+  # Use the official image with vectors extension bundled
+  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:pg16-latest
+  # ── Storage ────────────────────────────────────────────────────
+  storage:
+    size: 20Gi
+    storageClass: zfs-iscsi
+  # ── Bootstrap ──────────────────────────────────────────────────
+  # Creates the initial database and user for Immich
+  bootstrap:
+    initdb:
+      database: immich
+      owner: immich
+      secret:
+        name: immich-pg-user # create this secret manually (see below)
+  # ── PostgreSQL config ──────────────────────────────────────────
+  postgresql:
+    parameters:
+      # Required for pgvecto.rs
+      shared_preload_libraries: "vectors.so"
+      # Memory tuning (adjust based on your node size)
+      shared_buffers: "256MB"
+      effective_cache_size: "768MB"
+      work_mem: "16MB"
+      maintenance_work_mem: "64MB"
+      # Connection tuning
+      max_connections: "100"
+      # WAL settings
+      wal_level: "replica"
+      max_wal_size: "1GB"
+      min_wal_size: "80MB"
+    # Allow immich user to connect
+    pg_hba:
+      - host immich immich all md5
+  # ── Superuser ──────────────────────────────────────────────────
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: immich-pg-superuser # create this secret manually (see below)
+  # ── Resources ──────────────────────────────────────────────────
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  # ── Monitoring ─────────────────────────────────────────────────
+  monitoring:
+    enablePodMonitor: false # set true if Prometheus operator installed

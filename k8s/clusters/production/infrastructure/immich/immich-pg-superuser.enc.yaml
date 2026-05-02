@@ -1,0 +1,25 @@
+# immich-pg-superuser secret
+apiVersion: v1
+kind: Secret
+metadata:
+    name: immich-pg-superuser
+    namespace: immich
+type: kubernetes.io/basic-auth
+stringData:
+    username: ENC[AES256_GCM,data:m5kHO9hc5E8=,iv:7qhEhFpNtlmP7vtW8ILedZITResIRg9mcqdwdOIKaBE=,tag:c7JPim4Hj6AiE5vf/0lmAw==,type:str]
+    password: ENC[AES256_GCM,data:5cWplQjwdgiwu4qZ1b3+UjqiAA==,iv:zYnRxdqimxYosXAJBcfTapfvp7VrcssSwdAEs3KMIYg=,tag:7Amlj/HfQnBJv132M8AUow==,type:str]
+sops:
+    age:
+        - recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA1VEhVQ0tVakhOei85Zy9x
+            aTVZeTQzVWlxdWZVSzd6QVkySVRmaGtPb1dzCng4QWhrcURoeHlmUytGWmpZM0d5
+            OFI5d3lIVWNHeDNHcmRUQ0JaVVVjL0kKLS0tIEJyaWlTWnhlZkdBcE0zUFlIOVA3
+            RGZ4eXBMTFg2YS8wRVZ6ck1oaDAxcUUKMDXXN2fdUoJJuufGBEoPmN5IGb8yO+gK
+            VwSDbaXgTCp3uxzg34C6CplfzTEQrWNM7dDGqQlK0fTVnFSX2VHaKw==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-05-02T15:32:49Z"
+    mac: ENC[AES256_GCM,data:lIBSCYbdbuVRiJgzbiARQzQDn9GIU4cqDJZQ+AZxai3nA7EeZMKugyC+dtrlbpLp76EWe3OwnwBecoEzKUDvqf3uI5HEMo7bhGQzAyTFLrgK18FvP/fytHEUGwx/Dn4n7s21XEhGDt+z+nGVSTHlhjg8RPAhmhQwVnTMqJHagbY=,iv:xMz1+5rgqOuEeblBq2e95VLlNSLF+HCWZU/vdTV23Pc=,tag:tJPKsmM6vwkXXMxy3YPR9g==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.12.2
