@@ -24,15 +24,19 @@
       users = ["csi-user"];
       commands = [
         {
-          command = "${pkgs.zfs}/bin/zfs";
+          command = "/run/current-system/sw/bin/zfs";
           options = ["NOPASSWD"];
         }
         {
-          command = "${pkgs.zfs}/bin/zpool";
+          command = "/run/current-system/sw/bin/zpool";
           options = ["NOPASSWD"];
         }
         {
-          command = "${pkgs.targetcli}/bin/targetcli";
+          command = "/run/current-system/sw/bin/targetcli";
+          options = ["NOPASSWD"];
+        }
+        {
+          command = "/run/wrappers/bin/sudo";
           options = ["NOPASSWD"];
         }
       ];
@@ -44,7 +48,7 @@
 
   environment.systemPackages = with pkgs; [
     zfs
-    targetcli
+    targetcli-fb
   ];
 
   # Open iSCSI port
