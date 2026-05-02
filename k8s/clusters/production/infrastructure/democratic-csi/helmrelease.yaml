@@ -31,9 +31,9 @@ spec:
         allowVolumeExpansion: true
         parameters:
           fsType: ext4
-    volumeSnapshotClasses:
-      - name: zfs-iscsi-snapshot
-        deletionPolicy: Delete
+    # volumeSnapshotClasses:
+    #   - name: zfs-iscsi-snapshot
+    #     deletionPolicy: Delete
     driver:
       config:
         driver: zfs-generic-iscsi
