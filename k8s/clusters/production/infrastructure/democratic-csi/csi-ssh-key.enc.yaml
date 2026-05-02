@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: csi-ssh-key
+    namespace: democratic-csi
+data:
+    ssh-privatekey: ENC[AES256_GCM,data:WYSLaF4K4vpoR0kDGZCKVN+cKzBNnRXOMLpXMELPTPyFpVtga2xz00Rx45aVWGttTpM6pqlgSCwS6fDVJ3P4tNAZbdyCtJqTUT7aG0OGd8ZZPI9hFvZn5Yn/U6RNBEt5av0/iQ/jRrwdfdrOGZzeULU+RQ+vziYMPDa+lnB0Uwbs104dT6lO+Uc/y5fNFxtOtBd5X2RhzK2AYCai7ug6ap1SgB2VZeg6vZyW5nbHHTnxpynqoColJpC7en/KQR+wwHr7PXhD/279V/OHy9/seGcS2AtICcy9UpIs6KQ+lJTKT43M8VN1dTXjM6b6u/rnHkLFEQwMEJSrP4Tmqgi6SlzKpVVJ+9wVUcmQowtfsbec99D78KfliY7gyQlkNmwTuLO7o7t2GV6MLbo8v438OMjq4d0WsqqNaj057qVw+r7EZ78jQdpGcFepv2iy+MpCTiD1+1X5/jnC1c0IpcLi7bBreiZqjoBjSXrkY0wUSKKA0tAezdY6yFNOv4QhqYGr15P1XXR4rQbIjbyA0GUaAuBiFB8DwHcqKvYvomph5ymp2r2+e3HJwv93XGwqipOla1/YycvHsmsQqWqBc4GWVDdtL0gFoRWGrpdpvshGNwvp5q9+3Q/7RY0y77Hw4PDpBqi6cliUw36nhxHM/ITqTWMXnprnEUk7xL0FLN5MiXtQ2Dgvx44TviwnRFCZrCLji3clweU9H7v1dc3Gu01FrwtqDoE=,iv:ktCJMinznavE7m+7T1gNTfq+AYZiIH3KmyjgeekEMFA=,tag:pF33t8kXNR9n/UCXlyZvqg==,type:str]
+sops:
+    age:
+        - recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBZR3MraG05Ykp0S2wzMjll
+            TlpIaGEwMVljNFdmUlJHS2w1RkxTK215ZEdVClRxUEM5ZVE3clQ4UGY2YlMxTkJJ
+            MXhidVB6V201NnJkUkg0RHdiVVRRVTQKLS0tIExnbEFVYzY3SmJncXFodDV3dkJH
+            REhwdzlYQUxPd2xqSzFvU0o5UFVIWXMKssT/HiE/Z1Ejtf/3hd2Vv+PpaPJPYGIk
+            CoaV/nmrfRawtkUVjyZIf76VubbY9+tbqN4VbmeIQ8xNgviNxg2IEg==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-05-02T10:20:54Z"
+    mac: ENC[AES256_GCM,data:UmrdVGyeOt86kYPsTMjIR/MkJbY0pE9SYj4msT9jMVwTAMPwUoYp7ABMn+c40h5btIBrehL//Rq4FdY2I3Kl7mfrfUNAoWp8FhzLdlE1sgCUNYyC4ij1ysRtuACQ6MXKLWaA6lH+5Ju/BCLCx2aBp/bBQu1In2P/Niv+8PQBwfA=,iv:+kXHifNnvEM3fwPzKBNEQ1HpRe6lt/EimhL+b2J/kYw=,tag:JQtEdnJsn7HaWNDnqD7rhA==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.12.2
