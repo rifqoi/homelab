@@ -7,4 +7,5 @@ resources:
   - cloudflare-gateway
   - cilium-l2-announcements
   - cloudnative-pg
+  - cert-manager
   - ./secrets.enc.yaml
