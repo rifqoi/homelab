@@ -8,3 +8,4 @@ resources:
   - gateway.yaml
   - httproute.yaml
   - secrets.enc.yaml
+  - nongkee-be-pg-user-secrets.enc.yaml
