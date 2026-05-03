@@ -39,7 +39,7 @@ spec:
     # ── Ingress with TLS via cert-manager ───────────────────────────────────
     ingress:
       enabled: true
-      className: "cilium" # adjust to your ingress controller class
+      ingressClassName: "cilium" # adjust to your ingress controller class
       annotations:
         # cert-manager will issue/renew the certificate automatically
         cert-manager.io/cluster-issuer: "letsencrypt-prod" # or your issuer name
@@ -47,7 +47,7 @@ spec:
         - host: headlamp.rifqoi.com
           paths:
             - path: /
-              pathType: Prefix
+              type: Prefix
       tls:
         - secretName: rifqoi-com-tls # cert-manager will create/manage this
           hosts:
