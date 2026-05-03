@@ -31,7 +31,7 @@ spec:
     # ── Headlamp application config ─────────────────────────────────────────
     config:
       # Base URL must match what your IdP callback expects
-      baseURL: "https://headlamp.rifqoi.com"
+      baseURL: "/"
       oidc:
         # clientID and clientSecret are injected via valuesFrom above
         issuerURL: "https://headlamp.rifqoi.com" # replace with your IdP
