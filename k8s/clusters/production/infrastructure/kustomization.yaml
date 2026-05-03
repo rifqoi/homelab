@@ -8,4 +8,5 @@ resources:
   - cilium-l2-announcements
   - cloudnative-pg
   - cert-manager
+  - headlamp
   - ./secrets.enc.yaml
