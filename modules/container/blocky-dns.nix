@@ -24,8 +24,8 @@
       upstreams = {
         groups = {
           default = [
-            "https://one.one.one.one/dns-query" # Cloudflare DNS over HTTPS
-            "https://dns.google/dns-query" # Google DNS over HTTPS
+            "1.1.1.1" # Cloudflare DNS over HTTPS
+            "8.8.8.8" # Google DNS over HTTPS
           ];
         };
       };
@@ -41,6 +41,7 @@
           "rifqoi.com" = "192.168.31.30";
           "omni.rifqoi.com" = "192.168.31.20";
           "immich.rifqoi.com" = "192.168.31.130";
+          "headlamp.rifqoi.com" = "192.168.31.131";
           # "pocket.rifqoi.com" = "192.168.31.30";
           # "grafana.rifqoi.com" = "192.168.31.30";
           # "garage.rifqoi.com" = "192.168.31.30";

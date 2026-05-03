@@ -34,8 +34,8 @@ spec:
       baseURL: "/"
       oidc:
         # clientID and clientSecret are injected via valuesFrom above
-        issuerURL: "https://headlamp.rifqoi.com" # replace with your IdP
-        scopes: "openid,email,groups"
+        issuerURL: "https://pocket.rifqoi.com" # replace with your IdP
+        scopes: "openid email groups"
     # ── Ingress with TLS via cert-manager ───────────────────────────────────
     ingress:
       enabled: true
@@ -43,6 +43,10 @@ spec:
       annotations:
         # cert-manager will issue/renew the certificate automatically
         cert-manager.io/cluster-issuer: "letsencrypt-prod" # or your issuer name
+        
+        # Forward https to the headlamp, by default cilium passthrough the tls
+        ingress.cilium.io/tls-passthrough: "false"
+        ingress.cilium.io/force-https: "true"
       hosts:
         - host: headlamp.rifqoi.com
           paths:
