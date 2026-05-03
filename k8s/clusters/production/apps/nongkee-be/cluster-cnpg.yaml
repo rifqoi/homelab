@@ -11,7 +11,7 @@ spec:
   bootstrap:
     initdb:
       database: nongkee
-      owner: nongkee-user
+      owner: nongkee-
       secret:
         name: nongkee-be-pg-user
       dataChecksums: true
