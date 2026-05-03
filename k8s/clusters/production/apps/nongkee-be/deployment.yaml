@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nongkee-be
+spec:
+  selector:
+    matchLabels:
+      app: nongkee-be
+  template:
+    metadata:
+      labels:
+        app: nongkee-be
+    spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
+      containers:
+        - name: nongkee-be
+          image: registry.rifqoi.com/nongkee-be:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: nongkee-be-secret
+          env:
+            - name: FIREBASE_SERVICE_ACCOUNT_JSON
+              value: /secrets/config.json
+            - name: DB_NAME
+              value: nongkee
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nongkee-be-pg-user
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nongkee-be-pg-user
+                  key: password
+            - name: DB_HOST
+              value: nongkee-be-pg-rw.nongkee.svc
+            - name: DB_MAX_CONN
+              value: "100"
+            - name: DB_PORT
+              value: "5432"
+            - name: PORT
+              value: "8080"
+            - name: ENVIRONMENT
+              value: development
+            - name: GOOGLE_PLAYSTORE_PACKAGE_NAME
+              value: "com.cmr.nongkee"
+            - name: GOOGLE_ACCEPTED_CURRENCIES
+              value: "ID,US"
+          volumeMounts:
+            - name: google-sa-config-json
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: google-sa-config-json
+          secret:
+            secretName: nongkee-be-secret
+            items:
+              - key: SERVICE_ACCOUNT_JSON
+                path: config.json

@@ -1,0 +1,17 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nongkee-be-pg
+spec:
+  instances: 1
+  # Bootstrap DB
+  bootstrap:
+    initdb:
+      database: nongkee
+      owner: nongkee
+      secret:
+        name: nongkee-be-pg-user
+      dataChecksums: true
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
