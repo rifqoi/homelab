@@ -22,6 +22,16 @@ patches:
         network:
           nameservers:
             - 192.168.31.11
+  - name: oidc-apiserver
+    inline:
+      cluster:
+        apiServer:
+          extraArgs:
+            oidc-issuer-url: "https://pocket.rifqoi.com"   
+            oidc-client-id: "38e8d760-55ba-4bed-beea-4118489685f2"
+            oidc-username-claim: "email"
+            oidc-groups-claim: "groups"
+            oidc-groups-prefix: "oidc:"
 ---
 kind: ControlPlane
 machineClass:
