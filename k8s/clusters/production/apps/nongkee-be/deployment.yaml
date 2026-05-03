@@ -22,8 +22,10 @@ spec:
             - secretRef:
                 name: nongkee-be-secret
           env:
-            - name: FIREBASE_SERVICE_ACCOUNT_JSON
+            - name: GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
               value: /secrets/config.json
+            - name: FIREBASE_SERVICE_ACCOUNT_JSON
+              value: /secrets/firebase.config.json
             - name: DB_NAME
               value: nongkee
             - name: DB_USERNAME
@@ -61,3 +63,5 @@ spec:
             items:
               - key: SERVICE_ACCOUNT_JSON
                 path: config.json
+              - key: FIREBASE_SERVICE_ACCOUNT_JSON
+                path: firebase.config.json
