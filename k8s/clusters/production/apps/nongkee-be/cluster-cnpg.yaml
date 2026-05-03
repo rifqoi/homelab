@@ -4,6 +4,9 @@ metadata:
   name: nongkee-be-pg
 spec:
   instances: 1
+  storage:
+    size: 5Gi
+    storageClass: zfs-iscsi
   # Bootstrap DB
   bootstrap:
     initdb:
@@ -15,3 +18,13 @@ spec:
       encoding: UTF8
       localeCollate: C
       localeCType: C
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "150m"
+    limits:
+      memory: "1Gi"
+      cpu: "300m"
+  # ── Monitoring ─────────────────────────────────────────────────
+  monitoring:
+    enablePodMonitor: false # set true if Prometheus operator installed
