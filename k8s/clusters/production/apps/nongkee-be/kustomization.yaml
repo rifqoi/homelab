@@ -7,3 +7,4 @@ resources:
   - service.yaml
   - gateway.yaml
   - httproute.yaml
+  - secrets.enc.yaml
