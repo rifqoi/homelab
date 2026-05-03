@@ -25,6 +25,7 @@ spec:
       main:
         containers:
           main:
+            replicas: 1
             image:
               tag: v2.7.5 # pin your Immich version here
             env:
