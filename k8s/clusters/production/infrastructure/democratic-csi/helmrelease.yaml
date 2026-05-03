@@ -31,7 +31,7 @@ spec:
     storageClasses:
       - name: zfs-iscsi
         defaultClass: true
-        reclaimPolicy: Delete
+        reclaimPolicy: Retain
         volumeBindingMode: Immediate
         allowVolumeExpansion: true
         parameters:
