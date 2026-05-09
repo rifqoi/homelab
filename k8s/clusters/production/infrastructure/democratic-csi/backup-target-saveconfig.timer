@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly backup of /etc/target/saveconfig.json
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -51,6 +51,16 @@
       openwrt = pkgs.callPackage dewclaw {
         configuration = ./hosts/openwrt/configuration.nix;
       };
+
+      fix-iscsi-target = pkgs.writeShellScriptBin "fix-iscsi-target" ''
+        exec bash "./k8s/clusters/production/infrastructure/democratic-csi/fix-iscsi-target.sh" "$@"
+      '';
+      find-orphaned-pvcs = pkgs.writeShellScriptBin "find-orphaned-pvcs" ''
+        exec bash "./k8s/clusters/production/infrastructure/democratic-csi/find-orphaned-pvcs.sh" "$@"
+      '';
+      restore-orphaned-pvcs = pkgs.writeShellScriptBin "restore-orphaned-pvcs" ''
+        exec bash "./k8s/clusters/production/infrastructure/democratic-csi/restore-orphaned-pvcs.sh" "$@"
+      '';
     });
 
     devShells = forAllSystems (system: let
@@ -103,13 +113,18 @@
     in
       buildApps
       // {
-        # Add custom apps here
-        # example = {
-        #   type = "app";
-        #   program = toString (pkgs.writeShellScript "example" ''
-        #     echo "Hello from custom app"
-        #   '');
-        # };
+        fix-iscsi-target = {
+          type = "app";
+          program = "${self.packages.${system}.fix-iscsi-target}/bin/fix-iscsi-target";
+        };
+        find-orphaned-pvcs = {
+          type = "app";
+          program = "${self.packages.${system}.find-orphaned-pvcs}/bin/find-orphaned-pvcs";
+        };
+        restore-orphaned-pvcs = {
+          type = "app";
+          program = "${self.packages.${system}.restore-orphaned-pvcs}/bin/restore-orphaned-pvcs";
+        };
       });
 
     nixosConfigurations = {
