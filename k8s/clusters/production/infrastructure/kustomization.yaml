@@ -9,4 +9,5 @@ resources:
   - cloudnative-pg
   - cert-manager
   - headlamp
+  - external-dns
   - ./secrets.enc.yaml
