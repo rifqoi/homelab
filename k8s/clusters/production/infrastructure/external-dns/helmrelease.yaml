@@ -40,11 +40,11 @@ spec:
           - name: PROVIDER_OPENWRT_LUCIRPC_HOSTNAME
             value: "192.168.31.1"
           - name: PROVIDER_OPENWRT_LUCIRPC_PORT
-            value: "443"
+            value: "80"
           - name: PROVIDER_OPENWRT_LUCIRPC_SSL
-            value: "true"
+            value: "false"
           - name: PROVIDER_OPENWRT_LUCIRPC_INSECURE_SKIP_VERIFY
-            value: "true"
+            value: "false"
           - name: PROVIDER_OPENWRT_LUCIRPC_RPC_ID
             value: "1"
           - name: PROVIDER_OPENWRT_LUCIRPC_TIMEOUT
