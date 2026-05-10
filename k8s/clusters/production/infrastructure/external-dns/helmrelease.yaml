@@ -20,56 +20,56 @@ spec:
     policy: upsert-only
     provider:
       name: webhook
-    webhook:
-      image:
-        repository: renanqts/external-dns-openwrt-webhook
-        tag: v0.1.0
-      livenessProbe:
-        httpGet:
-          path: /ping
-          port: 8888
-        initialDelaySeconds: 10
-        timeoutSeconds: 5
-      readinessProbe:
-        httpGet:
-          path: /ping
-          port: 8888
-        initialDelaySeconds: 10
-        timeoutSeconds: 5
-      env:
-        - name: PROVIDER_OPENWRT_LUCIRPC_HOSTNAME
-          value: "192.168.1.1"
-        - name: PROVIDER_OPENWRT_LUCIRPC_PORT
-          value: "443"
-        - name: PROVIDER_OPENWRT_LUCIRPC_SSL
-          value: "true"
-        - name: PROVIDER_OPENWRT_LUCIRPC_INSECURE_SKIP_VERIFY
-          value: "true"
-        - name: PROVIDER_OPENWRT_LUCIRPC_RPC_ID
-          value: "1"
-        - name: PROVIDER_OPENWRT_LUCIRPC_TIMEOUT
-          value: "15"
-        - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: openwrt-credentials
-              key: username
-        - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: openwrt-credentials
-              key: password
-        - name: SHUTDOWN_TIMEOUT_SECONDS
-          value: "5"
-        - name: LOG_LEVEL
-          value: info
-        - name: LOG_ENCODING
-          value: json
-        - name: ROUTER_HEALTHCHECK_INTERVAL
-          value: /ping
-        - name: ROUTER_HEALTHCHECK_PORT
-          value: "8888"
-        - name: ROUTER_GIN_RELEASE_MODE
-          value: "true"
-        - name: LOG_STACK_TRACE
-          value: "false"
+      webhook:
+        image:
+          repository: renanqts/external-dns-openwrt-webhook
+          tag: v0.1.0
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8888
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        env:
+          - name: PROVIDER_OPENWRT_LUCIRPC_HOSTNAME
+            value: "192.168.1.1"
+          - name: PROVIDER_OPENWRT_LUCIRPC_PORT
+            value: "443"
+          - name: PROVIDER_OPENWRT_LUCIRPC_SSL
+            value: "true"
+          - name: PROVIDER_OPENWRT_LUCIRPC_INSECURE_SKIP_VERIFY
+            value: "true"
+          - name: PROVIDER_OPENWRT_LUCIRPC_RPC_ID
+            value: "1"
+          - name: PROVIDER_OPENWRT_LUCIRPC_TIMEOUT
+            value: "15"
+          - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: openwrt-credentials
+                key: username
+          - name: PROVIDER_OPENWRT_LUCIRPC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: openwrt-credentials
+                key: password
+          - name: SHUTDOWN_TIMEOUT_SECONDS
+            value: "5"
+          - name: LOG_LEVEL
+            value: info
+          - name: LOG_ENCODING
+            value: json
+          - name: ROUTER_HEALTHCHECK_INTERVAL
+            value: /ping
+          - name: ROUTER_HEALTHCHECK_PORT
+            value: "8888"
+          - name: ROUTER_GIN_RELEASE_MODE
+            value: "true"
+          - name: LOG_STACK_TRACE
+            value: "false"
