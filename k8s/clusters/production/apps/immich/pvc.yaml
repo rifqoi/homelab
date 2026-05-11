@@ -8,5 +8,5 @@ spec:
     - ReadWriteOnce # required — shared between server + machine-learning pods (ReadWriteMany)
   resources:
     requests:
-      storage: 100Gi
+      storage: 150Gi
   storageClass: zfs-iscsi
