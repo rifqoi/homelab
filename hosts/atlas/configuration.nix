@@ -127,7 +127,7 @@
 
   networking = {
     useDHCP = false;
-    nameservers = ["192.168.31.11" "1.1.1.1" "8.8.8.8"];
+    nameservers = ["192.168.30.1"];
 
     firewall = {
       enable = true;

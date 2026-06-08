@@ -57,7 +57,24 @@
       dnsRecords = [
         {
           name = "grafana.rifqoi.com";
-          ip = "192.168.31.12";
+          ip = "192.168.31.30";
+        }
+      ];
+    };
+    garage-s3 = {
+      hostBridge = "br31";
+      localAddress = "192.168.31.10/24";
+      configModule = ./garage-s3.nix;
+      extraBindMounts = {
+        "/var/lib/garage" = {
+          hostPath = "/var/lib/private/garage";
+          isReadOnly = false;
+        };
+      };
+      dnsRecords = [
+        {
+          name = "garage.rifqoi.com";
+          ip = "192.168.31.30";
         }
       ];
     };
@@ -79,7 +96,7 @@
       dnsRecords = [
         {
           name = "pocket.rifqoi.com";
-          ip = "192.168.31.13";
+          ip = "192.168.31.30";
         }
       ];
     };
@@ -96,7 +113,7 @@
       dnsRecords = [
         {
           name = "registry.rifqoi.com";
-          ip = "192.168.31.14";
+          ip = "192.168.31.30";
         }
       ];
     };
