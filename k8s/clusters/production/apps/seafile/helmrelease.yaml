@@ -1,0 +1,73 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: seafile
+  namespace: flux-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: ce
+      version: "13.0"
+      sourceRef:
+        kind: HelmRepository
+        name: seafile
+        namespace: seafile
+      interval: 12h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  rollback:
+    cleanupOnFail: true
+  valuesFrom:
+    - kind: Secret
+      name: seafile-secret
+      optional: false
+  values:
+    seafile:
+      configs:
+        timezone: "Asia/Jakarta"
+        seafileHostname: seafile.rifqoi.com
+        seafileAdminEmail: alfurqon.rifqi@gmail.com
+        seafileDataVolume:
+          storageClassName: zfs-iscsi
+          storage: 100Gi
+        db:
+          host: mysql # in-cluster MySQL service
+          port: 3306
+          dbName: seafile_db
+          userPassword:
+            secretName: seafile-secret
+            secretKey: SEAFILE_MYSQL_DB_PASSWORD
+        jwtPrivateKey:
+          secretName: seafile-secret
+          secretKey: JWT_PRIVATE_KEY
+        init:
+          adminPassword:
+            secretName: seafile-secret
+            secretKey: INIT_SEAFILE_ADMIN_PASSWORD
+          dbRootPassword:
+            secretName: seafile-secret
+            secretKey: INIT_SEAFILE_MYSQL_ROOT_PASSWORD
+        redis:
+          host: redis # in-cluster Redis service
+          port: 6379
+          password:
+            secretName: seafile-secret
+            secretKey: REDIS_PASSWORD
+      service:
+        type: LoadBalancer
+        port: 80
+# Uncomment to use Ingress instead of LoadBalancer:
+ingress:
+  enabled: true
+  className: nginx
+  host: seafile.rifqoi.com
+  tls:
+    - hosts:
+        - seafile.rifqoi.com
+      secretName: seafile-tls
