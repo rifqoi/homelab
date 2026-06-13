@@ -18,7 +18,7 @@ spec:
         kind: HelmRepository
         name: democratic-csi
         namespace: democratic-csi
-      interval: 24h
+      interval: 10h
   install:
     remediation:
       retries: 3
