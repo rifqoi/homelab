@@ -291,6 +291,11 @@
     };
   };
 
+  # Kernel Same-page Merging: dedupe identical memory pages across the
+  # near-identical Talos guest VMs to reclaim host RAM (host runs ~28GiB of
+  # guests on 31GiB; KSM typically recovers several GiB of shared pages).
+  hardware.ksm.enable = true;
+
   environment.defaultPackages = [pkgs.virt-manager];
 
   # microvm.vms = {
