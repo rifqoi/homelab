@@ -296,6 +296,10 @@
   # guests on 31GiB; KSM typically recovers several GiB of shared pages).
   hardware.ksm.enable = true;
 
+  # Trust rifqoi as a nix user so this host can accept build derivations
+  # offloaded from the WSL workstation (nix remote builder / distributed builds).
+  nix.settings.trusted-users = ["root" "rifqoi"];
+
   environment.defaultPackages = [pkgs.virt-manager];
 
   # microvm.vms = {
