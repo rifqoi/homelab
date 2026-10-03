@@ -71,6 +71,27 @@ in {
     wants = ["network-online.target"];
   };
 
+  # Omni creates libvirt domains dynamically, so their names cannot be
+  # declared ahead of time. Ensure every Talos domain is persistent across a
+  # host reboot and start it only after the iSCSI targets are available.
+  systemd.services.omni-libvirt-vm-autostart = {
+    description = "Enable autostart and start Omni Talos virtual machines";
+    after = ["iscsi-target.service" "libvirtd.service"];
+    requires = ["iscsi-target.service" "libvirtd.service"];
+    wantedBy = ["multi-user.target"];
+    path = [pkgs.libvirt pkgs.gnugrep];
+    script = ''
+      while IFS= read -r domain; do
+        [ -n "$domain" ] || continue
+        virsh autostart "$domain"
+        if [ "$(virsh domstate "$domain")" != "running" ]; then
+          virsh start "$domain"
+        fi
+      done < <(virsh list --all --name | grep '^talos-' || true)
+    '';
+    serviceConfig.Type = "oneshot";
+  };
+
   # Run once at startup to restore saveconfig.json from latest backup when missing/empty/{}
   systemd.services.restore-target-saveconfig = {
     description = "Restore /etc/target/saveconfig.json from latest backup when needed";
@@ -93,7 +114,6 @@ in {
       Type = "oneshot";
       ExecStart = "${backupSaveconfig}/bin/backup-saveconfig";
     };
-    wantedBy = ["multi-user.target"];
   };
 
   systemd.timers.backup-target-saveconfig = {

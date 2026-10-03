@@ -24,7 +24,9 @@ if [ "$needs_restore" -eq 0 ]; then
   exit 0
 fi
 
-latest=$(ls -1t "$BACKUP_DIR"/saveconfig.*.json 2>/dev/null | head -n1 || true)
+# Filenames contain sortable UTC timestamps. This remains deterministic even
+# when older backups have identical mtimes from the previous cp -p behavior.
+latest=$(find "$BACKUP_DIR" -maxdepth 1 -type f -name 'saveconfig.*.json' -print 2>/dev/null | sort -r | head -n1 || true)
 if [ -z "$latest" ]; then
   echo "[restore-saveconfig] No backups found in $BACKUP_DIR"
   exit 0

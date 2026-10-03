@@ -25,12 +25,15 @@ if [ -z "$content" ] || [ "$content" = "{}" ]; then
   exit 0
 fi
 
-cp -p "$SAVEFILE" "$BACKUP_DIR/saveconfig.${TIMESTAMP}.json"
+cp "$SAVEFILE" "$BACKUP_DIR/saveconfig.${TIMESTAMP}.json"
 echo "[backup-saveconfig] saved $SAVEFILE -> $BACKUP_DIR/saveconfig.${TIMESTAMP}.json"
 
-# Keep last $MAX_KEEP backups
-if ls -1t "$BACKUP_DIR"/saveconfig.*.json >/dev/null 2>&1; then
-  ls -1t "$BACKUP_DIR"/saveconfig.*.json | tail -n +$((MAX_KEEP+1)) | xargs -r rm -f
+# Filenames contain sortable UTC timestamps; do not depend on copied mtimes.
+if compgen -G "$BACKUP_DIR/saveconfig.*.json" >/dev/null; then
+  find "$BACKUP_DIR" -maxdepth 1 -type f -name 'saveconfig.*.json' -print \
+    | sort -r \
+    | tail -n +$((MAX_KEEP+1)) \
+    | xargs -r rm -f
 fi
 
 exit 0

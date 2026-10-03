@@ -9,7 +9,7 @@ spec:
   # ── Storage ────────────────────────────────────────────────────
   storage:
     size: 10Gi
-    storageClass: zfs-iscsi
+    storageClass: zfs-iscsi-retain
   # ── Bootstrap ──────────────────────────────────────────────────
   # Creates the initial database and user for n8n
   bootstrap:

@@ -10,7 +10,7 @@ spec:
   # ── Storage ────────────────────────────────────────────────────
   storage:
     size: 20Gi
-    storageClass: zfs-iscsi
+    storageClass: zfs-iscsi-retain
   # ── Bootstrap ──────────────────────────────────────────────────
   # Creates the initial database and user for Immich
   bootstrap:

@@ -29,9 +29,9 @@ spec:
     csiDriver:
       name: "org.democratic-csi.zfs-generic-iscsi"
     storageClasses:
-      - name: zfs-iscsi
+      - name: zfs-iscsi-retain
         defaultClass: true
-        reclaimPolicy: Delete
+        reclaimPolicy: Retain
         volumeBindingMode: Immediate
         allowVolumeExpansion: true
         parameters:
