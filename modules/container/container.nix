@@ -270,6 +270,7 @@ in {
   systemd.paths.trigger-openwrt-upsert = {
     description = "Watch for system configuration changes";
     pathConfig = {
+      Unit = "openwrtDnsRecords.service";
       PathChanged = "/run/current-system";
     };
     wantedBy = ["multi-user.target"]; # The WATCHER starts on boot, not the script
