@@ -56,6 +56,8 @@
         mapping = {
           "home.local" = "192.168.31.11"; # Self-reference for home.lab queries
           "garage.rifqoi.com" = "192.168.31.1"; # Resolve the ExternalDNS-managed Garage UI record
+          "s3.garage.rifqoi.com" = "192.168.31.1"; # Resolve host-managed S3 records
+          "web.garage.rifqoi.com" = "192.168.31.1"; # Resolve host-managed raw-web records
         };
       };
 
