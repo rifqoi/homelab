@@ -167,6 +167,21 @@
     interfaces.br31.useDHCP = false;
   };
 
+  # Work around the onboard eno2 transmit-queue stall observed after load.
+  # Keep TSO disabled across reboots; GSO/GRO remain unchanged.
+  environment.systemPackages = [pkgs.ethtool];
+  systemd.services.disable-eno2-tso = {
+    description = "Disable eno2 TCP segmentation offload";
+    wantedBy = ["multi-user.target"];
+    wants = ["sys-subsystem-net-devices-eno2.device"];
+    after = ["sys-subsystem-net-devices-eno2.device"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.ethtool}/bin/ethtool -K eno2 tso off";
+      RemainAfterExit = true;
+    };
+  };
+
   features = {
     monitoring = {
       prometheus = {
