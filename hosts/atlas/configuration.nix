@@ -182,6 +182,57 @@
     };
   };
 
+  # Recover from a confirmed e1000e transmit-queue watchdog event without
+  # bouncing the network on every timer tick. The cooldown prevents the same
+  # journal entry from causing repeated network outages.
+  systemd.services.eno2-network-watchdog = {
+    description = "Recover eno2 after a transmit queue watchdog timeout";
+    after = ["network-setup.service"];
+    path = [pkgs.coreutils pkgs.ethtool pkgs.gnugrep pkgs.systemd pkgs.util-linux];
+    unitConfig.ConditionPathExists = "/sys/class/net/eno2";
+    script = ''
+      set -eu
+
+      state=/run/eno2-network-watchdog.last
+      now=$(date +%s)
+      last=0
+      if [ -r "$state" ]; then
+        last=$(cat "$state")
+        if ! printf '%s\n' "$last" | grep -Eq '^[0-9]+$'; then
+          last=0
+        fi
+      fi
+
+      # Do not repeat recovery more often than once every five minutes.
+      if [ "$((now - last))" -lt 300 ]; then
+        exit 0
+      fi
+
+      if ! journalctl -k --since "90 seconds ago" --no-pager -q \
+        | grep -Eiq 'NETDEV WATCHDOG:.*eno2.*(transmit queue|timed out)|e1000e.*(reset adapter|tx timeout)'; then
+        exit 0
+      fi
+
+      printf '%s\n' "$now" > "$state"
+      logger -t eno2-network-watchdog "e1000e transmit watchdog detected; restarting network-setup"
+      ethtool -K eno2 tso off || true
+      systemctl restart network-setup.service
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      TimeoutStartSec = 45;
+    };
+  };
+
+  systemd.timers.eno2-network-watchdog = {
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "1min";
+      Unit = "eno2-network-watchdog.service";
+    };
+  };
+
   features = {
     monitoring = {
       prometheus = {
