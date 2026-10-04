@@ -71,6 +71,40 @@
           isReadOnly = false;
         };
       };
+      dnsRecords = [
+        {
+          name = "s3.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "mac.s3.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "test.s3.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "terraform-bucket.s3.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "web.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "mac.web.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "test.web.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+        {
+          name = "terraform-bucket.web.garage.rifqoi.com";
+          ip = "192.168.31.30";
+        }
+      ];
     };
     nginx = {
       hostBridge = "br31";

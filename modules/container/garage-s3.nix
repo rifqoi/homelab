@@ -56,7 +56,7 @@
       s3_web = {
         bind_addr = "[::]:3902";
         add_host_to_metrics = true;
-        root_domain = ".web.garage";
+        root_domain = ".web.garage.rifqoi.com";
       };
       admin = {
         api_bind_addr = "0.0.0.0:3903";

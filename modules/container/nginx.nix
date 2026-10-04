@@ -55,17 +55,39 @@ in {
         };
       };
     };
-    # "*.s3.garage.rifqoi.com" = {
-    #   forceSSL = true;
-    #   sslCertificate = "/var/lib/acme/s3.garage.rifqoi.com/cert.pem";
-    #   sslCertificateKey = "/var/lib/acme/s3.garage.rifqoi.com/key.pem";
-    #   locations = {
-    #     "/" = {
-    #       proxyPass = "http://192.168.31.10:3900";
-    #       extraConfig = nginxDefaultConfigs;
-    #     };
-    #   };
-    # };
+    "*.s3.garage.rifqoi.com" = {
+      forceSSL = true;
+      sslCertificate = "/var/lib/acme/s3.garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/s3.garage.rifqoi.com/key.pem";
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.10:3900";
+          extraConfig = nginxDefaultConfigs;
+        };
+      };
+    };
+    "web.garage.rifqoi.com" = {
+      forceSSL = true;
+      sslCertificate = "/var/lib/acme/web.garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/web.garage.rifqoi.com/key.pem";
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.10:3902";
+          extraConfig = nginxDefaultConfigs;
+        };
+      };
+    };
+    "*.web.garage.rifqoi.com" = {
+      forceSSL = true;
+      sslCertificate = "/var/lib/acme/web.garage.rifqoi.com/cert.pem";
+      sslCertificateKey = "/var/lib/acme/web.garage.rifqoi.com/key.pem";
+      locations = {
+        "/" = {
+          proxyPass = "http://192.168.31.10:3902";
+          extraConfig = nginxDefaultConfigs;
+        };
+      };
+    };
     "grafana.rifqoi.com" = {
       forceSSL = true;
 

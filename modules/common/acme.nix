@@ -25,6 +25,10 @@
         domain = "*.s3.garage.rifqoi.com";
         extraDomainNames = ["s3.garage.rifqoi.com"];
       };
+      "web.garage.rifqoi.com" = {
+        domain = "*.web.garage.rifqoi.com";
+        extraDomainNames = ["web.garage.rifqoi.com"];
+      };
       "grafana.rifqoi.com" = {};
       "registry.rifqoi.com" = {};
       "pocket.rifqoi.com" = {};
