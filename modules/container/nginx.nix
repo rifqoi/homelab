@@ -43,17 +43,6 @@ in {
         # root = "/usr/share/nginx/html";
       };
     };
-    "garage.rifqoi.com" = {
-      forceSSL = true;
-      sslCertificate = "/var/lib/acme/garage.rifqoi.com/cert.pem";
-      sslCertificateKey = "/var/lib/acme/garage.rifqoi.com/key.pem";
-      locations = {
-        "/" = {
-          proxyPass = "http://192.168.31.10:3909";
-          extraConfig = nginxDefaultConfigs;
-        };
-      };
-    };
     "s3.garage.rifqoi.com" = {
       forceSSL = true;
 

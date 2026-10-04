@@ -8,7 +8,7 @@
   ];
 
   # Override/extend common configuration
-  networking.firewall.allowedTCPPorts = [22 3909 3900 3902 3901 3903];
+  networking.firewall.allowedTCPPorts = [22 3900 3902 3901 3903];
 
   # Garage-specific SOPS secrets
   sops.secrets = {
@@ -67,46 +67,9 @@
     };
   };
 
-  # Garage-specific packages
-  environment.systemPackages = [pkgs.garage-webui];
-
   systemd.services.garage.serviceConfig.LoadCredential = [
     "garage_rpc_secret:${config.sops.secrets.garage_rpc_secret.path}"
     "garage_metrics_token:${config.sops.secrets.garage_metrics_token.path}"
     "garage_admin_token:${config.sops.secrets.garage_admin_token.path}"
   ];
-
-  systemd.services.garage-ui = {
-    description = "Garage Web UI Service";
-    after = ["network.target" "garage.service"];
-    wants = ["garage.service"];
-    serviceConfig = {
-      ExecStart = let
-        startScript = pkgs.writeShellScript "garage-ui-start" ''
-          set -euo pipefail
-
-          # Read admin token from credentials and export it
-          if [ -f "$CREDENTIALS_DIRECTORY/garage_admin_token" ]; then
-            export API_ADMIN_KEY=$(cat "$CREDENTIALS_DIRECTORY/garage_admin_token")
-          else
-            echo "ERROR: garage_admin_token credential not found in $CREDENTIALS_DIRECTORY" >&2
-            exit 1
-          fi
-
-          # Start garage-webui
-          exec ${pkgs.garage-webui}/bin/garage-webui
-        '';
-      in "${startScript}";
-
-      Environment = ["PORT=3909" "CONFIG_PATH=/etc/garage.toml" "API_BASE_URL=http://127.0.0.1:3903"];
-      LoadCredential = [
-        "garage_rpc_secret:${config.sops.secrets.garage_rpc_secret.path}"
-        "garage_metrics_token:${config.sops.secrets.garage_metrics_token.path}"
-        "garage_admin_token:${config.sops.secrets.garage_admin_token.path}"
-      ];
-
-      Restart = "on-failure";
-    };
-    wantedBy = ["multi-user.target"];
-  };
 }

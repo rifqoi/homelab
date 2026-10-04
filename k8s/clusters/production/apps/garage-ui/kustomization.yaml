@@ -2,11 +2,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - nginx
-  - netshoot
-  - nongkee-id
-  - rifqoi-com
-  - immich
-  - nongkee-be
-  - n8n
-  - garage-ui
+  - garage-admin-token.enc.yaml
+  - certificate.yaml
+  - ocirepository.yaml
+  - helmrelease.yaml

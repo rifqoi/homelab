@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: garage-ui
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: oci://ghcr.io/noooste/charts/garage-ui
+  ref:
+    tag: 0.13.0

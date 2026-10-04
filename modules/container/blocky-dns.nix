@@ -44,7 +44,6 @@
           "registry.rifqoi.com" = "192.168.31.30";
           "pocket.rifqoi.com" = "192.168.31.30";
           "grafana.rifqoi.com" = "192.168.31.30";
-          "garage.rifqoi.com" = "192.168.31.30";
           "authelia.home.local" = "192.168.31.13";
           "nongkee.home.local" = "100.71.151.87";
 

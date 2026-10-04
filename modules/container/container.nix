@@ -71,12 +71,6 @@
           isReadOnly = false;
         };
       };
-      dnsRecords = [
-        {
-          name = "garage.rifqoi.com";
-          ip = "192.168.31.30";
-        }
-      ];
     };
     nginx = {
       hostBridge = "br31";

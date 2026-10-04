@@ -21,7 +21,6 @@
     };
     certs = {
       "home.rifqoi.com" = {};
-      "garage.rifqoi.com" = {};
       "s3.garage.rifqoi.com" = {
         domain = "*.s3.garage.rifqoi.com";
         extraDomainNames = ["s3.garage.rifqoi.com"];

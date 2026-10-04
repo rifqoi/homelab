@@ -14,18 +14,6 @@ in {
       description = "Package for Garage service";
     };
 
-    ui.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Enable Garage UI for managing media files";
-    };
-
-    ui.port = lib.mkOption {
-      type = lib.types.port;
-      default = 3909;
-      description = "Port for Garage UI";
-    };
-
     data_dir = lib.mkOption {
       type = lib.types.str;
       default = "/var/lib/garage/data";
@@ -78,8 +66,6 @@ in {
           "/run/credentials/garage.service/garage_admin_token";
       };
     };
-    environment.systemPackages = lib.mkIf cfg.ui.enable [pkgs.garage-webui];
-
     # Workaround to load secrets into the Garage service
     # Using LoadCredential to mount secrets from SOPS
     systemd.services.garage.serviceConfig.LoadCredential =
@@ -90,40 +76,5 @@ in {
       ++ (lib.optional (cfg.settings.admin ? admin_token_file)
         "garage_admin_token:${cfg.settings.admin.admin_token_file}");
 
-    systemd.services.garage-ui = lib.mkIf cfg.ui.enable {
-      description = "Garage Web UI Service";
-      after = ["network.target" "garage.service"];
-      wants = ["garage.service"];
-      serviceConfig = {
-        ExecStart = let
-          startScript = pkgs.writeShellScript "garage-ui-start" ''
-            set -euo pipefail
-
-            # Read admin token from credentials and export it
-            if [ -f "$CREDENTIALS_DIRECTORY/garage_admin_token" ]; then
-              export API_ADMIN_KEY=$(cat "$CREDENTIALS_DIRECTORY/garage_admin_token")
-            else
-              echo "ERROR: garage_admin_token credential not found in $CREDENTIALS_DIRECTORY" >&2
-              exit 1
-            fi
-
-            # Start garage-webui
-            exec ${pkgs.garage-webui}/bin/garage-webui
-          '';
-        in "${startScript}";
-        # Create environment file from credential
-
-        Environment = ["PORT=${toString cfg.ui.port}" "CONFIG_PATH=/etc/garage.toml" "API_BASE_URL=http://127.0.0.1:3903"];
-        LoadCredential =
-          (lib.optional (cfg.settings ? rpc_secret_file)
-            "garage_rpc_secret:${cfg.settings.rpc_secret_file}")
-          ++ (lib.optional (cfg.settings.admin ? metrics_token_file)
-            "garage_metrics_token:${cfg.settings.admin.metrics_token_file}")
-          ++ (lib.optional (cfg.settings.admin ? admin_token_file)
-            "garage_admin_token:${cfg.settings.admin.admin_token_file}");
-        Restart = "on-failure";
-      };
-      wantedBy = ["multi-user.target"];
-    };
   };
 }

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: garage-admin-token
+    namespace: garage-ui
+type: Opaque
+data:
+    admin-token: ENC[AES256_GCM,data:nzkbha4wDWE5PXwTYISJzXusIWkO7yTmdIoyZ7FuidHwPGBB91b/IffLkAaX5cxD/hSsum6LdQrAvJ7R,iv:P1DfkI10asA4n6+foX4TPa6gRcT+ATY0jR/OPJXMu3M=,tag:9n61R+gtUSpQVoH2k5ouPA==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBmeGgveWNNK2FzOURPemRI
+            dDVpOGRWQUZYdTB6UDdnSzJibVZyQWt6V3ljCmtjRXhiSnJDeFN1UC8zam9HaDl4
+            b1Jtam9GMjdOdlA3eHh3d3F0ZGMyYjgKLS0tIDRSWDg1OTd2Y3ljTXkvUzZsV1po
+            Qnc1WUlIT2hQNnRKZk1xeERZaU1NOVkK+0HdLhn5HA1MupKA1j7pq/pqrRkrSqnf
+            3NFDyON/zcxgXrMvHU3U/aH72dMyYYMWVbrcqIqJujZQAQlHkc4wPA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-04T14:38:32Z"
+    mac: ENC[AES256_GCM,data:eDlppQfkP3NLDI9nHCxr7IkkfVJ9Bc5tmSQBQrvgEowwl2jpTzi/vcTGLQs0CbSuA4tQESXPE6Czgm1a8nq9yaoHf29IqPdnZHwuCXydQzY8IapiABPdEW87GsZtXzJKHr9sj/AO1oKvgJ33Hmh5SmLvS45YVr342MEc0lKXNHM=,iv:e4TC9fZLz/PtGfgzTFn3Hg1b6v1QOPoZpG50pa2sO0E=,tag:ghM7aZjUMbsaMDuFCmh8Ng==,type:str]
+    version: 3.13.3
