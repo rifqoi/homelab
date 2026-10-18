@@ -6,3 +6,7 @@ resources:
   - helmrepository-grafana.yaml
   - helmrelease-prometheus-operator.yaml
   - helmrelease-grafana-operator.yaml
+  - prometheus.yaml
+  - scrapeconfig-nongkee-node.yaml
+  - scrapeconfig-nongkee-postgres.yaml
+  - scrapeconfig-nongkee.yaml
