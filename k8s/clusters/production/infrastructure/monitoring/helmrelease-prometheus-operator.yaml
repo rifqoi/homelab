@@ -55,5 +55,7 @@ spec:
       enabled: true
       admissionWebhooks:
         enabled: false
+      tls:
+        enabled: false
       serviceMonitor:
         enabled: false
