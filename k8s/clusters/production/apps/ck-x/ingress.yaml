@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ckx
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: ckx.rifqoi.com
+    ingress.cilium.io/force-https: "false"
+spec:
+  ingressClassName: cilium
+  rules:
+    - host: ckx.rifqoi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80

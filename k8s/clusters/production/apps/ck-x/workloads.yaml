@@ -1,0 +1,294 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-remote-desktop
+  labels:
+    app.kubernetes.io/name: ckx-remote-desktop
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-remote-desktop
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-remote-desktop
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
+      containers:
+        - name: remote-desktop
+          image: nishanb/ck-x-simulator-remote-desktop:latest
+          imagePullPolicy: Always
+          ports:
+            - name: vnc
+              containerPort: 5901
+            - name: web-vnc
+              containerPort: 6901
+          env:
+            - name: VNC_PW
+              value: bakku-the-wizard
+            - name: VNC_PASSWORD
+              value: bakku-the-wizard
+            - name: VNC_VIEW_ONLY
+              value: "false"
+            - name: VNC_RESOLUTION
+              value: 1280x800
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: web-vnc
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-webapp
+  labels:
+    app.kubernetes.io/name: ckx-webapp
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-webapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-webapp
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      containers:
+        - name: webapp
+          image: nishanb/ck-x-simulator-webapp:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: VNC_SERVICE_HOST
+              value: remote-desktop
+            - name: VNC_SERVICE_PORT
+              value: "6901"
+            - name: VNC_PASSWORD
+              value: bakku-the-wizard
+            - name: SSH_HOST
+              value: remote-terminal
+            - name: SSH_PORT
+              value: "22"
+            - name: SSH_USER
+              value: candidate
+            - name: SSH_PASSWORD
+              value: password
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-remote-terminal
+  labels:
+    app.kubernetes.io/name: ckx-remote-terminal
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-remote-terminal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-remote-terminal
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      containers:
+        - name: remote-terminal
+          image: nishanb/ck-x-simulator-remote-terminal:latest
+          imagePullPolicy: Always
+          ports:
+            - name: ssh
+              containerPort: 22
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            tcpSocket:
+              port: ssh
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-redis
+  labels:
+    app.kubernetes.io/name: ckx-redis
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-redis
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      containers:
+        - name: redis
+          image: redis:alpine
+          args: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - name: redis
+              containerPort: 6379
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-facilitator
+  labels:
+    app.kubernetes.io/name: ckx-facilitator
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-facilitator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-facilitator
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      containers:
+        - name: facilitator
+          image: nishanb/ck-x-simulator-facilitator:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: prod
+            - name: SSH_HOST
+              value: jumphost
+            - name: SSH_PORT
+              value: "22"
+            - name: SSH_USERNAME
+              value: candidate
+            - name: LOG_LEVEL
+              value: info
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: TRACK_METRICS
+              value: "true"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-nginx
+  labels:
+    app.kubernetes.io/name: ckx-nginx
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-nginx
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      containers:
+        - name: nginx
+          image: nishanb/ck-x-simulator-nginx:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12

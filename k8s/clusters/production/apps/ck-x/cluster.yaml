@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckx-cluster
+  labels:
+    app.kubernetes.io/name: ckx-cluster
+    app.kubernetes.io/part-of: ck-x
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ckx-cluster
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ckx-cluster
+        app.kubernetes.io/part-of: ck-x
+    spec:
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: kube-config
+          emptyDir: {}
+      containers:
+        - name: k8s-api-server
+          image: nishanb/ck-x-simulator-cluster:latest
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          ports:
+            - name: api
+              containerPort: 6443
+            - name: api-ssh
+              containerPort: 22
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "test -f /ready"]
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: api
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          volumeMounts:
+            - name: kube-config
+              mountPath: /home/candidate/.kube
+        - name: jumphost
+          image: nishanb/ck-x-simulator-jumphost:latest
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          command: ["/bin/bash", "-c"]
+          args:
+            - >-
+              sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config &&
+              service ssh start &&
+              dockerd &
+              tail -f /dev/null
+          ports:
+            - name: jumphost-ssh
+              containerPort: 2222
+          env:
+            - name: KUBECONFIG
+              value: /home/candidate/.kube/kubeconfig
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            tcpSocket:
+              port: jumphost-ssh
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          volumeMounts:
+            - name: kube-config
+              mountPath: /home/candidate/.kube

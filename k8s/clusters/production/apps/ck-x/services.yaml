@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-api-server
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-cluster
+  ports:
+    - name: api
+      port: 6443
+      targetPort: api
+    - name: ssh
+      port: 22
+      targetPort: api-ssh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jumphost
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-cluster
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: jumphost-ssh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-desktop
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-remote-desktop
+  ports:
+    - name: vnc
+      port: 5901
+      targetPort: vnc
+    - name: web-vnc
+      port: 6901
+      targetPort: web-vnc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-webapp
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: remote-terminal
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-remote-terminal
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: ssh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: facilitator
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-facilitator
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-nginx
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
