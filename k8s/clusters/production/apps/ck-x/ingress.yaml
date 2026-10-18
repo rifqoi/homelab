@@ -3,8 +3,10 @@ kind: Ingress
 metadata:
   name: ckx
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     external-dns.alpha.kubernetes.io/hostname: ckx.rifqoi.com
-    ingress.cilium.io/force-https: "false"
+    ingress.cilium.io/force-https: "true"
+    ingress.cilium.io/tls-passthrough: "false"
 spec:
   ingressClassName: cilium
   rules:
@@ -18,3 +20,7 @@ spec:
                 name: nginx
                 port:
                   number: 80
+  tls:
+    - secretName: rifqoi-com-tls
+      hosts:
+        - ckx.rifqoi.com

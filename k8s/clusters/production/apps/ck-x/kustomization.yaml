@@ -6,3 +6,4 @@ resources:
   - services.yaml
   - workloads.yaml
   - ingress.yaml
+  - certificate.yaml
