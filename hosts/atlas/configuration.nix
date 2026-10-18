@@ -240,7 +240,8 @@
         nodeExporterTargets = with config.features; [
           "${monitoring.nodeExporter.listenAddress}:${builtins.toString monitoring.nodeExporter.port}"
           "${monitoring.pingExporter.listenAddress}:${builtins.toString monitoring.pingExporter.port}"
-          "nongkee.home.local:9100"
+          # Nongkee VM node exporter over Tailscale MagicDNS.
+          "nongkee-prd.mullet-manta.ts.net:9100"
           "router.home.local:9000"
         ];
         scrapeConfigs = [
@@ -255,6 +256,23 @@
               type = "Bearer";
               credentials_file = config.sops.secrets.garage_metrics_token.path;
             };
+          }
+          {
+            job_name = "nongkee-postgres";
+            static_configs = [
+              {
+                targets = ["nongkee-prd.mullet-manta.ts.net:9187"];
+              }
+            ];
+          }
+          {
+            job_name = "nongkee";
+            metrics_path = "/metrics";
+            static_configs = [
+              {
+                targets = ["nongkee-prd.mullet-manta.ts.net:8081"];
+              }
+            ];
           }
         ];
       };

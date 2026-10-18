@@ -11,3 +11,4 @@ resources:
   - headlamp
   - external-dns
   - ./secrets.enc.yaml
+  - monitoring
