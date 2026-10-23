@@ -110,6 +110,8 @@ spec:
               mountPath: /home/paseo
             - name: workspace
               mountPath: /workspace
+            - name: vpn-control
+              mountPath: /run/paseo-vpn
           readinessProbe:
             httpGet:
               path: /
