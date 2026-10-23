@@ -46,6 +46,44 @@ spec:
               mountPath: /workspace
             - name: vpn-control
               mountPath: /run/paseo-vpn
+        - name: sync-agent-profiles
+          image: registry.rifqoi.com/paseo:latest
+          imagePullPolicy: Always
+          command:
+            - node
+            - -e
+          args:
+            - |
+              const fs = require("node:fs");
+              const configPath = "/home/paseo/.paseo/config.json";
+              const profilesPath = "/etc/paseo-agent-profiles/agent-profiles.json";
+              const profiles = JSON.parse(fs.readFileSync(profilesPath, "utf8"));
+              if (!Array.isArray(profiles)) throw new Error("Agent profiles must be a JSON array");
+              const config = fs.existsSync(configPath)
+                ? JSON.parse(fs.readFileSync(configPath, "utf8"))
+                : { version: 1 };
+              if (config === null || Array.isArray(config) || typeof config !== "object") {
+                throw new Error("Paseo config must be a JSON object");
+              }
+              if (config.version === undefined) config.version = 1;
+              if (config.daemon === undefined) config.daemon = {};
+              if (config.daemon === null || Array.isArray(config.daemon) || typeof config.daemon !== "object") {
+                throw new Error("Paseo daemon config must be a JSON object");
+              }
+              config.daemon.agentProfiles = profiles;
+              const tempPath = `${configPath}.tmp`;
+              fs.writeFileSync(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+              fs.chownSync(tempPath, 1000, 1000);
+              fs.renameSync(tempPath, configPath);
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: agent-profiles
+              mountPath: /etc/paseo-agent-profiles
+              readOnly: true
         - name: sync-skills
           image: registry.rifqoi.com/paseo:latest
           imagePullPolicy: Always
@@ -248,6 +286,9 @@ spec:
           secret:
             secretName: paseo-skills-git
             defaultMode: 0440
+        - name: agent-profiles
+          configMap:
+            name: paseo-agent-profiles
         - name: vpn-control
           emptyDir:
             medium: Memory

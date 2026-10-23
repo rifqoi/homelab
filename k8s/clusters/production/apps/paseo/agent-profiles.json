@@ -1,0 +1,31 @@
+[
+  {
+    "id": "chatgpt-planner",
+    "name": "ChatGPT/Codex Planner",
+    "provider": "codex",
+    "model": "gpt-6.1-sol",
+    "modeId": "auto-review",
+    "thinkingOptionId": "high",
+    "notes": "Use for Homelab architecture, troubleshooting, task decomposition, and implementation plans. Analyze first, identify risks and exact steps, and do not edit files or change external state unless the user explicitly asks for implementation."
+  },
+  {
+    "id": "devin-code-executor",
+    "name": "Devin Code Executor",
+    "provider": "devin",
+    "model": "default",
+    "modeId": "accept-edits",
+    "featureValues": {
+      "auto_accept": true
+    },
+    "notes": "Use after a plan is approved to implement code and configuration changes in the Homelab repository. Make focused edits, run relevant tests and validation, preserve existing user changes, and report changed files, commands, and remaining risks."
+  },
+  {
+    "id": "codex-luna-code-executor",
+    "name": "Codex Luna Code Executor",
+    "provider": "codex",
+    "model": "gpt-5.6-luna",
+    "modeId": "auto-review",
+    "thinkingOptionId": "xhigh",
+    "notes": "Use as an alternative code executor when a Codex implementation worker is preferred. Make focused code and configuration changes, run relevant tests and validation, preserve existing user changes, and report changed files, commands, and remaining risks."
+  }
+]

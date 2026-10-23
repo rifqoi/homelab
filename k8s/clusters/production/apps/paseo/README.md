@@ -23,6 +23,14 @@ those in the persistent home volume or Kubernetes Secrets. Stdio MCP servers
 must exist in the Paseo image and HTTP MCP servers must be reachable from the
 Pod.
 
+## Agent profiles
+
+`agent-profiles.json` is the source of truth for Paseo's host-level
+`daemon.agentProfiles`. The deployment merges it into
+`/home/paseo/.paseo/config.json` before Paseo starts, preserving the rest of the
+config. Edit the Git file to change profiles; UI changes will be replaced on
+the next Pod restart unless copied back here.
+
 Retrieve the generated connection password locally with:
 
 ```text
