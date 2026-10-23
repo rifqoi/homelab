@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnigent-sandbox-config
+  namespace: omnigent
+data:
+  config.yaml: |
+    sandbox:
+      provider: kubernetes
+      server_url: http://omnigent.omnigent.svc.cluster.local
+      kubernetes:
+        namespace: omnigent-sandboxes
+        secret_name: omnigent-creds
+        service_account: omnigent-runner
+        image: ghcr.io/omnigent-ai/omnigent-host@sha256:46ddb52b8013e69bcd2068842d9746bc896d50f5884a2469d51a27a6211c5814
+        in_cluster: true
+        pod_ready_timeout_s: 300
+        home_size_limit: 8Gi
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+          limits:
+            cpu: "2"
+            memory: 4Gi
+            ephemeral-storage: 8Gi
