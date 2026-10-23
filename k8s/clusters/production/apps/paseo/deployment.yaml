@@ -46,8 +46,8 @@ spec:
               mountPath: /workspace
       containers:
         - name: paseo
-          image: registry.rifqoi.com/paseo@sha256:3e61e5a3059e3bf872d482c0790298395d821290101e1e719efae7170cf0cf60
-          imagePullPolicy: IfNotPresent
+          image: registry.rifqoi.com/paseo:latest
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 6767
