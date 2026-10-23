@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnigent-codex-host
+  namespace: omnigent
+  labels:
+    app.kubernetes.io/name: omnigent
+    app.kubernetes.io/component: codex-host
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: omnigent
+      app.kubernetes.io/component: codex-host
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: omnigent
+        app.kubernetes.io/component: codex-host
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: host
+          image: ghcr.io/omnigent-ai/omnigent-host@sha256:46ddb52b8013e69bcd2068842d9746bc896d50f5884a2469d51a27a6211c5814
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p "$HOME/.codex" "$HOME/.omnigent"
+              while [ ! -s "$HOME/.codex/auth.json" ] || [ ! -s "$HOME/.omnigent/auth_tokens.json" ]; do
+                sleep 5
+              done
+              exec omnigent host https://omnigent.rifqoi.com
+          env:
+            - name: HOME
+              value: /root
+          volumeMounts:
+            - name: host-home
+              mountPath: /root
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+              ephemeral-storage: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+              ephemeral-storage: 8Gi
+      volumes:
+        - name: host-home
+          persistentVolumeClaim:
+            claimName: omnigent-codex-host-home
