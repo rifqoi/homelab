@@ -1,28 +1,26 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: omnigent
+  name: paseo
   namespace: omnigent
   annotations:
-    $patch: replace
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: omnigent.rifqoi.com
+    external-dns.alpha.kubernetes.io/hostname: paseo.rifqoi.com
     ingress.cilium.io/force-https: "true"
 spec:
-  $patch: replace
   ingressClassName: cilium
   tls:
-    - secretName: omnigent-rifqoi-com-tls
+    - secretName: paseo-rifqoi-com-tls
       hosts:
-        - omnigent.rifqoi.com
+        - paseo.rifqoi.com
   rules:
-    - host: omnigent.rifqoi.com
+    - host: paseo.rifqoi.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: omnigent
+                name: paseo
                 port:
                   name: http

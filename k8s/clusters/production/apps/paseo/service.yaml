@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: paseo
+  namespace: omnigent
+  labels:
+    app.kubernetes.io/name: paseo
+    app.kubernetes.io/component: daemon
+spec:
+  selector:
+    app.kubernetes.io/name: paseo
+    app.kubernetes.io/component: daemon
+  ports:
+    - name: http
+      port: 6767
+      targetPort: http
+      protocol: TCP
