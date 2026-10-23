@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnigent
+  namespace: omnigent
+spec:
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      containers:
+        - name: omnigent
+          image: ghcr.io/omnigent-ai/omnigent-server-kubernetes@sha256:5746692f3c3a95502f76f83260c3e5ff36348ad8c3cdce1fab85784065e44dad
