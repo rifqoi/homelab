@@ -2,14 +2,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Keep the upstream runner RBAC and Job implementation. The remote reference is
-# pinned to a release tag; the images are pinned by digest in image-patch.yaml.
+# Use the upstream server base. The registered host below is deliberately
+# managed as a separate persistent Deployment rather than as one Kubernetes
+# Job per managed session.
 resources:
-  - github.com/omnigent-ai/omnigent//deploy/kubernetes/overlays/sandbox-runners?ref=v0.19.1
+  - github.com/omnigent-ai/omnigent//deploy/kubernetes/base?ref=v0.19.1
+  - host-pvc.yaml
+  - host-deployment.yaml
 
 patches:
   - path: image-patch.yaml
-  - path: sandbox-config-patch.yaml
   - path: server-config-patch.yaml
   - path: omnigent-secrets.enc.yaml
   - path: ingress.yaml
