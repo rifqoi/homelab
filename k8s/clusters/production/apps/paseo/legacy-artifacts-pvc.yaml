@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: omnigent-artifacts
+  namespace: omnigent
+  annotations:
+    # Preserve the former Omnigent artifact volume during this product switch.
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: zfs-iscsi-retain

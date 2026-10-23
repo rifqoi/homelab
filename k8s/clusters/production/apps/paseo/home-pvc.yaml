@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # Keep this claim name during the in-place cutover. Its volume contains the
+  # existing Codex OAuth state, skills, MCP config, and agent configuration.
+  name: omnigent-codex-host-home
+  namespace: omnigent
+  labels:
+    app.kubernetes.io/name: paseo
+    app.kubernetes.io/component: home
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: zfs-iscsi-retain

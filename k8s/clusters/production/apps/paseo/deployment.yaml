@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paseo
+  namespace: omnigent
+  labels:
+    app.kubernetes.io/name: paseo
+    app.kubernetes.io/component: daemon
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paseo
+      app.kubernetes.io/component: daemon
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: paseo
+        app.kubernetes.io/component: daemon
+      annotations:
+        paseo.rifqoi.com/config-revision: v1
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: prepare-home
+          image: busybox:1.36.1
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p /home/paseo/.paseo /home/paseo/.codex /home/paseo/.agents/skills /workspace
+              chown -R 1000:1000 /home/paseo /workspace
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: workspace
+              mountPath: /workspace
+      containers:
+        - name: paseo
+          image: registry.rifqoi.com/paseo@sha256:3e61e5a3059e3bf872d482c0790298395d821290101e1e719efae7170cf0cf60
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 6767
+              protocol: TCP
+          env:
+            - name: HOME
+              value: /home/paseo
+            - name: PASEO_HOME
+              value: /home/paseo/.paseo
+            - name: PASEO_LISTEN
+              value: 0.0.0.0:6767
+            - name: PASEO_WEB_UI_ENABLED
+              value: "true"
+            - name: PASEO_HOSTNAMES
+              value: paseo.rifqoi.com
+            - name: PASEO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paseo-secrets
+                  key: PASEO_PASSWORD
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: workspace
+              mountPath: /workspace
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+              ephemeral-storage: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+              ephemeral-storage: 8Gi
+      volumes:
+        - name: home
+          persistentVolumeClaim:
+            claimName: omnigent-codex-host-home
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: omnigent-codex-host-home
