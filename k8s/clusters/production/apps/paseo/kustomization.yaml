@@ -9,6 +9,7 @@ resources:
   - paseo-skills-git-flux.enc.yaml
   - paseo-skills-git-pod.enc.yaml
   - paseo-skills-gitrepository.yaml
+  - paseo-skills-config.yaml
   - home-pvc.yaml
   - legacy-artifacts-pvc.yaml
   - deployment.yaml
