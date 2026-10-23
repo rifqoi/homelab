@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - paseo-secrets.enc.yaml
+  - registry-secret.enc.yaml
   - home-pvc.yaml
   - legacy-artifacts-pvc.yaml
   - deployment.yaml
