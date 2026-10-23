@@ -44,6 +44,8 @@ spec:
               mountPath: /home/paseo
             - name: workspace
               mountPath: /workspace
+            - name: vpn-control
+              mountPath: /run/paseo-vpn
         - name: sync-skills
           image: registry.rifqoi.com/paseo:latest
           imagePullPolicy: Always
@@ -180,6 +182,59 @@ spec:
             limits:
               cpu: 100m
               memory: 128Mi
+        - name: corp-vpn
+          image: registry.rifqoi.com/paseo:latest
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - exec /home/paseo/.agents/skills/vpn-connect/scripts/vpn-supervisor.sh
+          env:
+            - name: VPN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: paseo-vpn-config
+                  key: VPN_URL
+            - name: VPN_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: paseo-vpn-config
+                  key: VPN_GROUP
+            - name: LDAP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: paseo-env
+                  key: LDAP_USERNAME
+            - name: LDAP_PW
+              valueFrom:
+                secretKeyRef:
+                  name: paseo-env
+                  key: LDAP_PW
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+              readOnly: true
+            - name: vpn-control
+              mountPath: /run/paseo-vpn
+            - name: vpn-tun
+              mountPath: /dev/net/tun
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
       volumes:
         - name: home
           persistentVolumeClaim:
@@ -191,3 +246,10 @@ spec:
           secret:
             secretName: paseo-skills-git
             defaultMode: 0440
+        - name: vpn-control
+          emptyDir:
+            medium: Memory
+        - name: vpn-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
