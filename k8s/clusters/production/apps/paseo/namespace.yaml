@@ -4,3 +4,6 @@ metadata:
   name: omnigent
   labels:
     app.kubernetes.io/part-of: paseo
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
