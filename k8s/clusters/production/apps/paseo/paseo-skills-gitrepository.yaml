@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: paseo-skills
+  namespace: flux-system
+spec:
+  interval: 5m
+  ref:
+    branch: main
+  secretRef:
+    name: paseo-skills-git
+  url: ssh://git@github.com/rifqoi/paseo-skills
