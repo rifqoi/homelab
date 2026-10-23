@@ -44,6 +44,38 @@ spec:
               mountPath: /home/paseo
             - name: workspace
               mountPath: /workspace
+        - name: sync-skills
+          image: registry.rifqoi.com/paseo:latest
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              work=/tmp/paseo-skills
+              sshdir=/tmp/paseo-skills-ssh
+              rm -rf "$work" "$sshdir"
+              install -d -m 0700 "$sshdir"
+              cp /run/paseo-skills-git/identity "$sshdir/identity"
+              cp /run/paseo-skills-git/known_hosts "$sshdir/known_hosts"
+              chmod 0600 "$sshdir/identity"
+              export GIT_SSH_COMMAND="ssh -i $sshdir/identity -o IdentitiesOnly=yes -o UserKnownHostsFile=$sshdir/known_hosts"
+              GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch main ssh://git@github.com/rifqoi/paseo-skills "$work"
+              test -d "$work/skills"
+              rm -rf /home/paseo/.agents/skills
+              mv "$work/skills" /home/paseo/.agents/skills
+              install -m 0644 "$work/AGENTS.md" /home/paseo/AGENTS.md
+              chown -R 1000:1000 /home/paseo/.agents /home/paseo/AGENTS.md
+              rm -rf "$work" "$sshdir"
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: skills-git
+              mountPath: /run/paseo-skills-git
+              readOnly: true
       containers:
         - name: paseo
           image: registry.rifqoi.com/paseo:latest
@@ -94,6 +126,57 @@ spec:
               cpu: "2"
               memory: 4Gi
               ephemeral-storage: 8Gi
+        - name: skills-sync
+          image: registry.rifqoi.com/paseo:latest
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              sshdir=/tmp/paseo-skills-ssh
+              install -d -m 0700 "$sshdir"
+              cp /run/paseo-skills-git/identity "$sshdir/identity"
+              cp /run/paseo-skills-git/known_hosts "$sshdir/known_hosts"
+              chmod 0600 "$sshdir/identity"
+              export GIT_SSH_COMMAND="ssh -i $sshdir/identity -o IdentitiesOnly=yes -o UserKnownHostsFile=$sshdir/known_hosts"
+              while true; do
+                revision=$(GIT_TERMINAL_PROMPT=0 git ls-remote ssh://git@github.com/rifqoi/paseo-skills refs/heads/main 2>/dev/null | awk '{print $1}') || revision=
+                current=$(cat /home/paseo/.agents/.skills-revision 2>/dev/null || true)
+                if test -n "$revision" && test "$revision" != "$current"; then
+                  work="/tmp/paseo-skills-$revision"
+                  rm -rf "$work"
+                  if GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch main ssh://git@github.com/rifqoi/paseo-skills "$work"; then
+                    test -d "$work/skills"
+                    rm -rf /home/paseo/.agents/.skills-next
+                    mv "$work/skills" /home/paseo/.agents/.skills-next
+                    rm -rf /home/paseo/.agents/skills.previous
+                    mv /home/paseo/.agents/skills /home/paseo/.agents/skills.previous
+                    mv /home/paseo/.agents/.skills-next /home/paseo/.agents/skills
+                    install -m 0644 "$work/AGENTS.md" /home/paseo/AGENTS.md
+                    printf '%s\n' "$revision" > /home/paseo/.agents/.skills-revision
+                    rm -rf /home/paseo/.agents/skills.previous "$work"
+                  fi
+                fi
+                sleep 300
+              done
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: skills-git
+              mountPath: /run/paseo-skills-git
+              readOnly: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
       volumes:
         - name: home
           persistentVolumeClaim:
@@ -101,3 +184,7 @@ spec:
         - name: workspace
           persistentVolumeClaim:
             claimName: omnigent-codex-host-home
+        - name: skills-git
+          secret:
+            secretName: paseo-skills-git
+            defaultMode: 0440

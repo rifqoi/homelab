@@ -1,0 +1,23 @@
+apiVersion: v1
+data:
+    identity: ENC[AES256_GCM,data:q5DI73y7tboVJcdKcn7pCQFetOFEcqUYqMaEABglKu5xRhRFzp4PnOgtu0rS5+9uxcNMxVijw2w/PtXqVq3NIqu8g3CGO7LxNdPvOwJJ/HvrVRs7mW2KzP2F4sjm9ZyCHfnGPHVyQbScsilFO0yeO3GCpUlskHOzTtFGGSgKwC6/vNVRl90zQcxPr/PONDF8vS49RN10HzVvwoGb/QuuhKZHbakIWp/iTaLra5Y+4Jzr2NVHHiqjYgJvzPFo9XysseoaqHT9V1lnYWKavrY2cCKWAyZm56NwR+4cyvZVgBRGAXqvm4JsUsXriMFzTW98u5C6PyzgAf1srKzz3D861fYB+gNSUf1OGiyc++EQzGCDA55P3LvHiwwXlJXQfttz8Txev8+F1ILEZgsxjuX26HKXjAj7yCGiMr5GXyonoSZFKkVQmGojSSD20QyEyrO9wq9L6mhYFd3NVx6H2YV5gXz47FFDRwygVijijfRfF/BlHR1xYFjlJl1KiAd86CRWoO7Wa5SK+UURAYHaU3KIcFFNVUuEySb0xhMO33zpRhaf/8A8gUg5jHkyinxYEIIG/MhsX1ESVbj89j+jSZDZ99xb4yLb/Dhn2sUqSX/v/fgGUt+g7BbGQ8LxeYE33cVoduanAsRgScdZOcGVdrYcyfWJHcXiGynFfVFHgacZ4OOGab1arhANIgdaInA8QIrzZeWoIno/DWSrWmKuxa72sBJDYCQ49oL8dW1NygKm5/4=,iv:gOYsaoUZPZRqf4Ci99gSh4a7QeHDOh4KZ9Y7G3UvYJE=,tag:BhpzSQD9ZYVeOgEceee50A==,type:str]
+    known_hosts: ENC[AES256_GCM,data:VyL4HvYtDL8BaAYfw5e1JKuorCGST8ZIlN8PX/iHeIACf3+fl+dvWeC4yHLA1X3wV3uCmpvzQwxcrqq1Mxo65jFIgBv8YPpkwQfyTnE9tNqlpUYwqPWrqDmbzgs0cBqGEwDq2tPxI9EvbFdp/a88DCM7NYLHqcyXZyQU3Bg2Rkj6ki1Z+yEEdP3e0jIAH2BFiC7gey9gD5tNIR36JSMc3sWf/4rYXVMy,iv:HvDzA6m2gyWrSnVHQbAKVIXpUw88z5tO1ePfkBDWRr0=,tag:sjVJVE6RYuPJsAqzkDfC0Q==,type:str]
+kind: Secret
+metadata:
+    name: paseo-skills-git
+    namespace: flux-system
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAzTmFPc2xUREpzS1JOWmVq
+            VGtqWFVSTW9uZnpxSmxvWlE1MjJwc2h1SlhBClR0T0RKSjZLOEtZL0Ezc1dWR3gr
+            c0NiRm1XWnI0UWtLOFlXVnlXdXVSSHMKLS0tIHhFSU5qRnMrQ1JXeVNTcDJ0WEQy
+            RVhtV2V1UWVuc0dNNHlKSVgrTHI2elkKkDaoj230AdWCyGfpBpcreiotCaLvFJG+
+            d5uwZqK2IpBk0IOnwg8C8aNQ2cJzI8JY68l/G87Rf8IbeaTbLDqoFQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-23T15:44:15Z"
+    mac: ENC[AES256_GCM,data:uv6W7lyLXGPDbRMbsjBMinmM6foVYpYYRs3bvSYPIGf2CAGybLkat1inC15dFNg3hPFG1yuOK4ZEVPG0WFkBW0ViendNJGhPiZIaTKqYUTuJExFcgYiU/ueFvgKSsr2fqgAF9EO6R4ddM8VKbcHFc3s4UwL9dcLQLO86y9W2/2U=,iv:Laekez787RfGqjx6abfY0/Tcjl0EaR9l8UNkg8h3cJc=,tag:oSKmljPaveIAJBjz/G4QPA==,type:str]
+    version: 3.13.3

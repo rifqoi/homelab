@@ -6,6 +6,9 @@ resources:
   - namespace.yaml
   - paseo-secrets.enc.yaml
   - registry-secret.enc.yaml
+  - paseo-skills-git-flux.enc.yaml
+  - paseo-skills-git-pod.enc.yaml
+  - paseo-skills-gitrepository.yaml
   - home-pvc.yaml
   - legacy-artifacts-pvc.yaml
   - deployment.yaml

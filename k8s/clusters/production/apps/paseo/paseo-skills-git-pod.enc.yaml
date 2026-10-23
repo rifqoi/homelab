@@ -1,0 +1,23 @@
+apiVersion: v1
+data:
+    identity: ENC[AES256_GCM,data:AvMQMgfhb1yrmCYqCx42wvaX0AFQOuZrEGEgt/LwbS8QG9v2wb9+7QKeNQf+ZmcULXIDM14FI+zZiX1VdNzQ5NdmwQq+qaV5SOm5lpyfwytgZa9z3wAbv2EZPts1iLg6YxT+DgyZxeZp0ynUwONxdOemt75MFCKZFZniRTzC+GrwzS5uI9NEFDNGaGW2oSI+mF4w1TGWWFFjRnbonraGXir3FlJ5DDmksT9aAWr2kOMkbbUB9dzhwlTOudkHpnweCsLJ1VnxRhmlXL54CSF70GGsReyjHvKJWeRlQVVKp4Vj0n2DtoKzKAkrahcGFWULc3M/fKMBkVHrBWxrAnBzIgp20ydy/563TjnrcON7u6zHoEYCTEz1FmSu9vkS3ukeyrrDpnvYtPh/wKCXviWQL9zYq0ZV5kpzLjyOIaxGxlw77Y0hTELdIvVbswapO6jvcZF/L18Oae6+gl3do/rvm6nKCZim3f4x4NuQ4A4Tv4ju9lOu9mR9yz4jzLALQpbt39ZT2DxhkUy11KeHFR8bzw0odn9l/DAHQ0x3/dLQ3L20GTH871AXG4sD7/Pw5j2AsthZj+VpwFnIGY/MUjUZX8BRTnd9GQrsL9jaquAe1zQd6/h9VOvsBukgFyV/FDxG1Ekm2b0R16U27Nquca+45qUwHeeJZ2XCaZfSQ4ksTEcsJ3eJWUy4bssD9KwRB4i4cop8UrHu4A9S8bIV5+4WlvZVzzpI0bFlECDZRkc4a+8=,iv:2P1mEtwqm2F5soI7vVeHV/nhfHnEZhKHPOo8t8IvAYg=,tag:bLqVKSmkHsbN1pCWI/S3NA==,type:str]
+    known_hosts: ENC[AES256_GCM,data:mtknEhMPuDf5v1PfVS3VbXUpBk9WCskJXAZwSR17dOJFmjOlJDRvZKPFKb/GC4CHELCyKby0fCc8DwoORmpyukVQit+2Z+LSMNLlc3HDEi7eAH1eKSETI0sembTjVu/6ROPfiL47Kt7bmVaNnq+sCfwDMlnFb1RTOu3srFF17jEOP/MFPkYMRptVHyyrIert0bmVFEuOfFqiMafuU4aJ9/KG1eDqxPS8,iv:Y1/5S9z5r3s/utFzvcPT3rpgP4p47oFx0NWzJkvJZ24=,tag:RZkOL5dyqpLrMvHmEcZLGg==,type:str]
+kind: Secret
+metadata:
+    name: paseo-skills-git
+    namespace: omnigent
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBpRHU4MUN4OG9SVVI3WGZ4
+            Y1JIL2wzT1d3bmNMN09OS3NTUHExTklndGdBCnpoV21HRHB4L0VKYit3Q09QOGl2
+            d0ttSVR0VUxEMlkvVnBtRHFPWERoK0EKLS0tIHEvR2VHb21SOXltYmwwZ2hGMXQ0
+            dkR5R21PeTMvVmJ2K3VqNWhPeS9nNUkK99A1pym+xgEepftNK2D7Jvvz7WzrS0Tl
+            olONqyguBhM/edGt4dBr1EygEylbZ4uNFdf3raO4QCXUnswxvGX1dQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-23T15:44:15Z"
+    mac: ENC[AES256_GCM,data:P1Wtk3nT4wUIMuzhnB+q0cKqTr9kGDvobimpkjBETgQogQibaWm7NlhMH+IMjIdrUZA21qs3ITAamNarNUa2Sd4pJ6enalQuK3u9yjvcSJgJ2gTnSysjerIDBNyyAZHptetxujDV8IzHCDt12MlWrTITIILjPl2hTSZ+SLMaOcA=,iv:axGwVTjCBAVq0k0ic47ZbJI6U3O+YK0Fbpi0QObSUpA=,tag:Ermkm362A5k7ak9QLpVrrw==,type:str]
+    version: 3.13.3
