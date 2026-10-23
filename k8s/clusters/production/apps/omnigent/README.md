@@ -18,10 +18,7 @@ named `omnigent-secrets` in namespace `omnigent` with:
 
 ```text
 DATABASE_URL=sqlite:////data/artifacts/chat.db
-OMNIGENT_OIDC_CLIENT_ID=<Pocket ID client id>
-OMNIGENT_OIDC_CLIENT_SECRET=<Pocket ID client secret>
-OMNIGENT_OIDC_REDIRECT_URI=https://omnigent.rifqoi.com/auth/callback
-OMNIGENT_OIDC_COOKIE_SECRET=<64 hex characters>
+OMNIGENT_ACCOUNTS_COOKIE_SECRET=<64 hex characters>
 ```
 
 The Codex OAuth state is intentionally not a Git or SOPS Secret. After the
@@ -32,13 +29,13 @@ kubectl --context omni-talos-prod-cluster -n omnigent exec -it deploy/omnigent-c
 kubectl --context omni-talos-prod-cluster -n omnigent exec -it deploy/omnigent-codex-host -- codex login --device-auth
 ```
 
+The server uses Omnigent's built-in accounts provider rather than Pocket ID
+OIDC. Open the web UI once to claim the instance and create the first admin,
+then use that account for `omnigent login`.
+
 The host waits for both auth files before registering itself. Do not put local
 `~/.codex/auth.json`, `~/.codex/config.toml`, SSH keys, or kubeconfigs in this
 repository. The OAuth files are private data on the PVC, not GitOps config.
-
-Register the Pocket ID client with this callback before exposing the Cilium
-Ingress.
-The OIDC client must be separate from the Headlamp client.
 
 ## Private agent configuration
 

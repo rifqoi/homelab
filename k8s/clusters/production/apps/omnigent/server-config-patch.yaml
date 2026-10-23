@@ -9,6 +9,6 @@ data:
   ARTIFACT_DIR: /data/artifacts
   OMNIGENT_ADMIN_CREDENTIALS_PATH: /data/admin-credentials
   OMNIGENT_AUTH_ENABLED: "1"
-  OMNIGENT_AUTH_PROVIDER: oidc
-  OMNIGENT_OIDC_ISSUER: https://pocket.rifqoi.com
+  OMNIGENT_AUTH_PROVIDER: accounts
+  OMNIGENT_ACCOUNTS_BASE_URL: https://omnigent.rifqoi.com
   OMNIGENT_DOMAIN: omnigent.rifqoi.com
