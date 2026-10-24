@@ -1,0 +1,16 @@
+# Tracks the digest behind registry.rifqoi.com/lajur:dev, pushed by the
+# lajur "Deploy dev" workflow. A new digest rolls the ResourceSet below.
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: lajur-image
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1m"
+spec:
+  type: OCIArtifactTag
+  url: oci://registry.rifqoi.com/lajur
+  secretRef:
+    name: regcred-rifqoi-registry-com
+  filter:
+    includeTag: "^dev$"
+    limit: 1

@@ -1,0 +1,68 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: lajur
+spec:
+  inputsFrom:
+    - kind: ResourceSetInputProvider
+      name: lajur-image
+  resources:
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: lajur
+        namespace: << inputs.provider.namespace >>
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: lajur
+        template:
+          metadata:
+            labels:
+              app: lajur
+          spec:
+            imagePullSecrets:
+              - name: regcred-rifqoi-registry-com
+            initContainers:
+              - name: migrate
+                image: registry.rifqoi.com/lajur:<< inputs.tag >>@<< inputs.digest >>
+                command: ["node", "scripts/migrate.mjs"]
+                env:
+                  - name: DATABASE_URL
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-dev-pg-app
+                        key: uri
+            containers:
+              - name: lajur
+                image: registry.rifqoi.com/lajur:<< inputs.tag >>@<< inputs.digest >>
+                ports:
+                  - name: http
+                    containerPort: 3000
+                env:
+                  - name: DATABASE_URL
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-dev-pg-app
+                        key: uri
+                  - name: BETTER_AUTH_SECRET
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-dev-secret
+                        key: better-auth-secret
+                  - name: BETTER_AUTH_URL
+                    value: https://lajur-dev.rifqoi.com
+                  - name: ORIGIN
+                    value: https://lajur-dev.rifqoi.com
+                readinessProbe:
+                  tcpSocket:
+                    port: http
+                  periodSeconds: 10
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi

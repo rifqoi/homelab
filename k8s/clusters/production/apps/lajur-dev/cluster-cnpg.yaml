@@ -1,0 +1,25 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: lajur-dev-pg
+spec:
+  instances: 1
+  storage:
+    size: 2Gi
+    storageClass: zfs-iscsi
+  # CNPG generates the lajur-dev-pg-app secret (uri, username, password).
+  bootstrap:
+    initdb:
+      database: lajur
+      owner: lajur
+      dataChecksums: true
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
