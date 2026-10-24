@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: metamcp
 resources:
   - metamcp-pg-user.enc.yaml
-  - metamcp-secret.yaml
+  - secrets.enc.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
