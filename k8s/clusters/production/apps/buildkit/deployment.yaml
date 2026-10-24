@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buildkitd
+  namespace: buildkit
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # cache PVC is RWO
+  selector:
+    matchLabels:
+      app: buildkitd
+  template:
+    metadata:
+      labels:
+        app: buildkitd
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
+    spec:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: buildkitd
+          image: moby/buildkit:rootless
+          args:
+            - --addr
+            - tcp://0.0.0.0:1234
+          ports:
+            - name: buildkitd
+              containerPort: 1234
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: Unconfined
+          readinessProbe:
+            exec:
+              command:
+                - buildctl
+                - --addr
+                - tcp://127.0.0.1:1234
+                - debug
+                - workers
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+          volumeMounts:
+            - name: buildkit-cache
+              mountPath: /home/user/.local/share/buildkit
+      volumes:
+        - name: buildkit-cache
+          persistentVolumeClaim:
+            claimName: buildkit-cache

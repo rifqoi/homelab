@@ -11,3 +11,4 @@ resources:
   - garage-ui
   - ck-x
   - metamcp
+  - buildkit
