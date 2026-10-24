@@ -37,7 +37,7 @@ spec:
         - name: kubernetes-mcp
           image: ghcr.io/containers/kubernetes-mcp-server:latest
           args:
-            - --port=8080
+            - --config=/etc/k8s-mcp/config.toml
           ports:
             - name: http
               containerPort: 8080
@@ -54,6 +54,22 @@ spec:
             limits:
               cpu: 300m
               memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/k8s-mcp
+      volumes:
+        - name: config
+          configMap:
+            name: kubernetes-mcp-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes-mcp-config
+  namespace: metamcp
+data:
+  config.toml: |
+    port = 8080
 ---
 apiVersion: v1
 kind: Service
