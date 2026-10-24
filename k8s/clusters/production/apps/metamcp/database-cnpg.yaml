@@ -1,9 +1,0 @@
-apiVersion: postgresql.cnpg.io/v1
-kind: Database
-metadata:
-  name: nongkee-be-pg-metamcp
-spec:
-  cluster:
-    name: nongkee-be-pg
-  name: metamcp
-  owner: nongkee

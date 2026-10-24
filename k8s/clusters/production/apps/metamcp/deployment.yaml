@@ -27,7 +27,7 @@ spec:
             - name: POSTGRES_PORT
               value: "5432"
             - name: POSTGRES_DB
-              value: metamcp
+              value: nongkee
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
