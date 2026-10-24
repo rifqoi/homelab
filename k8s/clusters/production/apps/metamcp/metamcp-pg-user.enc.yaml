@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
+    namespace: metamcp
     name: metamcp-pg-user
 stringData:
     username: ENC[AES256_GCM,data:cmmItrJlWw==,iv:+iIUs9SeMQOegMxhrrOrjbNAJQbEBE/34gMy6GaGa4g=,tag:9C1I53ev1S00uqLUmH0ZPg==,type:str]
