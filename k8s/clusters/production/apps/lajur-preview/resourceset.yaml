@@ -1,6 +1,3 @@
-# One preview per open PR on rifqoi/lajur. Objects are keyed by PR number;
-# the host is lajur-<branch-slug>.rifqoi.com. Closing the PR deletes
-# everything here, and the Database reclaim policy drops pr_<id>.
 apiVersion: fluxcd.controlplane.io/v1
 kind: ResourceSet
 metadata:
@@ -45,7 +42,9 @@ spec:
             initContainers:
               - name: migrate
                 image: registry.rifqoi.com/lajur:<< inputs.sha >>
-                command: ["node", "scripts/migrate.mjs"]
+                command:
+                  - node
+                  - scripts/migrate.mjs
                 env:
                   - name: DB_USER
                     valueFrom:
@@ -58,7 +57,8 @@ spec:
                         name: lajur-preview-pg-app
                         key: password
                   - name: DATABASE_URL
-                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<< inputs.id >>
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<<
+                      inputs.id >>
             containers:
               - name: lajur
                 image: registry.rifqoi.com/lajur:<< inputs.sha >>
@@ -77,16 +77,19 @@ spec:
                         name: lajur-preview-pg-app
                         key: password
                   - name: DATABASE_URL
-                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<< inputs.id >>
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<<
+                      inputs.id >>
                   - name: BETTER_AUTH_SECRET
                     valueFrom:
                       secretKeyRef:
                         name: lajur-preview-secret
                         key: better-auth-secret
                   - name: BETTER_AUTH_URL
-                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" |
+                      replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
                   - name: ORIGIN
-                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" |
+                      replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
                 readinessProbe:
                   tcpSocket:
                     port: http
@@ -110,28 +113,43 @@ spec:
           - name: http
             port: 80
             targetPort: http
-    - apiVersion: networking.k8s.io/v1
-      kind: Ingress
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
       metadata:
         name: lajur-pr-<< inputs.id >>
         namespace: << inputs.provider.namespace >>
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
-          ingress.cilium.io/force-https: "true"
+          external-dns.alpha.kubernetes.io/hostname: lajur-<< inputs.branch | lower |
+            slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix
+            "-" >>.rifqoi.com
       spec:
-        ingressClassName: cilium
-        tls:
-          - secretName: preview-wildcard-tls
-            hosts:
-              - lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+        parentRefs:
+          - name: shared
+            namespace: kgateway-system
+            sectionName: https
+        hostnames:
+          - lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace
+            "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
         rules:
-          - host: lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: lajur-pr-<< inputs.id >>
-                      port:
-                        number: 80
+          - backendRefs:
+              - name: lajur-pr-<< inputs.id >>
+                port: 80
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: lajur-pr-<< inputs.id >>-redirect
+        namespace: << inputs.provider.namespace >>
+      spec:
+        parentRefs:
+          - name: shared
+            namespace: kgateway-system
+            sectionName: http
+        hostnames:
+          - lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace
+            "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+        rules:
+          - filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  scheme: https
+                  statusCode: 301

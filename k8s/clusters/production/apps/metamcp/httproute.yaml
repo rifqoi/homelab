@@ -1,0 +1,38 @@
+# Migrated from Ingress to the shared kgateway (192.168.31.139).
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: metamcp-app
+  namespace: metamcp
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: metamcp.rifqoi.com
+spec:
+  parentRefs:
+    - name: shared
+      namespace: kgateway-system
+      sectionName: https
+  hostnames:
+    - metamcp.rifqoi.com
+  rules:
+    - backendRefs:
+        - name: metamcp
+          port: 12008
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: metamcp-redirect
+  namespace: metamcp
+spec:
+  parentRefs:
+    - name: shared
+      namespace: kgateway-system
+      sectionName: http
+  hostnames:
+    - metamcp.rifqoi.com
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
