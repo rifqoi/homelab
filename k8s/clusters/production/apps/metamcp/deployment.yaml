@@ -23,7 +23,7 @@ spec:
               protocol: TCP
           env:
             - name: POSTGRES_HOST
-              value: nongkee-be-pg-rw
+              value: nongkee-be-pg-rw.nongkee.svc.cluster.local
             - name: POSTGRES_PORT
               value: "5432"
             - name: POSTGRES_DB
