@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: nongkee
 resources:
   - cluster-cnpg.yaml
+  - database-metamcp.yaml
   - deployment.yaml
   - service.yaml
   - gateway.yaml
