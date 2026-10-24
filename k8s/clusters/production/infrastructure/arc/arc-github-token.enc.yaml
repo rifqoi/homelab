@@ -1,0 +1,14 @@
+# ARC registration token for gha-runner-scale-set.
+#
+# 1. Replace the placeholder with a classic PAT scoped `repo` (repo-level
+#    runner) for rifqoi/nongkee-be.
+# 2. Encrypt in place before committing the real value:
+#      sops -e -i k8s/clusters/production/infrastructure/arc/arc-github-token.enc.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: arc-github-token
+  namespace: arc-runners
+type: Opaque
+stringData:
+  github_token: REPLACE_ME

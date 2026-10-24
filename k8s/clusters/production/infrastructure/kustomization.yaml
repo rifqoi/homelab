@@ -12,3 +12,4 @@ resources:
   - external-dns
   - ./secrets.enc.yaml
   - monitoring
+  - arc

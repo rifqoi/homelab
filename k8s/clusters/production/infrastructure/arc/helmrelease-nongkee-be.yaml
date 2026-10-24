@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://flux-helm-schema.tplant.com.au?values=https://raw.githubusercontent.com/actions/actions-runner-controller/refs/heads/master/charts/gha-runner-scale-set/values.yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: arc-runner-nongkee-be
+  namespace: flux-system
+spec:
+  targetNamespace: arc-runners
+  interval: 15m
+  dependsOn:
+    - name: arc-controller
+      namespace: flux-system
+  chart:
+    spec:
+      chart: gha-runner-scale-set
+      version: 0.15.0
+      sourceRef:
+        kind: HelmRepository
+        name: actions-runner-controller
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    githubConfigUrl: https://github.com/rifqoi/nongkee-be
+    githubConfigSecret: arc-github-token
+    runnerScaleSetName: nongkee-be
+    minRunners: 0
+    maxRunners: 3
+    containerMode:
+      type: dind
+    template:
+      spec:
+        containers:
+          - name: runner
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                cpu: "2"
+                memory: 2Gi
