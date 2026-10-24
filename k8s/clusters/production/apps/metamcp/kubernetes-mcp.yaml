@@ -17,6 +17,36 @@ subjects:
     name: kubernetes-mcp
     namespace: metamcp
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubernetes-mcp-rollout
+rules:
+  # rollout restart = patch on the workload; status/history = get/list
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  # rollback/history reads controller revisions
+  - apiGroups: ["apps"]
+    resources: ["controllerrevisions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-mcp-rollout
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubernetes-mcp-rollout
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-mcp
+    namespace: metamcp
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
