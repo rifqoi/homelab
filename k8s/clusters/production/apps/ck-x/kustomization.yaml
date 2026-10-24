@@ -5,6 +5,5 @@ resources:
   - cluster.yaml
   - services.yaml
   - workloads.yaml
-  - ingress.yaml
   - httproute.yaml
   - certificate.yaml

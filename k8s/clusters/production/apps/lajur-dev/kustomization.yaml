@@ -8,5 +8,4 @@ resources:
   - image-provider.yaml
   - resourceset.yaml
   - service.yaml
-  - ingress.yaml
   - httproute.yaml
