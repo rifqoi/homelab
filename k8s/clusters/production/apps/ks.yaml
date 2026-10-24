@@ -4,6 +4,8 @@ kind: Kustomization
 metadata:
   name: apps
   namespace: flux-system
+  annotations:
+    reconcile.fluxcd.io/requestedAt: "2026-10-24T05:00:00Z"
 spec:
   interval: 1h
   retryInterval: 2m
