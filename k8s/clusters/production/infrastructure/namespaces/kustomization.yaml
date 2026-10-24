@@ -13,4 +13,5 @@ resources:
   - metamcp
   - buildkit
   - arc-runners
+  - arc-systems
   - lajur-dev

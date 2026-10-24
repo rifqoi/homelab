@@ -1,4 +1,3 @@
-# yaml-language-server: $schema=https://flux-helm-schema.tplant.com.au?values=https://raw.githubusercontent.com/actions/actions-runner-controller/refs/heads/master/charts/gha-runner-scale-set/values.yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -34,16 +33,26 @@ spec:
     runnerScaleSetName: nongkee-be
     minRunners: 0
     maxRunners: 3
-    containerMode:
-      type: dind
     template:
       spec:
         containers:
           - name: runner
+            image: ghcr.io/actions/actions-runner:latest
+            command:
+              - /home/runner/run.sh
             resources:
               requests:
                 cpu: 100m
-                memory: 512Mi
+                memory: 256Mi
               limits:
-                cpu: "2"
-                memory: 2Gi
+                cpu: "1"
+                memory: 1Gi
+            volumeMounts:
+              - name: registry-auth
+                mountPath: /home/runner/.docker/config.json
+                subPath: .dockerconfigjson
+                readOnly: true
+        volumes:
+          - name: registry-auth
+            secret:
+              secretName: regcred-rifqoi-registry-com
