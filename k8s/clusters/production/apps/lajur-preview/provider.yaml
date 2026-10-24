@@ -1,0 +1,13 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: lajur-pull-requests
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1m"
+spec:
+  type: GitHubPullRequest
+  url: https://github.com/rifqoi/lajur
+  secretRef:
+    name: github-auth
+  filter:
+    limit: 10

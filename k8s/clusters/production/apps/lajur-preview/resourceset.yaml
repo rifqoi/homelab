@@ -1,0 +1,137 @@
+# One preview per open PR on rifqoi/lajur. Objects are keyed by PR number;
+# the host is lajur-<branch-slug>.rifqoi.com. Closing the PR deletes
+# everything here, and the Database reclaim policy drops pr_<id>.
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: lajur-preview
+spec:
+  serviceAccountName: flux
+  inputsFrom:
+    - kind: ResourceSetInputProvider
+      name: lajur-pull-requests
+  resources:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      metadata:
+        name: lajur-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+      spec:
+        name: pr_<< inputs.id >>
+        owner: lajur
+        cluster:
+          name: lajur-preview-pg
+        databaseReclaimPolicy: delete
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: lajur-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+        annotations:
+          lajur.rifqoi.com/branch: << inputs.branch | quote >>
+          lajur.rifqoi.com/sha: << inputs.sha | quote >>
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: lajur-pr-<< inputs.id >>
+        template:
+          metadata:
+            labels:
+              app: lajur-pr-<< inputs.id >>
+          spec:
+            imagePullSecrets:
+              - name: regcred-rifqoi-registry-com
+            initContainers:
+              - name: migrate
+                image: registry.rifqoi.com/lajur:<< inputs.sha >>
+                command: ["node", "scripts/migrate.mjs"]
+                env:
+                  - name: DB_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-preview-pg-app
+                        key: username
+                  - name: DB_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-preview-pg-app
+                        key: password
+                  - name: DATABASE_URL
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<< inputs.id >>
+            containers:
+              - name: lajur
+                image: registry.rifqoi.com/lajur:<< inputs.sha >>
+                ports:
+                  - name: http
+                    containerPort: 3000
+                env:
+                  - name: DB_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-preview-pg-app
+                        key: username
+                  - name: DB_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-preview-pg-app
+                        key: password
+                  - name: DATABASE_URL
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@lajur-preview-pg-rw:5432/pr_<< inputs.id >>
+                  - name: BETTER_AUTH_SECRET
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-preview-secret
+                        key: better-auth-secret
+                  - name: BETTER_AUTH_URL
+                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+                  - name: ORIGIN
+                    value: https://lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+                readinessProbe:
+                  tcpSocket:
+                    port: http
+                  periodSeconds: 10
+                resources:
+                  requests:
+                    cpu: 25m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi
+    - apiVersion: v1
+      kind: Service
+      metadata:
+        name: lajur-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+      spec:
+        selector:
+          app: lajur-pr-<< inputs.id >>
+        ports:
+          - name: http
+            port: 80
+            targetPort: http
+    - apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: lajur-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+          ingress.cilium.io/force-https: "true"
+      spec:
+        ingressClassName: cilium
+        tls:
+          - secretName: preview-wildcard-tls
+            hosts:
+              - lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+        rules:
+          - host: lajur-<< inputs.branch | lower | slugify | replace "_" "-" | replace "." "-" | trunc 50 | trimSuffix "-" >>.rifqoi.com
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: lajur-pr-<< inputs.id >>
+                      port:
+                        number: 80

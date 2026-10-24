@@ -27,3 +27,6 @@ creation_rules:
   - path_regex: ^k8s/clusters/production/infrastructure/arc/.*\.enc\.(yaml|json|env|ini)$
     encrypted_regex: ^(data|stringData)$
     age: *age_rifqoi
+  - path_regex: ^k8s/clusters/production/apps/lajur-preview/.*\.enc\.(yaml|json|env|ini)$
+    encrypted_regex: ^(data|stringData)$
+    age: *age_rifqoi
