@@ -36,3 +36,25 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: flux
+---
+# gateway.networking.k8s.io CRDs don't aggregate into admin; grant explicitly.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: flux-gateway-api
+rules:
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes", "tlsroutes", "referencegrants"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: flux-gateway-api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: flux-gateway-api
+subjects:
+  - kind: ServiceAccount
+    name: flux
