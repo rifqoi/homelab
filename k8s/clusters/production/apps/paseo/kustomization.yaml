@@ -4,6 +4,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - clusterrolebinding.yaml
   - paseo-secrets.enc.yaml
   - registry-secret.enc.yaml
   - paseo-skills-git-flux.enc.yaml
