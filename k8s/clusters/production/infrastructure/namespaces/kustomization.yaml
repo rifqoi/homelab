@@ -12,4 +12,5 @@ resources:
   - ck-x
   - metamcp
   - buildkit
+  - arc-runners
   - lajur-dev
