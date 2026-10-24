@@ -48,11 +48,24 @@ spec:
                 cpu: "1"
                 memory: 1Gi
             volumeMounts:
-              - name: registry-auth
-                mountPath: /home/runner/.docker/config.json
-                subPath: .dockerconfigjson
-                readOnly: true
+              - name: docker-home
+                mountPath: /home/runner/.docker
         volumes:
           - name: registry-auth
             secret:
               secretName: regcred-rifqoi-registry-com
+          - name: docker-home
+            emptyDir: {}
+        initContainers:
+          - name: init-docker-config
+            image: ghcr.io/actions/actions-runner:latest
+            command:
+              - sh
+              - -c
+              - cp /secret/.dockerconfigjson /dockerconfig/config.json && chmod
+                644 /dockerconfig/config.json
+            volumeMounts:
+              - name: registry-auth
+                mountPath: /secret
+              - name: docker-home
+                mountPath: /dockerconfig

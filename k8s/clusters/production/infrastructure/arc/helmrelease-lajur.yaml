@@ -1,4 +1,3 @@
-# yaml-language-server: $schema=https://flux-helm-schema.tplant.com.au?values=https://raw.githubusercontent.com/actions/actions-runner-controller/refs/heads/master/charts/gha-runner-scale-set/values.yaml
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -34,13 +33,13 @@ spec:
     runnerScaleSetName: lajur
     minRunners: 0
     maxRunners: 2
-    # Image builds go to the in-cluster buildkitd, so no dind/privileged runner.
     template:
       spec:
         containers:
           - name: runner
             image: ghcr.io/actions/actions-runner:latest
-            command: ["/home/runner/run.sh"]
+            command:
+              - /home/runner/run.sh
             resources:
               requests:
                 cpu: 100m
@@ -49,11 +48,24 @@ spec:
                 cpu: "1"
                 memory: 1Gi
             volumeMounts:
-              - name: registry-auth
-                mountPath: /home/runner/.docker/config.json
-                subPath: .dockerconfigjson
-                readOnly: true
+              - name: docker-home
+                mountPath: /home/runner/.docker
         volumes:
           - name: registry-auth
             secret:
               secretName: regcred-rifqoi-registry-com
+          - name: docker-home
+            emptyDir: {}
+        initContainers:
+          - name: init-docker-config
+            image: ghcr.io/actions/actions-runner:latest
+            command:
+              - sh
+              - -c
+              - cp /secret/.dockerconfigjson /dockerconfig/config.json && chmod
+                644 /dockerconfig/config.json
+            volumeMounts:
+              - name: registry-auth
+                mountPath: /secret
+              - name: docker-home
+                mountPath: /dockerconfig
