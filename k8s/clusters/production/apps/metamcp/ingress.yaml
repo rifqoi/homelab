@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: metamcp
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    external-dns.alpha.kubernetes.io/hostname: metamcp.rifqoi.com
+    ingress.cilium.io/force-https: "true"
+spec:
+  ingressClassName: cilium
+  tls:
+    - secretName: metamcp-rifqoi-com-tls
+      hosts:
+        - metamcp.rifqoi.com
+  rules:
+    - host: metamcp.rifqoi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: metamcp
+                port:
+                  number: 12008
