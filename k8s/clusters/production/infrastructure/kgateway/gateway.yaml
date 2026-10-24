@@ -1,0 +1,27 @@
+# Shared POC gateway: one LB IP, all *.rifqoi.com routes attach cross-ns.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shared
+  namespace: kgateway-system
+spec:
+  gatewayClassName: kgateway
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: "*.rifqoi.com"
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.rifqoi.com"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: kgw-wildcard-tls
+      allowedRoutes:
+        namespaces:
+          from: All

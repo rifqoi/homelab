@@ -9,3 +9,4 @@ resources:
   - resourceset.yaml
   - service.yaml
   - ingress.yaml
+  - httproute.yaml

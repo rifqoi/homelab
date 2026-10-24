@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kgw-wildcard
+  namespace: kgateway-system
+spec:
+  secretName: kgw-wildcard-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  dnsNames:
+    - "*.rifqoi.com"
