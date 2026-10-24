@@ -13,6 +13,11 @@ RUN apt-get update \
         vpnc-scripts \
     && rm -rf /var/lib/apt/lists/*
 
+# OpenShift client tarball also carries kubectl.
+RUN curl -fsSL https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+    | tar xz -C /usr/local/bin oc kubectl \
+    && chmod +x /usr/local/bin/oc /usr/local/bin/kubectl
+
 RUN npm install -g \
     @openai/codex \
     @anthropic-ai/claude-code \
