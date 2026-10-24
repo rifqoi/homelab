@@ -19,11 +19,9 @@ spec:
     spec:
       imagePullSecrets:
         - name: regcred-rifqoi-registry-com
-      securityContext:
-        fsGroup: 1000
       containers:
         - name: buildkitd
-          image: moby/buildkit:rootless
+          image: moby/buildkit:latest
           args:
             - --addr
             - tcp://0.0.0.0:1234
@@ -31,10 +29,7 @@ spec:
             - name: buildkitd
               containerPort: 1234
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            seccompProfile:
-              type: Unconfined
+            privileged: true
           readinessProbe:
             exec:
               command:
@@ -54,7 +49,7 @@ spec:
               memory: 4Gi
           volumeMounts:
             - name: buildkit-cache
-              mountPath: /home/user/.local/share/buildkit
+              mountPath: /var/lib/buildkit
       volumes:
         - name: buildkit-cache
           persistentVolumeClaim:
