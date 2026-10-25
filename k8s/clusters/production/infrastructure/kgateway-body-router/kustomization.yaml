@@ -3,6 +3,5 @@ kind: Kustomization
 resources:
   - gateway.yaml
   - httproute.yaml
+  - referencegrant.yaml
   - envoy-config.yaml
-  - deployment.yaml
-  - service.yaml

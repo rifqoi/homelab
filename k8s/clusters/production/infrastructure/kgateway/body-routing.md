@@ -143,29 +143,29 @@ Deployment and bootstrap, but its generated HTTP listeners still come from
 kgateway xDS; verify how to inject the filter before choosing that option.
 Never directly edit the live Envoy config: reconciliation will replace it.
 
-The deployed option is a **static Envoy gateway** in
-[`../kgateway-body-router/`](../kgateway-body-router/), reconciled by Flux:
-its own LoadBalancer Service (separate LB IP, `announce: "true"` label for
-Cilium L2, external-dns hostname), HTTPS termination with the shared
-wildcard secret, an HTTP->HTTPS redirect listener, and the RBAC +
-transform + router filter chain.
+The deployed option is a **managed hybrid gateway** in
+[`../kgateway-body-router/`](../kgateway-body-router/), reconciled by Flux.
+A normal managed `body-router` Gateway gets a kgateway-generated
+Deployment/Service, but `GatewayParameters.deploymentOverlay` repoints the
+`envoy-config` volume at our own bootstrap ConfigMap. That bootstrap keeps
+the generated pieces (node identity bound to the gateway, `xds_cluster`
+with the `credential_injector` SA-JWT — the token file is shipped as a
+second ConfigMap key, same as the generated one) and adds a static :443
+listener holding the RBAC + transform + router filter chain. Its route
+table comes from kgateway RDS for the listener's section name (`https`),
+and upstreams come over CDS/EDS — so `httproute.yaml` is real, live
+Gateway API config (verified end-to-end on the cluster).
 
-**Limitation (verified live):** the proxy cannot consume kgateway xDS.
-kgateway 2.4.7's xDS server requires a Kubernetes service-account JWT
-(`KubeJWTAuthenticator`), which `envoyinit` injects into managed proxies'
-bootstrap at runtime — a static bootstrap has no supported way to supply
-it. Attempting an RDS/CDS subscription fails with `authentication
-failed: no HTTP authorization header exists`. The `body-router`
-Gateway/GatewayClass and `httproute.yaml` in that directory are kept as
-reference for how the hybrid *should* work (and would, behind a control
-plane that accepts unauthenticated xDS or with envoyinit credential
-injection), but the deployed proxy uses the static `envoy-config.yaml`
-listener + route config, not kgateway `HTTPRoute`s.
+Two details that mattered: `lds_config` must be **omitted** from the
+bootstrap so kgateway doesn't also inject its own filter-less listeners,
+and the RDS `route_config_name` is the listener **section name** (`https`)
+for TLS listeners — `listener~<port>` is only used for plain HTTP chains.
 
-Trade-offs of the static design: routes and upstream clusters are static
-Envoy config (no `HTTPRoute`s, no xDS/EDS, no Gateway API status), and
-the Deployment must be restarted after cert-manager rotates the wildcard
-secret because cert files are only re-read at startup. An
+Trade-offs: kgateway policies on those routes (TrafficPolicy timeouts,
+header modifiers) land in the generated listener filter chain, which our
+static listener doesn't have; the wildcard cert is file-mounted (no
+rotation reload without restart); and the bootstrap is a copy of the
+generated format, so it needs review on kgateway upgrades. An
 [isolated prototype](examples/body-routing/README.md) is kept for local
 experiments; the Flux component is the version to edit.
 

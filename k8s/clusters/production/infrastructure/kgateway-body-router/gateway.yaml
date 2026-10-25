@@ -1,16 +1,35 @@
-# selfManaged Gateway: kgateway still generates RDS/CDS/EDS for it (the
-# HTTPRoute below becomes Envoy route config "listener~443"), but creates no
-# Deployment/Service. Those live in deployment.yaml/service.yaml with a custom
-# static listener that holds the RBAC+transform filters and pulls this RDS.
-# Gateway API v1.0 has no per-Gateway parametersRef, so a separate
-# GatewayClass carries the selfManaged GatewayParameters.
+# MANAGED gateway: kgateway creates the Deployment/Service/SA for us.
+# The deploymentOverlay repoints the generated `envoy-config` volume at our
+# bootstrap ConfigMap (documented custom-bootstrap technique), so the proxy
+# boots our static listener+filters but keeps the envoyinit-injected xDS JWT.
+# The wildcard TLS secret is mounted as a file for the static listener.
+# Gateway API v1.0 has no per-Gateway parametersRef, so a dedicated
+# GatewayClass carries these GatewayParameters.
 apiVersion: gateway.kgateway.dev/v1alpha1
 kind: GatewayParameters
 metadata:
   name: body-router
   namespace: kgateway-system
 spec:
-  selfManaged: {}
+  kube:
+    deploymentOverlay:
+      spec:
+        template:
+          spec:
+            volumes:
+              - name: envoy-config
+                configMap:
+                  name: body-router-envoy
+    podTemplate:
+      extraVolumes:
+        - name: tls
+          secret:
+            secretName: kgw-wildcard-tls
+    envoyContainer:
+      extraVolumeMounts:
+        - name: tls
+          mountPath: /etc/envoy/tls
+          readOnly: true
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass

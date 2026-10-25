@@ -1,0 +1,15 @@
+# channel-route lives in kgateway-system but its backends are in `example`;
+# Gateway API requires a ReferenceGrant for cross-namespace backendRefs.
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: channel-route-backends
+  namespace: example
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: kgateway-system
+  to:
+    - group: ""
+      kind: Service
