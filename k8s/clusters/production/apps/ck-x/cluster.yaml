@@ -18,6 +18,10 @@ spec:
         app.kubernetes.io/name: ckx-cluster
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       terminationGracePeriodSeconds: 30
       volumes:
         - name: kube-config

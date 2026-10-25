@@ -16,6 +16,10 @@ spec:
         app.kubernetes.io/name: ckx-remote-desktop
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       volumes:
         - name: shm
           emptyDir:
@@ -30,6 +34,10 @@ spec:
               containerPort: 5901
             - name: web-vnc
               containerPort: 6901
+            # agent.py: the facilitator calls /restart-vnc-session here when
+            # an exam starts.
+            - name: agent
+              containerPort: 5000
           env:
             - name: VNC_PW
               value: bakku-the-wizard
@@ -76,6 +84,10 @@ spec:
         app.kubernetes.io/name: ckx-webapp
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       containers:
         - name: webapp
           image: nishanb/ck-x-simulator-webapp:latest
@@ -132,6 +144,10 @@ spec:
         app.kubernetes.io/name: ckx-remote-terminal
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       containers:
         - name: remote-terminal
           image: nishanb/ck-x-simulator-remote-terminal:latest
@@ -172,6 +188,10 @@ spec:
         app.kubernetes.io/name: ckx-redis
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       containers:
         - name: redis
           image: redis:alpine
@@ -210,6 +230,10 @@ spec:
         app.kubernetes.io/name: ckx-facilitator
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       containers:
         - name: facilitator
           image: nishanb/ck-x-simulator-facilitator:latest
@@ -270,6 +294,10 @@ spec:
         app.kubernetes.io/name: ckx-nginx
         app.kubernetes.io/part-of: ck-x
     spec:
+      # No Docker-link style *_SERVICE_*/*_PORT env vars: CK-X reads
+      # REMOTE_DESKTOP_PORT etc. as plain ports (compose defaults), and the
+      # injected tcp://IP:port values broke the facilitator's URLs.
+      enableServiceLinks: false
       containers:
         - name: nginx
           image: nishanb/ck-x-simulator-nginx:latest
