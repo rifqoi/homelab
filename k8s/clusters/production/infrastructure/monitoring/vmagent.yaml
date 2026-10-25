@@ -1,0 +1,26 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: homelab
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: homelab-vmagent
+spec:
+  replicaCount: 1
+  # Pick up every VMServiceScrape/VMPodScrape/VMProbe/VMScrapeConfig
+  # in every namespace.
+  selectAllByDefault: true
+  remoteWrite:
+    # Atlas LAN IP (the host serving grafana.home.local). The Prometheus on
+    # Atlas must run with --web.enable-remote-write-receiver
+    # (features.monitoring.prometheus.remoteWriteReceiver).
+    - url: http://192.168.31.12:9090/api/v1/write
+  extraArgs:
+    remoteWrite.label: cluster=production
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
