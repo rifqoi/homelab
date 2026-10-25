@@ -47,8 +47,8 @@ spec:
             - name: vpn-control
               mountPath: /run/paseo-vpn
         - name: sync-skills
-          image: registry.rifqoi.com/paseo:latest
-          imagePullPolicy: Always
+          image: registry.rifqoi.com/paseo:main-1792890319-c7b8808 # {"$imagepolicy": "omnigent:paseo"}
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -ec
@@ -80,8 +80,8 @@ spec:
               readOnly: true
       containers:
         - name: paseo
-          image: registry.rifqoi.com/paseo:latest
-          imagePullPolicy: Always
+          image: registry.rifqoi.com/paseo:main-1792890319-c7b8808 # {"$imagepolicy": "omnigent:paseo"}
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 6767
@@ -134,8 +134,8 @@ spec:
               memory: 4Gi
               ephemeral-storage: 8Gi
         - name: skills-sync
-          image: registry.rifqoi.com/paseo:latest
-          imagePullPolicy: Always
+          image: registry.rifqoi.com/paseo:main-1792890319-c7b8808 # {"$imagepolicy": "omnigent:paseo"}
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -ec
@@ -185,8 +185,8 @@ spec:
               cpu: 100m
               memory: 128Mi
         - name: corp-vpn
-          image: registry.rifqoi.com/paseo:latest
-          imagePullPolicy: Always
+          image: registry.rifqoi.com/paseo:main-1792890319-c7b8808 # {"$imagepolicy": "omnigent:paseo"}
+          imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
             - -ec

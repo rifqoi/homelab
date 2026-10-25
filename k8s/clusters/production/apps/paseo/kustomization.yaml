@@ -14,5 +14,6 @@ resources:
   - home-pvc.yaml
   - legacy-artifacts-pvc.yaml
   - deployment.yaml
+  - image-automation.yaml
   - service.yaml
   - httproute.yaml
