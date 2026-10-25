@@ -76,4 +76,3 @@ spec:
       - service
       - ingress
       - gateway-httproute
-      - gateway-tlsroute
