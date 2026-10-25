@@ -18,6 +18,13 @@ LoadBalancer IP, and app `HTTPRoute`s in any namespace attach to it.
   GatewayClass through the chart value `gatewayClassParametersRefs`, because the
   installed Gateway API CRDs (v1.0.0) have no `spec.infrastructure` for a
   per-Gateway reference.
+- `listenerpolicy.yaml` and `trafficpolicy.yaml` override Envoy defaults that
+  break apps here. Envoy answers websocket upgrades with 403 unless they are
+  enabled, cuts off any response still streaming after 15s, and drops idle
+  streams after 5m. The policies enable websocket upgrades, disable the route
+  timeout, raise the stream idle timeout to 1h, and add a JSON access log on
+  stdout (`kubectl -n kgateway-system logs deploy/shared`). An app that needs
+  different values can attach its own `TrafficPolicy` to its HTTPRoute.
 
 Each app needs exactly one `HTTPRoute`: `parentRefs` `shared` with
 `sectionName: https`, plus its hostname in `spec.hostnames`. external-dns
@@ -58,6 +65,13 @@ independent problems stacked:
    `cilium.io/ingress: "true"`; the kgateway Service had no matching label, so
    no node answered ARP for `.139` and the router's neighbour entry stayed
    `FAILED`. Fixed by `gatewayparameters.yaml` (#16).
+
+Once the hosts were reachable, Paseo's direct connection still failed with the
+correct password. Envoy itself answered the websocket upgrade with 403 (no
+`x-envoy-upstream-service-time` header, nothing in Paseo's logs), because no
+upgrades were enabled on the listener. The old Cilium Ingress allowed them.
+Fixed by `listenerpolicy.yaml` (#19), along with the timeout and access log
+defaults above.
 
 ## Checklist for moving an Ingress here
 
