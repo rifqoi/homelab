@@ -35,7 +35,9 @@ spec:
     uid: atlas-prometheus
     type: prometheus
     access: proxy
-    url: http://localhost:9090
+    # Prometheus does not listen on the Grafana host's localhost — it lives
+    # at 192.168.30.101 (same address as the provisioned "Prometheus" ds).
+    url: http://192.168.30.101:9090
     isDefault: false
 ---
 apiVersion: grafana.integreatly.org/v1beta1
