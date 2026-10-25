@@ -1,0 +1,13 @@
+# Applied to every Gateway of the kgateway class via gatewayClassParametersRefs.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: GatewayParameters
+metadata:
+  name: kgateway
+  namespace: kgateway-system
+spec:
+  kube:
+    service:
+      extraLabels:
+        # Selected by the manual-announce-l2 CiliumL2AnnouncementPolicy so the
+        # LB IP gets ARP-announced on the LAN.
+        announce: "true"
