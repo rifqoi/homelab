@@ -82,7 +82,28 @@ spec:
         - name: tri-svc
           namespace: example
           port: 8080
-    # Fallback for missing/unknown/unparseable channel: fail closed.
+    # Per-field fallbacks: channel value outside web/mobile -> other;
+    # phone number outside known provider prefixes -> indosat.
+    - matches:
+        - headers:
+            - name: x-internal-channel
+              type: RegularExpression
+              value: ".+"
+      backendRefs:
+        - name: other-svc
+          namespace: example
+          port: 8080
+    - matches:
+        - headers:
+            - name: x-internal-phone-number
+              type: RegularExpression
+              value: ".+"
+      backendRefs:
+        - name: indosat-svc
+          namespace: example
+          port: 8080
+    # Fallback for requests with neither extracted field (empty/non-JSON
+    # body): fail closed.
     - filters:
         - type: ExtensionRef
           extensionRef:
