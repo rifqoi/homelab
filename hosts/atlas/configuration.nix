@@ -237,6 +237,7 @@
     monitoring = {
       prometheus = {
         enable = true;
+        remoteWriteReceiver = true;
         nodeExporterTargets = with config.features; [
           "${monitoring.nodeExporter.listenAddress}:${builtins.toString monitoring.nodeExporter.port}"
           "${monitoring.pingExporter.listenAddress}:${builtins.toString monitoring.pingExporter.port}"
