@@ -127,6 +127,87 @@ spec:
             refId: B
             type: math
             expression: $A > 0
+    - uid: atlas-node-exporter-down
+      title: Node exporter down (Atlas scrape set)
+      condition: B
+      for: 5m
+      noDataState: Alerting
+      execErrState: Error
+      annotations:
+        summary: "a node-exporter target on Atlas Prometheus is unreachable"
+      labels:
+        severity: critical
+      data:
+        - refId: A
+          datasourceUid: atlas-prometheus
+          relativeTimeRange:
+            from: 600
+            to: 0
+          model:
+            refId: A
+            expr: up{job="node-exporter"}
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A < 1
+    - uid: atlas-disk-full
+      title: Disk almost full (Atlas scrape set)
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "filesystem >85% full"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: atlas-prometheus
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: 1 - (node_filesystem_avail_bytes{job="node-exporter",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{job="node-exporter",fstype!~"tmpfs|overlay"})
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0.85
+    - uid: atlas-mem-pressure
+      title: Memory pressure (Atlas scrape set)
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "RAM usage >90%"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: atlas-prometheus
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: 1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"})
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0.9
     - uid: nongkee-node-down
       title: Node exporter down (nongkee)
       condition: B
