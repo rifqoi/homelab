@@ -29,11 +29,8 @@ spec:
     - matches:
         - headers:
             - name: x-internal-channel
-              type: RegularExpression
-              value: "^(mobile|ios|android)$"
-            - name: x-internal-client-type
-              type: RegularExpression
-              value: "^(phone|tablet)$"
+              type: Exact
+              value: mobile
       backendRefs:
         - name: mobile-svc
           namespace: example
