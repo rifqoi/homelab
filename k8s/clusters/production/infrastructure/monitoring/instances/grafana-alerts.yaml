@@ -1,0 +1,158 @@
+# Alerts -> n8n webhook -> Telegram (telegram bot creds live in n8n).
+# Required n8n side: a workflow with a Webhook trigger at
+#   POST https://n8n.rifqoi.com/webhook/grafana-alerts
+# feeding a Telegram node. Payload is the standard Grafana webhook body
+# ({status, alerts[], title, message, ...}).
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaContactPoint
+metadata:
+  name: telegram-n8n
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  name: telegram-n8n
+  type: webhook
+  settings:
+    url: https://n8n.rifqoi.com/webhook/grafana-alerts
+    httpMethod: POST
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaNotificationPolicy
+metadata:
+  name: root-to-telegram
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  route:
+    receiver: telegram-n8n
+    groupBy:
+      - grafana_folder
+      - alertname
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 12h
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaAlertRuleGroup
+metadata:
+  name: cluster-health
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  folderRef: cluster
+  interval: 1m
+  rules:
+    - uid: vm-target-down
+      title: Scrape target down
+      condition: B
+      for: 5m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "Target {{ $labels.job }} ({{ $labels.instance }}) is down"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 600
+            to: 0
+          model:
+            refId: A
+            expr: up
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A < 1
+    - uid: pod-crashlooping
+      title: Pod crash looping
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "{{ $labels.namespace }}/{{ $labels.pod }} restarting repeatedly"
+      labels:
+        severity: critical
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: increase(kube_pod_container_status_restarts_total[15m])
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 3
+    - uid: deployment-replicas-mismatch
+      title: Deployment replicas unavailable
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "{{ $labels.namespace }}/{{ $labels.deployment }} has unavailable replicas"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: kube_deployment_spec_replicas - kube_deployment_status_replicas_available
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0
+    - uid: node-not-ready
+      title: Node not ready
+      condition: B
+      for: 5m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "Node {{ $labels.node }} not Ready"
+      labels:
+        severity: critical
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 600
+            to: 0
+          model:
+            refId: A
+            expr: kube_node_status_condition{condition="Ready", status="true"}
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A < 1

@@ -32,6 +32,7 @@ spec:
       dashboards: atlas
   datasource:
     name: Atlas Prometheus
+    uid: atlas-prometheus
     type: prometheus
     access: proxy
     url: http://localhost:9090
@@ -54,6 +55,7 @@ spec:
     # 'localhost' (setup-and-harden-postgresql.yml). This datasource will not
     # connect until postgres listens on tailscale0 and pg_hba/ufw allow Atlas.
     url: nongkee-prd.mullet-manta.ts.net:5432
+    uid: nongkee-postgres
     database: nongkee
     user: postgres
     jsonData:
@@ -75,6 +77,7 @@ spec:
       dashboards: atlas
   datasource:
     name: Cluster VictoriaMetrics
+    uid: vmsingle-cluster
     type: prometheus
     access: proxy
     # Exposed via the shared kgateway HTTPRoute (TLS-terminated).

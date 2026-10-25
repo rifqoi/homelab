@@ -1,0 +1,62 @@
+# Dashboards pulled from grafana.com by ID; the datasource input is wired to
+# the matching operator-managed datasource.
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kubernetes-ksm
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  folder: cluster
+  gnetId: 13335
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Cluster VictoriaMetrics
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: node-exporter-full
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  folder: cluster
+  gnetId: 1860
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Atlas Prometheus
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: victoriametrics
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  folder: cluster
+  gnetId: 10229
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: Cluster VictoriaMetrics
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: nongkee-postgres
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  folder: cluster
+  gnetId: 9628
+  datasources:
+    # postgres_exporter metrics land in Atlas Prometheus (scraped via :9187)
+    - inputName: DS_PROMETHEUS
+      datasourceName: Atlas Prometheus
