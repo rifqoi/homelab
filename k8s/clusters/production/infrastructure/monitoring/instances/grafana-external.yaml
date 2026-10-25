@@ -43,6 +43,23 @@ spec:
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
+  name: vlogs
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  datasource:
+    name: VictoriaLogs
+    uid: vlogs
+    type: loki
+    access: proxy
+    # VictoriaLogs implements the Loki query API; exposed via kgateway route.
+    url: https://vlogs.rifqoi.com
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
   name: nongkee-postgres
   namespace: monitoring
 spec:

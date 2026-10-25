@@ -1,0 +1,29 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VLSingle
+metadata:
+  name: homelab
+  namespace: monitoring
+spec:
+  retentionPeriod: "3"
+  storage:
+    resources:
+      requests:
+        storage: 20Gi
+    storageClassName: zfs-iscsi-retain
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vlsingle
+  namespace: monitoring
+spec:
+  parentRefs:
+    - name: shared
+      namespace: gateway
+      sectionName: https
+  hostnames:
+    - vlogs.rifqoi.com
+  rules:
+    - backendRefs:
+        - name: vlsingle-homelab
+          port: 9428
