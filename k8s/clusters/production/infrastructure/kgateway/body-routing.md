@@ -142,9 +142,18 @@ Kgateway's documented self-managed gateway option lets you own the proxy
 Deployment and bootstrap, but its generated HTTP listeners still come from
 kgateway xDS; verify how to inject the filter before choosing that option.
 Never directly edit the live Envoy config: reconciliation will replace it.
-An [isolated Envoy prototype](examples/body-routing/README.md) here uses a
-static listener and route configuration to demonstrate the filter. It does
-**not** preserve kgateway-managed HTTPRoutes, Service discovery or TLS.
+
+The deployed option is a **separate static Envoy gateway** in
+[`../kgateway-body-router/`](../kgateway-body-router/), reconciled by Flux as
+its own infrastructure component: its own LoadBalancer Service (separate LB
+IP, `announce: "true"` label for Cilium L2, external-dns hostname), HTTPS
+termination with the shared wildcard secret, an HTTP→HTTPS redirect listener,
+and the RBAC + transform + router filter chain. Trade-offs: routes and
+upstream clusters are static Envoy config — no `HTTPRoute`s, no xDS/EDS, no
+Gateway API status — and the Deployment must be restarted after cert-manager
+rotates the wildcard secret because static cert files are only re-read at
+startup. An [isolated prototype](examples/body-routing/README.md) is kept for
+local experiments; the Flux component is the version to edit.
 
 Envoy documents this transform filter as having limited production exposure
 and an unknown security posture. Verify the exact proxy image includes it,
