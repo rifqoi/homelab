@@ -12,6 +12,7 @@ resources:
   - external-dns
   - ./secrets.enc.yaml
   - monitoring
+  - monitoring-instances
   - arc
   - kgateway
   - kgateway-body-router

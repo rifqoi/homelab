@@ -8,8 +8,3 @@ resources:
   - helmrelease-grafana-operator.yaml
   - helmrelease-victoria-operator.yaml
   - helmrelease-kube-state-metrics.yaml
-  - vmagent.yaml
-  - vmsingle.yaml
-  - httproute-vmsingle.yaml
-  - vmservicescrape-kube-state-metrics.yaml
-  - grafana-external.yaml

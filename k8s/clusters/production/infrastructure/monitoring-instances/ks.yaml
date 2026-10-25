@@ -1,0 +1,20 @@
+# CR instances (VMAgent, VMSingle, Grafana CRs, ...) depend on the operator
+# CRDs installed by the monitoring HelmReleases. This Kustomization runs only
+# after `monitoring` reports Ready, so dry-run doesn't fail on missing CRDs.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: monitoring-instances
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: monitoring
+  interval: 15m
+  retryInterval: 2m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./k8s/clusters/production/infrastructure/monitoring/instances
+  prune: true
+  wait: true
