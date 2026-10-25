@@ -1,0 +1,15 @@
+# Gateway-wide route defaults; a TrafficPolicy on an HTTPRoute overrides these.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: TrafficPolicy
+metadata:
+  name: shared
+  namespace: kgateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+  timeouts:
+    # Envoy's 15s route default cuts off streamed responses (SSE, MCP, long
+    # agent calls). Disable it and rely on the 1h stream idle timeout instead.
+    request: 0s
