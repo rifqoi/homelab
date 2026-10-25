@@ -1,0 +1,45 @@
+# selfManaged Gateway: kgateway still generates RDS/CDS/EDS for it (the
+# HTTPRoute below becomes Envoy route config "listener~443"), but creates no
+# Deployment/Service. Those live in deployment.yaml/service.yaml with a custom
+# static listener that holds the RBAC+transform filters and pulls this RDS.
+# Gateway API v1.0 has no per-Gateway parametersRef, so a separate
+# GatewayClass carries the selfManaged GatewayParameters.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: GatewayParameters
+metadata:
+  name: body-router
+  namespace: kgateway-system
+spec:
+  selfManaged: {}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: body-router
+spec:
+  controllerName: kgateway.dev/kgateway
+  parametersRef:
+    group: gateway.kgateway.dev
+    kind: GatewayParameters
+    namespace: kgateway-system
+    name: body-router
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: body-router
+  namespace: kgateway-system
+spec:
+  gatewayClassName: body-router
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: channel.rifqoi.com
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: kgw-wildcard-tls
+      allowedRoutes:
+        namespaces:
+          from: All

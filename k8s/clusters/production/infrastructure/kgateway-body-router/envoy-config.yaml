@@ -1,9 +1,9 @@
 # Separate L7 gateway for request-body routing (channel -> backend).
-# This is a self-managed static Envoy, NOT a kgateway-managed proxy: OSS
-# kgateway cannot inject the envoy.filters.http.transform filter into its
-# xDS-generated listeners, so the listener, routes, and clusters below are
-# defined here directly. Upstream DNS names are placeholders -- replace
-# web-svc/mobile-svc (namespace `example`) with the real Services.
+# Hybrid: the listeners and HTTP filter chain are STATIC (ours), but the :443
+# route table and upstream clusters/endpoints come from the kgateway xDS
+# server (RDS "listener~443" + CDS/EDS) for the selfManaged `body-router`
+# Gateway. HTTPRoutes in httproute.yaml are therefore the live config; edit
+# them, not this file, to change routing.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -16,6 +16,22 @@ data:
         socket_address:
           address: 127.0.0.1
           port_value: 19000
+    # Node identity binding this proxy to the body-router Gateway so the
+    # kgateway xDS server accepts the subscription (self-managed recipe).
+    node:
+      cluster: body-router.kgateway-system
+      metadata:
+        role: gloo-kube-gateway-api~kgateway-system~kgateway-system-body-router
+    dynamic_resources:
+      ads_config:
+        api_type: GRPC
+        grpc_services:
+          - envoy_grpc:
+              cluster_name: xds_cluster
+        transport_api_version: V3
+      cds_config:
+        ads: {}
+        resource_api_version: V3
     static_resources:
       listeners:
         # HTTP -> HTTPS redirect, mirrors the shared kgateway behavior.
@@ -46,7 +62,7 @@ data:
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
         # HTTPS listener terminating the shared *.rifqoi.com wildcard cert.
-        # cert-manager rotates the Secret; the files are only re-read on pod
+        # cert-manager rotates the Secret; files are re-read only on pod
         # start, so restart the Deployment after rotation.
         - name: https
           address:
@@ -91,35 +107,14 @@ data:
                               bytes_received: "%BYTES_RECEIVED%"
                               bytes_sent: "%BYTES_SENT%"
                               user_agent: "%REQ(USER-AGENT)%"
-                    route_config:
-                      name: body_router
-                      virtual_hosts:
-                        - name: body_router
-                          domains: ["channel.rifqoi.com"]
-                          routes:
-                            - match:
-                                prefix: "/"
-                                headers:
-                                  - name: x-internal-channel
-                                    string_match:
-                                      exact: web
-                              route:
-                                cluster: web
-                            - match:
-                                prefix: "/"
-                                headers:
-                                  - name: x-internal-channel
-                                    string_match:
-                                      exact: mobile
-                              route:
-                                cluster: mobile
-                            # Unknown/missing/unparseable channel: fail closed.
-                            - match:
-                                prefix: "/"
-                              direct_response:
-                                status: 400
-                                body:
-                                  inline_string: "unknown or missing channel\n"
+                    # Route table comes from kgateway (HTTPRoute channel-route).
+                    # Verify the generated RDS name matches if kgateway is
+                    # upgraded: pattern is "listener~<port>".
+                    rds:
+                      route_config_name: listener~443
+                      config_source:
+                        ads: {}
+                        resource_api_version: V3
                     http_filters:
                       # Deny client-supplied routing headers BEFORE the body is
                       # read, so a spoofed header can never pick a backend.
@@ -153,29 +148,21 @@ data:
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
       clusters:
-        - name: web
-          type: LOGICAL_DNS
-          connect_timeout: 2s
+        # kgateway xDS control plane (controller service, gRPC 9977).
+        - name: xds_cluster
+          type: STRICT_DNS
+          connect_timeout: 5s
+          typed_extension_protocol_options:
+            envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+              "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+              explicit_http_config:
+                http2_protocol_options: {}
           load_assignment:
-            cluster_name: web
+            cluster_name: xds_cluster
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          # TODO: replace with the real web Service DNS name/port
-                          address: web-svc.example.svc.cluster.local
-                          port_value: 8080
-        - name: mobile
-          type: LOGICAL_DNS
-          connect_timeout: 2s
-          load_assignment:
-            cluster_name: mobile
-            endpoints:
-              - lb_endpoints:
-                  - endpoint:
-                      address:
-                        socket_address:
-                          # TODO: replace with the real mobile Service DNS name/port
-                          address: mobile-svc.example.svc.cluster.local
-                          port_value: 8080
+                          address: kgateway.kgateway-system.svc.cluster.local
+                          port_value: 9977
