@@ -1,0 +1,4 @@
+apiVersion: v2
+name: body-router
+version: 0.1.1
+description: Managed kgateway gateway with static Envoy filter chain for request-body routing

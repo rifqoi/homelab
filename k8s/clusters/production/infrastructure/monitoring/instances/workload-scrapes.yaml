@@ -1,0 +1,102 @@
+# vmagent RBAC for kubelet/cAdvisor scraping.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vmagent-homelab-kubelet
+rules:
+  - nonResourceURLs:
+      - /metrics
+      - /metrics/cadvisor
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - nodes/metrics
+      - nodes/proxy
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vmagent-homelab-kubelet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vmagent-homelab-kubelet
+subjects:
+  - kind: ServiceAccount
+    name: vmagent-homelab
+    namespace: monitoring
+---
+# Host-level metrics from every Talos node via the node-exporter DaemonSet.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-node-exporter
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: http
+      interval: 30s
+      relabelConfigs:
+        - action: labelmap
+          regex: __meta_kubernetes_pod_node_name
+          targetLabel: node
+---
+# Per-pod/container CPU, memory, network, filesystem from cAdvisor.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMNodeScrape
+metadata:
+  name: kubelet-cadvisor
+  namespace: monitoring
+spec:
+  scheme: https
+  port: "10250"
+  path: /metrics/cadvisor
+  interval: 30s
+  scrapeTimeout: 15s
+  bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tlsConfig:
+    insecureSkipVerify: true
+  relabelConfigs:
+    # Keep only container-level series with a pod label; drop node/image junk.
+    - action: keep
+      sourceLabels:
+        - __meta_kubernetes_node_labelpresent_kubernetes_io_hostname
+      regex: "true"
+    - action: drop
+      sourceLabels:
+        - pod
+      regex: ""
+    - action: drop
+      sourceLabels:
+        - container
+      regex: "POD"
+---
+# Kubelet stats: pod counts, volume stats, runtime ops.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMNodeScrape
+metadata:
+  name: kubelet
+  namespace: monitoring
+spec:
+  scheme: https
+  port: "10250"
+  path: /metrics
+  interval: 30s
+  scrapeTimeout: 15s
+  bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  tlsConfig:
+    insecureSkipVerify: true
+  honorLabels: true

@@ -8,3 +8,4 @@ resources:
   - helmrelease-grafana-operator.yaml
   - helmrelease-victoria-operator.yaml
   - helmrelease-kube-state-metrics.yaml
+  - helmrelease-node-exporter.yaml

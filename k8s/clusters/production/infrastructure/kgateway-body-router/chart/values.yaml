@@ -1,0 +1,11 @@
+# Hostname the body-router listener and routes serve.
+hostname: channel.rifqoi.com
+
+# Body fields extracted into internal routing headers by the transform
+# filter. Each entry also generates an RBAC rule denying client-supplied
+# copies of that header. Nested JSON paths use ':' separators.
+extractions:
+  - body: channel
+    header: x-internal-channel
+  - body: phone_number
+    header: x-internal-phone-number

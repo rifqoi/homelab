@@ -18,6 +18,8 @@ in {
       description = "Port for Prometheus web interface";
     };
 
+    remoteWriteReceiver = lib.mkEnableOption "Prometheus remote write receiver endpoint";
+
     scrapeConfigs = lib.mkOption {
       type = lib.types.listOf lib.types.attrs;
       default = [];
@@ -46,6 +48,7 @@ in {
       checkConfig = "syntax-only";
       globalConfig.scrape_interval = "30s";
       retentionTime = "7d";
+      extraFlags = lib.optional cfg.remoteWriteReceiver "--web.enable-remote-write-receiver";
 
       scrapeConfigs =
         [
