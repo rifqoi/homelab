@@ -84,4 +84,4 @@ spec:
     access: proxy
     # Exposed via the shared kgateway HTTPRoute (TLS-terminated).
     url: https://vmsingle.rifqoi.com
-    isDefault: true
+    isDefault: false
