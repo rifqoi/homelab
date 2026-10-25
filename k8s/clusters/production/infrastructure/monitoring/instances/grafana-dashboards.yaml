@@ -149,6 +149,10 @@ spec:
   grafanaCom:
     id: 9628
   datasources:
-    # postgres_exporter metrics land in Atlas Prometheus (scraped via :9187)
+    # postgres_exporter metrics are scraped by vmagent into VMSingle.
     - inputName: DS_PROMETHEUS
-      datasourceName: Atlas Prometheus
+      datasourceName: Cluster VictoriaMetrics
+    - inputName: Prometheus
+      datasourceName: Cluster VictoriaMetrics
+    - inputName: datasource
+      datasourceName: Cluster VictoriaMetrics
