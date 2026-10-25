@@ -1,0 +1,56 @@
+# Real kgateway-managed routes for the body-router. The static Envoy listener
+# subscribes to these via RDS ("listener~443"): it extracts `channel` from the
+# JSON body into x-internal-channel and clears the route cache, so the
+# second route resolution hits one of the header-matched rules below.
+# TODO: replace web-svc/mobile-svc with the real Services.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: DirectResponse
+metadata:
+  name: unknown-channel
+  namespace: kgateway-system
+spec:
+  status: 400
+  body: "unknown or missing channel\n"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: channel-route
+  namespace: kgateway-system
+spec:
+  parentRefs:
+    - name: body-router
+      sectionName: https
+  hostnames:
+    - channel.rifqoi.com
+  rules:
+    # Body-derived headers can use any HTTPRoute header match, including
+    # RegularExpression -- the APISIX-expression equivalent for matching.
+    - matches:
+        - headers:
+            - name: x-internal-channel
+              type: RegularExpression
+              value: "^(mobile|ios|android)$"
+            - name: x-internal-client-type
+              type: RegularExpression
+              value: "^(phone|tablet)$"
+      backendRefs:
+        - name: mobile-svc
+          namespace: example
+          port: 8080
+    - matches:
+        - headers:
+            - name: x-internal-channel
+              type: Exact
+              value: web
+      backendRefs:
+        - name: web-svc
+          namespace: example
+          port: 8080
+    # Fallback for missing/unknown/unparseable channel: fail closed.
+    - filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.kgateway.dev
+            kind: DirectResponse
+            name: unknown-channel
