@@ -53,6 +53,31 @@ spec:
                         key: better-auth-secret
                   - name: BETTER_AUTH_URL
                     value: https://lajur-dev.rifqoi.com
+                  - name: SMTP_HOST
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-smtp
+                        key: SMTP_HOST
+                  - name: SMTP_PORT
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-smtp
+                        key: SMTP_PORT
+                  - name: SMTP_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-smtp
+                        key: SMTP_USER
+                  - name: SMTP_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-smtp
+                        key: SMTP_PASSWORD
+                  - name: SMTP_FROM
+                    valueFrom:
+                      secretKeyRef:
+                        name: lajur-smtp
+                        key: SMTP_FROM
                   - name: ORIGIN
                     value: https://lajur-dev.rifqoi.com
                 readinessProbe:

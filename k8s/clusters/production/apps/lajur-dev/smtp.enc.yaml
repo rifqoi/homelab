@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: lajur-smtp
+type: Opaque
+stringData:
+    SMTP_HOST: ENC[AES256_GCM,data:9nMRPbTBoR7JqAAs06P6vGXayDw=,iv:d1kdzaNk1qTfDMmN4DuDayj/erWYnvJJyHi7pfV8pcE=,tag:ymzo0rL9+LbEN/IlFhhhNA==,type:str]
+    SMTP_PORT: ENC[AES256_GCM,data:UQQ+,iv:o3XvwYKApyV0tmO1YNWO7Zx9YAr8fC78YF6hOa6ErF8=,tag:+Qe1mdG+i2jR11KQUK+okA==,type:str]
+    SMTP_USER: ENC[AES256_GCM,data:wzk192F4zHJQNNPxYa7DDkmsVJ2N6FaNOkmf,iv:abY+mNRccwdx5c+xt6MapzL3hNwgvlGrTGoFIVj7DNQ=,tag:eleH/ojhYUzlbpjNrsv3wg==,type:str]
+    SMTP_PASSWORD: ENC[AES256_GCM,data:HyrQR1ndvHiNAMOhce1EZZBOeM7RxWbAV2viOZQjy7kieVdB9PNZZ/xqIgGB6meuwCYwc+q9YkXtQoAP6mU9i8X0gSkcVrnorY7K4inHYt2/+2As9Ln43rme,iv:uMFxXvmnMsmaTe0k0c9Bnn9gQUnsADJXqFAZjkfF4Ho=,tag:mkzxMUVBCIGi547JEOVGng==,type:str]
+    SMTP_FROM: ENC[AES256_GCM,data:KPtvb/wD9o9BEdaQQtmcgoCj,iv:0+7bHyYWb0G2wa3mJW01fET0VRIuM5/xw6oEiG0qXcA=,tag:4MjkVTwgzFBro/oUUYu4rw==,type:str]
+sops:
+    age:
+        - recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBjbkZQN2NPOHNBZ2tYLzA3
+            eWVTY3JhQ0c2U2JNZTJvQzV0dDRlVkNQckJnCklIWjNNNC9lVU9XdUVjcjRMQnk4
+            UHY1Vyt1cGpyMmpxV2xoSXFXUlVjUjgKLS0tIFlqQlFlblo4UkgrRXYveGRwUWJE
+            QytHWFRhUitIQXJhRXplZThNNi8xVUUKRPAY+UYhbFWqolNlJB03Ap4Ftp0HiXn9
+            EoH3oc1YnrdgELzWLvq1DpYKE6oh7CJGAHAaLQ1pZE49roN1GftiTw==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-10-25T11:30:16Z"
+    mac: ENC[AES256_GCM,data:ELFEBL8FMbaS+yp0R5ZB8dOf+E/Pl/8DJXntNjKOQbrL2AzqHT7cH226g06OKTuW0qceH3P+tK2oO7/wCzbqoZkmZLl6nEMOrjDJt13iZVeZl9X2LxamI7QSJQWNY4NdVnSgMwdGshJ9UCCbpUVmoBAJTruj+BhOwmIN5L/hBiI=,iv:YUq4XR1e6xhUfZ5Onzy3oRVYKMKR9PF6fGzAI5ZnfvM=,tag:X9nuTYkBlh3HAA1HhphZDw==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.10.2

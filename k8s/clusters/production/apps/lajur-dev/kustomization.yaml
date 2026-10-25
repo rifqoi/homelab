@@ -5,6 +5,7 @@ namespace: lajur-dev
 resources:
   - cluster-cnpg.yaml
   - secrets.enc.yaml
+  - smtp.enc.yaml
   - image-provider.yaml
   - resourceset.yaml
   - service.yaml
