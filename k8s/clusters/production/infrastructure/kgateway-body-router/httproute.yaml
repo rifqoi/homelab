@@ -44,6 +44,44 @@ spec:
         - name: web-svc
           namespace: example
           port: 8080
+    # Provider routing on body.phone_number prefixes (approximate
+    # Indonesian mobile prefixes, local 08xx format).
+    - matches:
+        - headers:
+            - name: x-internal-phone-number
+              type: RegularExpression
+              value: "^08(11|12|13|21|22|23|51|52|53)"  # Telkomsel
+      backendRefs:
+        - name: telkomsel-svc
+          namespace: example
+          port: 8080
+    - matches:
+        - headers:
+            - name: x-internal-phone-number
+              type: RegularExpression
+              value: "^08(17|18|19|59|77|78)"  # XL
+      backendRefs:
+        - name: xl-svc
+          namespace: example
+          port: 8080
+    - matches:
+        - headers:
+            - name: x-internal-phone-number
+              type: RegularExpression
+              value: "^08(14|15|16|55|56|57|58)"  # Indosat
+      backendRefs:
+        - name: indosat-svc
+          namespace: example
+          port: 8080
+    - matches:
+        - headers:
+            - name: x-internal-phone-number
+              type: RegularExpression
+              value: "^089[5-9]"  # Tri
+      backendRefs:
+        - name: tri-svc
+          namespace: example
+          port: 8080
     # Fallback for missing/unknown/unparseable channel: fail closed.
     - filters:
         - type: ExtensionRef
