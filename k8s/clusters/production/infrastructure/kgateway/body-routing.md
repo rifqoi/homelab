@@ -161,13 +161,100 @@ bootstrap so kgateway doesn't also inject its own filter-less listeners,
 and the RDS `route_config_name` is the listener **section name** (`https`)
 for TLS listeners — `listener~<port>` is only used for plain HTTP chains.
 
-Trade-offs: kgateway policies on those routes (TrafficPolicy timeouts,
-header modifiers) land in the generated listener filter chain, which our
-static listener doesn't have; the wildcard cert is file-mounted (no
-rotation reload without restart); and the bootstrap is a copy of the
-generated format, so it needs review on kgateway upgrades. An
-[isolated prototype](examples/body-routing/README.md) is kept for local
-experiments; the Flux component is the version to edit.
+### Configuration surface
+
+The component is packaged as a local Helm chart
+(`../kgateway-body-router/chart/`) applied via `helmrelease.yaml`. The
+chart owns the gateway plumbing (GatewayParameters, GatewayClass, Gateway,
+bootstrap ConfigMap); `chart/values.yaml` is the single edit point:
+
+```yaml
+hostname: channel.rifqoi.com
+extractions:
+  - body: channel          # %REQUEST_BODY(channel)%
+    header: x-internal-channel
+  - body: phone_number
+    header: x-internal-phone-number
+```
+
+Each `extractions` entry generates **both** the transform
+`headers_mutations` entry and an RBAC deny policy against client-supplied
+copies of that header — add a field, get the spoof guard free.
+
+Alongside the chart, plain manifests hold the app-side config:
+
+- `httproute.yaml` — routing rules on the extracted headers (`Exact` and
+  `RegularExpression` match types), plus per-field fallbacks
+  (`x-internal-channel: .+` -> `other-svc`,
+  `x-internal-phone-number: .+` -> `indosat-svc`) and a `DirectResponse`
+  400 for bodies with neither field.
+- `referencegrant.yaml` — permits the `kgateway-system` HTTPRoute to
+  reference backend Services in `example`.
+- `backend.yaml` — a `Backend` `priorityGroups` failover chain (see below).
+
+To add a new body field: append to `values.extractions`, add match rules in
+`httproute.yaml`. Bump `chart/Chart.yaml`'s `version` so Flux detects the
+content change and performs a Helm upgrade.
+
+### Per-service health failover
+
+`channel: mobile` routes to a `priorityGroups` `Backend` (experimental
+v1alpha1 API) rather than a Service directly:
+
+- **Group 0** -> `mobile-backend` (primary; traffic only goes here when healthy)
+- **Group 1** -> `other-backend` (absorbs traffic when group 0 is fully down)
+- **`BackendConfigPolicy`** targeting the failover Backend supplies an
+  active HTTP health check (`interval: 2s`, `unhealthyThreshold: 1`)
+  that drives the failover.
+
+Verified live: scaling `mobile-svc` to zero replicas spilled
+`channel: mobile` traffic onto `other-svc` (HTTP 405 from nginx, not 503)
+within seconds. `priorityGroups` is Envoy's priority-failover mechanism —
+each group is a priority level; traffic spills to the next only when the
+current level has no healthy endpoints. This is per-service health
+failover without a mesh, an extra hop, or Enterprise.
+
+### Limitations
+
+- **Static filter chain, not kgateway-managed** — the :443 listener lives
+  in our bootstrap ConfigMap, not in kgateway's generated xDS listener.
+  kgateway policies that would land in the listener filter chain
+  (TrafficPolicy timeouts, header modifiers, etc.) do **not** apply here;
+  reimplement what you need in the static filters.
+- **Transform filter maturity** — Envoy documents `envoy.filters.http.transform`
+  as having limited production exposure and an unknown security posture.
+  Buffer every request body; set body size limits appropriate to the app.
+- **Missing/malformed fields** — a body that lacks every extracted field
+  (or isn't JSON) produces no headers and hits the 400 `DirectResponse`
+  catch-all. Single-field bodies are fine; only "neither field" fails.
+- **Extraction is listener-wide** — every request on the gateway runs all
+  extractions. Routing can't be made field-selective per route because
+  extraction happens before route selection (it must, to inform it).
+  True per-route extraction (annotation-driven like APISIX) would need the
+  kgateway plugin fork.
+- **TLS cert rotation needs a restart** — the wildcard secret is
+  file-mounted; Envoy reads it at startup. `kubectl rollout restart
+  deploy/body-router` after cert-manager rotates it.
+- **Bootstrap is a snapshot of the generated format** — node identity,
+  `xds_cluster` wiring, and the SDS token file are copied from kgateway
+  2.4.7's generated bootstrap. Re-diff against a fresh generated
+  bootstrap on every kgateway upgrade.
+- **`priorityGroups` is experimental** — marked subject to breaking changes
+  in v1alpha1. Expect the shape to move on upgrades.
+- **Failover detection latency** — the health-check interval/thresholds in
+  `BackendConfigPolicy` control how fast a dead service fails over; a few
+  seconds of 503s is possible during detection. Tune for your SLA.
+- **`httproute.yaml` header fallbacks are value fallbacks, not health
+  fallbacks** — `channel: anything -> other` is a static match fallback;
+  only `priorityGroups` responds to *health*.
+- **Flux only sees chart-version bumps** — editing `chart/values.yaml`
+  alone doesn't change the chart digest in some Flux paths; bump
+  `Chart.yaml` `version` when shipping values changes so the HelmRelease
+  upgrades.
+- **Spoofing requires the RBAC guard** — without it a client could send
+  `x-internal-channel`/`x-internal-phone-number` directly and skip the
+  body entirely; keep both lists in sync by only ever adding headers via
+  `extractions`, never by hand.
 
 Envoy documents this transform filter as having limited production exposure
 and an unknown security posture. Verify the exact proxy image includes it,
