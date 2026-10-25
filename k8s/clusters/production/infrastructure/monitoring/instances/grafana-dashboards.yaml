@@ -147,6 +147,9 @@ metadata:
   name: nongkee-postgres
   namespace: monitoring
 spec:
+  # Force re-render: operator caches grafanaCom content and kept the stale
+  # "Atlas Prometheus" datasource substitution.
+  contentCacheDuration: 1m
   instanceSelector:
     matchLabels:
       dashboards: atlas
