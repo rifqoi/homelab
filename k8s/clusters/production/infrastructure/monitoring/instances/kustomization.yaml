@@ -5,6 +5,7 @@ resources:
   - vmsingle.yaml
   - httproute-vmsingle.yaml
   - vmservicescrape-kube-state-metrics.yaml
+  - vmscrapeconfig-nongkee.yaml
   - grafana-atlas-token.enc.yaml
   - grafana-external.yaml
   - grafana-folder.yaml
