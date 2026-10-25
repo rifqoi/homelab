@@ -17,6 +17,11 @@ spec:
   values:
     logLevel: info
     policy: upsert-only
+    # The OpenWrt webhook only stores A/AAAA/CNAME (UCI dhcp domain entries), so
+    # TXT ownership records never persist and the txt registry treats every
+    # existing record as foreign, skipping updates. noop skips ownership;
+    # upsert-only still prevents deletes.
+    registry: noop
     provider:
       name: webhook
       webhook:
