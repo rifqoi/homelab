@@ -1,15 +1,3 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: grafana-atlas-credentials
-  namespace: monitoring
-stringData:
-  user: admin
-  # The Grafana admin password on Atlas. If you move it out of the NixOS
-  # config (currently the insecure default), encrypt this file with sops:
-  #   sops --encrypt --in-place grafana-external.yaml
-  password: admin
----
 apiVersion: grafana.integreatly.org/v1beta1
 kind: Grafana
 metadata:
@@ -19,15 +7,16 @@ metadata:
     dashboards: atlas
 spec:
   external:
-    # Atlas LAN IP (grafana.home.local). The operator manages this instance
-    # via the Grafana API; it does not deploy anything.
-    url: http://192.168.31.12:3000
-    adminUser:
-      name: grafana-atlas-credentials
-      key: user
-    adminPassword:
-      name: grafana-atlas-credentials
-      key: password
+    # Atlas Grafana. The operator manages this instance via the Grafana API;
+    # it does not deploy anything.
+    # NOTE 1: must use the canonical domain — enforce_domain=true redirects
+    #   raw-IP requests to grafana.rifqoi.com and the operator won't follow.
+    # NOTE 2: basic auth admin/admin fails (anonymous viewer fallback), so we
+    #   authenticate with a service account token instead.
+    url: https://grafana.rifqoi.com
+    apiKey:
+      name: grafana-atlas-token
+      key: token
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource

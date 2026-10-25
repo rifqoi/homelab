@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: grafana-atlas-token
+    namespace: monitoring
+stringData:
+    #ENC[AES256_GCM,data:+5B6uPsxf07vnvT1Wcw6GL/7pPuLkloIdYt29Oq9LhaXSYduYWkyZNP/4VM76wWs9F6w5Ru6hg==,iv:9U/5ksfFVGhtajTKM7XPh2qN4jYJoTLvqnGWd77NLqY=,tag:189x5IMfU8/Elvs82scKWg==,type:comment]
+    #ENC[AES256_GCM,data:4PKTYddJRAJD/TQSBsEuRYT482wKbUPj2Uz1MOyDX3Csx8dx+QJBaLk8JUvGQRbAkim95lAwLTi0bc3dlh/1sg==,iv:PovY0ilt5gWKIqABEp1v432YAfqpeN/sP2x1eHcBRxU=,tag:6btDtigoqRmvtejnDW8SMA==,type:comment]
+    token: ENC[AES256_GCM,data:CdT/H6/5FJJGuRUuMbe+H4bvjzXKBRquevJ755aLjjMp5Ffk7dalFprCR03z+g==,iv:KHMXdLQ2R4Bn3bW1qktbd2jpbiGwWKqCkH1yYjhQmgs=,tag:UMKaHvgI6hnAGQD2CbU5dw==,type:str]
+sops:
+    age:
+        - recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCK2ZNS09Xam91Ry9MQUs3
+            RUhjMTR3RUZoaUcyWk1GVlFvUWFLd2V2UW5zClk2cG1seXBqMUhYTDNnR01IRmlC
+            d0xHRGFUV25KbXF1Uk0rKzd6SUN4REkKLS0tIHEzR3p1dk8ydkh3L2ZyYkN1aFVy
+            cGRoTlJ4SmNmYWRHeXZNeC9zOHg3Y3cKMQHPSKry4HCaTWas96Gs4roavOUPV3I2
+            vlg9HSI8UgEY9TC/g/t6iR31RJIgmEZRN+a9WAjMp1WkfxuKQwnKtg==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-10-25T16:29:11Z"
+    mac: ENC[AES256_GCM,data:NqIeJ3d/upfSknj1vSIwlVMQs7Uj0H9tB7pdeup1wW06gQ8GctC0dxBfLtLpyID+ZkqX+KBBbG4dze4m995aRCvS1JoC64j79IpEOtJdVD+BpDfdWL3B3KLjoAUZ0KnVdstamTsW7OohL2EiUQemU7n2d3Lu4zMbseTBUmuVX1I=,iv:f7xIn6MHpN19pjAsEQ5myBHlY3oBClCcaPpKpbuabi0=,tag:4V78iG0XBTC2IlR9rwuEiA==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.10.2
