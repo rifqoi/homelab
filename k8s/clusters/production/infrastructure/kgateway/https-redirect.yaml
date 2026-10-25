@@ -1,0 +1,22 @@
+# Redirects plain HTTP to HTTPS for every *.rifqoi.com host on the shared gateway,
+# so app routes only attach to the https listener.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+  namespace: kgateway-system
+  annotations:
+    # App routes publish their own records; don't create a *.rifqoi.com wildcard.
+    external-dns.alpha.kubernetes.io/controller: none
+spec:
+  parentRefs:
+    - name: shared
+      sectionName: http
+  hostnames:
+    - "*.rifqoi.com"
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
