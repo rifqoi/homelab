@@ -1,0 +1,173 @@
+# An isolated, self-managed proof of concept. Not included in production Flux.
+# The Envoy listener and routes below are STATIC; kgateway HTTPRoutes do not
+# configure this listener. Replace the demo Service DNS names before use.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: body-routing-demo-envoy
+  namespace: kgateway-system
+data:
+  envoy.yaml: |
+    admin:
+      address:
+        socket_address:
+          address: 127.0.0.1
+          port_value: 19000
+    node:
+      cluster: body-routing-demo.kgateway-system
+      metadata:
+        role: gloo-kube-gateway-api~kgateway-system~kgateway-system-body-routing-demo
+    static_resources:
+      listeners:
+        - name: body-routing-demo
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 8080
+          per_connection_buffer_limit_bytes: 65536
+          filter_chains:
+            - filters:
+                - name: envoy.filters.network.http_connection_manager
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                    stat_prefix: body_router
+                    codec_type: AUTO
+                    route_config:
+                      name: body-routing-demo
+                      virtual_hosts:
+                        - name: body-routing-demo
+                          domains: ["*"]
+                          routes:
+                            - match:
+                                prefix: "/"
+                                headers:
+                                  - name: x-internal-channel
+                                    string_match:
+                                      exact: web
+                              route:
+                                cluster: web
+                            - match:
+                                prefix: "/"
+                                headers:
+                                  - name: x-internal-channel
+                                    string_match:
+                                      exact: mobile
+                              route:
+                                cluster: mobile
+                            - match:
+                                prefix: "/"
+                              direct_response:
+                                status: 400
+                                body:
+                                  inline_string: "unknown or missing channel\n"
+                    http_filters:
+                      # Reject client-supplied routing headers BEFORE the body
+                      # filter; invalid JSON must not fall back to a spoofed route.
+                      - name: envoy.filters.http.rbac
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+                          rules:
+                            action: DENY
+                            policies:
+                              client-routing-header:
+                                permissions:
+                                  - header:
+                                      name: x-internal-channel
+                                      present_match: true
+                                principals:
+                                  - any: true
+                      - name: envoy.filters.http.transform
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.transform.v3.TransformConfig
+                          request_transformation:
+                            headers_mutations:
+                              - append:
+                                  header:
+                                    key: x-internal-channel
+                                    value: "%REQUEST_BODY(channel)%"
+                                  append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                          clear_route_cache: true
+                      - name: envoy.filters.http.router
+                        typed_config:
+                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+      clusters:
+        - name: web
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: web
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: web-svc.example.svc.cluster.local
+                          port_value: 8080
+        - name: mobile
+          type: STRICT_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: mobile
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: mobile-svc.example.svc.cluster.local
+                          port_value: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: body-routing-demo
+  namespace: kgateway-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: body-routing-demo
+  template:
+    metadata:
+      labels:
+        app: body-routing-demo
+        gateway.networking.k8s.io/gateway-name: body-routing-demo
+    spec:
+      containers:
+        - name: envoy
+          image: envoyproxy/envoy:v1.38.1
+          command: ["/usr/local/bin/envoy"]
+          args: ["-c", "/etc/envoy/envoy.yaml"]
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/envoy
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+      volumes:
+        - name: config
+          configMap:
+            name: body-routing-demo-envoy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: body-routing-demo
+  namespace: kgateway-system
+spec:
+  type: ClusterIP
+  selector:
+    app: body-routing-demo
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

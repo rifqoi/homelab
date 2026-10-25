@@ -1,0 +1,33 @@
+# The installed Gateway API v1.0 CRDs do not support Gateway.infrastructure,
+# so selfManaged must be attached to a separate GatewayClass.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: GatewayParameters
+metadata:
+  name: body-routing-demo
+  namespace: kgateway-system
+spec:
+  selfManaged: {}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: body-routing-demo
+spec:
+  controllerName: kgateway.dev/kgateway
+  parametersRef:
+    group: gateway.kgateway.dev
+    kind: GatewayParameters
+    namespace: kgateway-system
+    name: body-routing-demo
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: body-routing-demo
+  namespace: kgateway-system
+spec:
+  gatewayClassName: body-routing-demo
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 8080

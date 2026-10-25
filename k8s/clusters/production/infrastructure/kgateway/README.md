@@ -4,6 +4,10 @@ This is the shared Gateway API entrypoint for `*.rifqoi.com` on the Talos
 production cluster. One `Gateway` (`kgateway-system/shared`) owns a single
 LoadBalancer IP, and app `HTTPRoute`s in any namespace attach to it.
 
+For request-body-based routing without an external processing service, see
+[`body-routing.md`](body-routing.md) for Enterprise, OSS/Envoy, and agentgateway
+options.
+
 - `gateway.yaml` has two listeners: `http` on 80 and `https` on 443,
   terminating TLS with the `kgw-wildcard-tls` wildcard certificate from
   `certificate.yaml`.
