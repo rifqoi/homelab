@@ -113,8 +113,13 @@ spec:
   grafanaCom:
     id: 1860
   datasources:
+    # node_* series incl. nongkee land in VMSingle via vmagent.
     - inputName: DS_PROMETHEUS
-      datasourceName: Atlas Prometheus
+      datasourceName: Cluster VictoriaMetrics
+    - inputName: Prometheus
+      datasourceName: Cluster VictoriaMetrics
+    - inputName: datasource
+      datasourceName: Cluster VictoriaMetrics
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
