@@ -18,3 +18,7 @@ spec:
   path: ./k8s/clusters/production/infrastructure/monitoring/instances
   prune: true
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
