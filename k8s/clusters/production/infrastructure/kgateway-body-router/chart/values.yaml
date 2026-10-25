@@ -7,3 +7,5 @@ hostname: channel.rifqoi.com
 extractions:
   - body: channel
     header: x-internal-channel
+  - body: phone_number
+    header: x-internal-phone-number
