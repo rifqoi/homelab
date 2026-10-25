@@ -1,4 +1,4 @@
-# homelab
+# gitops homelab
 
 One repo rebuilds the whole lab: the OpenWrt router, the NixOS server it
 fronts, seven nixos-containers on that server, and the Talos Kubernetes
