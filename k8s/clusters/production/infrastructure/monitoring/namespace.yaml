@@ -2,3 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: monitoring
+  labels:
+    # node-exporter DaemonSet needs hostNetwork/hostPID/hostPath — baseline
+    # PodSecurity blocks it.
+    pod-security.kubernetes.io/enforce: privileged
