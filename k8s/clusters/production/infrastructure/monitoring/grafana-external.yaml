@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-atlas-credentials
+  namespace: monitoring
+stringData:
+  user: admin
+  # The Grafana admin password on Atlas. If you move it out of the NixOS
+  # config (currently the insecure default), encrypt this file with sops:
+  #   sops --encrypt --in-place grafana-external.yaml
+  password: admin
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: atlas
+  namespace: monitoring
+  labels:
+    dashboards: atlas
+spec:
+  external:
+    # Atlas LAN IP (grafana.home.local). The operator manages this instance
+    # via the Grafana API; it does not deploy anything.
+    url: http://192.168.31.12:3000
+    adminUser:
+      name: grafana-atlas-credentials
+      key: user
+    adminPassword:
+      name: grafana-atlas-credentials
+      key: password
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: atlas-prometheus
+  namespace: monitoring
+spec:
+  # NOTE: Atlas already provisions a "Prometheus" datasource via NixOS
+  # (services.grafana.provision). This CR is only needed if you want GitOps
+  # control from the cluster; delete it to keep NixOS as the single source.
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  datasource:
+    name: Atlas Prometheus
+    type: prometheus
+    access: proxy
+    url: http://localhost:9090
+    isDefault: false
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: nongkee-postgres
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  datasource:
+    name: Nongkee Postgres
+    type: postgres
+    access: proxy
+    # NOTE: postgres on the nongkee VM currently has listen_addresses =
+    # 'localhost' (setup-and-harden-postgresql.yml). This datasource will not
+    # connect until postgres listens on tailscale0 and pg_hba/ufw allow Atlas.
+    url: nongkee-prd.mullet-manta.ts.net:5432
+    database: nongkee
+    user: postgres
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+    # Real password lives in the nongkee-be ansible vault — put it here and
+    # sops-encrypt this file, or source it from a Secret.
+    secureJsonData:
+      password: changeme
