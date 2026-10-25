@@ -4,7 +4,11 @@ resources:
   - namespace.yaml
   - helmrepository-grafana.yaml
   - helmrepository-victoria.yaml
+  - helmrepository-prometheus.yaml
   - helmrelease-grafana-operator.yaml
   - helmrelease-victoria-operator.yaml
+  - helmrelease-kube-state-metrics.yaml
   - vmagent.yaml
+  - vmsingle.yaml
+  - vmservicescrape-kube-state-metrics.yaml
   - grafana-external.yaml

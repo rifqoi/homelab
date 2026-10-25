@@ -74,3 +74,20 @@ spec:
     # sops-encrypt this file, or source it from a Secret.
     secureJsonData:
       password: changeme
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: vmsingle-cluster
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: atlas
+  datasource:
+    name: Cluster VictoriaMetrics
+    type: prometheus
+    access: proxy
+    # Cilium L2 LoadBalancer IP for vmsingle-homelab (LAN-reachable from Atlas).
+    url: http://192.168.31.160:8429
+    isDefault: false
