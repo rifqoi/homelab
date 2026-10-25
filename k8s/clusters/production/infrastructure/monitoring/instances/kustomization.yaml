@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - vmagent.yaml
   - vmsingle.yaml
+  - vlsingle.yaml
   - httproute-vmsingle.yaml
   - vmservicescrape-kube-state-metrics.yaml
   - vmscrapeconfig-nongkee.yaml
