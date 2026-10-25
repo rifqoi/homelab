@@ -5,6 +5,7 @@ namespace: lajur-preview
 resources:
   - rbac.yaml
   - secrets.enc.yaml
+  - smtp.enc.yaml
   - certificate.yaml
   - cluster-cnpg.yaml
   - provider.yaml
