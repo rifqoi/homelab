@@ -19,6 +19,7 @@ data:
     # Node identity binding this proxy to the body-router Gateway so the
     # kgateway xDS server accepts the subscription (self-managed recipe).
     node:
+      id: body-router.kgateway-system
       cluster: body-router.kgateway-system
       metadata:
         role: gloo-kube-gateway-api~kgateway-system~kgateway-system-body-router
