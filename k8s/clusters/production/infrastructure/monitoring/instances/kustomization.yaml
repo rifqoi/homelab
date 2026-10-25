@@ -7,3 +7,6 @@ resources:
   - vmservicescrape-kube-state-metrics.yaml
   - grafana-atlas-token.enc.yaml
   - grafana-external.yaml
+  - grafana-folder.yaml
+  - grafana-dashboards.yaml
+  - grafana-alerts.yaml
