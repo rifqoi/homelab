@@ -1,10 +1,10 @@
 # homelab
 
-NixOS and Kubernetes config for a single-server homelab. The host, the
-router, and the cluster all live here: `hosts/` and `modules/` build the
-NixOS machines and the nixos-containers on them, `k8s/` defines the Talos
-cluster that runs on the host's libvirt, and Flux reconciles
-`k8s/clusters/production` from `main`.
+One repo rebuilds the whole lab: the OpenWrt router, the NixOS server it
+fronts, seven nixos-containers on that server, and the Talos Kubernetes
+cluster running on its VMs. `hosts/` and `modules/` are the NixOS side,
+`k8s/` is the cluster, and Flux reconciles `k8s/clusters/production`
+from `main`.
 
 ```mermaid
 flowchart TB
