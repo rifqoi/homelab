@@ -69,9 +69,9 @@ flowchart TB
   the service starts; `modules/storage/iscsi.nix` also autostarts the
   `talos-*` libvirt domains only after iSCSI is up.
 - **prometheus + grafana + node-exporter + ping-exporter** (`features.monitoring`)
-  scrape the host, the router, and `nongkee-prd` over Tailscale. Prometheus
-  keeps 7d and runs the remote-write receiver.
-- **tailscale** for reaching `nongkee-prd.mullet-manta.ts.net`.
+  scrape the host, the router, and a VM over Tailscale. Prometheus keeps
+  7d and runs the remote-write receiver.
+- **tailscale**: MagicDNS on; reaches the off-LAN scrape targets.
 - **e1000e watchdog**: TSO stays off on `eno2`, and a 5-minute-cooldown
   timer restarts `network-setup` after a transmit-queue stall.
 - **openwrtDnsRecords**: a path unit watches `/run/current-system` and
@@ -106,7 +106,7 @@ flowchart TB
 | `cloudnative-pg` | Postgres operator; app clusters live next to their apps |
 | `monitoring` | victoria-metrics operator, kube-state-metrics, grafana operator |
 | `monitoring-instances` | `vmagent` → `vmsingle`, grafana CRs; a separate Flux Kustomization so operator CRDs exist before the CRs apply |
-| `arc` | actions-runner-controller + runner scale sets for the `images`, `lajur`, and `nongkee-be` builds |
+| `arc` | actions-runner-controller + runner scale sets that build the `registry.rifqoi.com` images |
 | `headlamp` | cluster dashboard behind pocket-id OIDC |
 | `namespaces`, `base/namespace` | namespace + pull-secret plumbing |
 
@@ -122,7 +122,6 @@ flowchart TB
 | `ck-x` | CK-X simulator stack (webapp, remote desktop/terminal, facilitator, redis) |
 | `buildkit` | buildkitd for in-cluster image builds |
 | `rifqoi-com` | personal site (`registry.rifqoi.com/rifqoi-com`) |
-| `nongkee-id`, `nongkee-be` | nongkee frontend + backend (cnpg, registry images) |
 | `lajur-dev`, `lajur-preview` | lajur dev environment and ResourceSet-driven PR previews |
 | `nginx`, `netshoot` | smoke-test and debug pods |
 
