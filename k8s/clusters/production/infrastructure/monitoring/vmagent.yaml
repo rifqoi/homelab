@@ -12,7 +12,7 @@ spec:
   selectAllByDefault: true
   remoteWrite:
     # In-cluster VMSingle is the metrics store. Atlas Grafana queries it via
-    # the LAN LoadBalancer service (vmsingle-homelab-lb).
+    # the kgateway HTTPRoute at vmsingle.rifqoi.com.
     - url: http://vmsingle-homelab.monitoring.svc:8429/api/v1/write
   extraArgs:
     remoteWrite.label: cluster=production

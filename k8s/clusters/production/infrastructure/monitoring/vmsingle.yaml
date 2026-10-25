@@ -17,24 +17,3 @@ spec:
     limits:
       cpu: "1"
       memory: 1Gi
----
-# Expose VMSingle on the LAN so the external Grafana on Atlas can query it.
-# Cilium L2 announces it (service needs label announce: "true").
-apiVersion: v1
-kind: Service
-metadata:
-  name: vmsingle-homelab-lb
-  namespace: monitoring
-  labels:
-    announce: "true"
-  annotations:
-    io.cilium/lb-ipam-ips: "192.168.31.160"
-spec:
-  type: LoadBalancer
-  selector:
-    app.kubernetes.io/name: vmsingle
-    app.kubernetes.io/instance: homelab
-  ports:
-    - name: http
-      port: 8429
-      targetPort: 8429

@@ -88,6 +88,6 @@ spec:
     name: Cluster VictoriaMetrics
     type: prometheus
     access: proxy
-    # Cilium L2 LoadBalancer IP for vmsingle-homelab (LAN-reachable from Atlas).
-    url: http://192.168.31.160:8429
+    # Exposed via the shared kgateway HTTPRoute (TLS-terminated).
+    url: https://vmsingle.rifqoi.com
     isDefault: false

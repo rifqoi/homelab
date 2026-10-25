@@ -10,5 +10,6 @@ resources:
   - helmrelease-kube-state-metrics.yaml
   - vmagent.yaml
   - vmsingle.yaml
+  - httproute-vmsingle.yaml
   - vmservicescrape-kube-state-metrics.yaml
   - grafana-external.yaml
