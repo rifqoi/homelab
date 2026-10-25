@@ -4,5 +4,7 @@ resources:
   - helmrepository.yaml
   - helmrelease-crds.yaml
   - helmrelease.yaml
+  - gatewayparameters.yaml
   - certificate.yaml
   - gateway.yaml
+  - https-redirect.yaml

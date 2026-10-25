@@ -26,3 +26,8 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  values:
+    gatewayClassParametersRefs:
+      kgateway:
+        name: kgateway
+        namespace: kgateway-system
