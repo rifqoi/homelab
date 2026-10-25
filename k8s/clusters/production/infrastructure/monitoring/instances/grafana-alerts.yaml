@@ -127,6 +127,60 @@ spec:
             refId: B
             type: math
             expression: $A > 0
+    - uid: nongkee-postgres-down
+      title: Postgres exporter down (nongkee)
+      condition: B
+      for: 5m
+      noDataState: Alerting
+      execErrState: Error
+      annotations:
+        summary: "postgres_exporter on nongkee is unreachable"
+      labels:
+        severity: critical
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 600
+            to: 0
+          model:
+            refId: A
+            expr: pg_up{job="nongkee-postgres"}
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A < 1
+    - uid: nongkee-postgres-connections
+      title: Postgres high connection usage (nongkee)
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "nongkee postgres using >80% of max connections"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: sum(pg_stat_activity_count{job="nongkee-postgres", datname!~"template.*"}) / max(pg_settings_max_connections{job="nongkee-postgres"})
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0.8
     - uid: node-not-ready
       title: Node not ready
       condition: B
