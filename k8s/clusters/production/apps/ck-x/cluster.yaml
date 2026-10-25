@@ -47,9 +47,15 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 30
+          # The exam cluster (k3d) is only created on demand by env-setup when an
+          # exam starts, so :6443 is closed while idle. Probing it killed the
+          # container every ~4m and wiped the exam cluster. Check the inner
+          # Docker daemon instead, which is up for the container's whole life.
           livenessProbe:
-            tcpSocket:
-              port: api
+            exec:
+              command:
+                - docker
+                - info
             initialDelaySeconds: 120
             periodSeconds: 20
             timeoutSeconds: 5

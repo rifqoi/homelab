@@ -25,6 +25,20 @@ spec:
       port: 22
       targetPort: jumphost-ssh
 ---
+# Exam questions say `ssh ckad9999`; upstream gets that name from the jumphost
+# container's compose hostname. Same backend as the jumphost Service.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ckad9999
+spec:
+  selector:
+    app.kubernetes.io/name: ckx-cluster
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: jumphost-ssh
+---
 apiVersion: v1
 kind: Service
 metadata:
