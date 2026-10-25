@@ -2,37 +2,37 @@
 # the tailscale IP). Atlas Prometheus scrapes these too — duplication is
 # intentional so cluster Grafana has them via the VM datasource.
 apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMScrapeConfig
+kind: VMStaticScrape
 metadata:
   name: nongkee-node
   namespace: monitoring
 spec:
-  job_name: nongkee-node-exporter
-  scrape_interval: 30s
-  static_configs:
+  jobName: nongkee-node-exporter
+  targetEndpoints:
     - targets:
         - 100.121.58.61:9100
+      interval: 30s
 ---
 apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMScrapeConfig
+kind: VMStaticScrape
 metadata:
   name: nongkee-postgres
   namespace: monitoring
 spec:
-  job_name: nongkee-postgres
-  scrape_interval: 30s
-  static_configs:
+  jobName: nongkee-postgres
+  targetEndpoints:
     - targets:
         - 100.121.58.61:9187
+      interval: 30s
 ---
 apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMScrapeConfig
+kind: VMStaticScrape
 metadata:
   name: nongkee-app
   namespace: monitoring
 spec:
-  job_name: nongkee
-  scrape_interval: 30s
-  static_configs:
+  jobName: nongkee
+  targetEndpoints:
     - targets:
         - 100.121.58.61:8081
+      interval: 30s
