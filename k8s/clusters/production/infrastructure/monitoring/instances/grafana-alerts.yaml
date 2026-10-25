@@ -145,7 +145,7 @@ spec:
             to: 0
           model:
             refId: A
-            expr: up{job="node-exporter"}
+            expr: up{job="node-exporter",instance!="nongkee.home.local:9100"}
             instant: true
             range: false
         - refId: B
