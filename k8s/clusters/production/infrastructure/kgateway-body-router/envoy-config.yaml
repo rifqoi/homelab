@@ -131,8 +131,13 @@ data:
                                       present_match: true
                                 principals:
                                   - any: true
-                      # Buffers the JSON body, copies channel into
-                      # x-internal-channel, then re-runs route matching.
+                      # Buffers the JSON body and copies fields into internal
+                      # routing headers, then re-runs route matching. Nested
+                      # JSON paths use ':' separators, e.g.
+                      # "%REQUEST_BODY(data:channel)%" -> {"data":{"channel":...}}.
+                      # Add one mutation per field you want to route on; the
+                      # matching/expression side lives in httproute.yaml
+                      # (Exact / RegularExpression header matches).
                       - name: envoy.filters.http.transform
                         typed_config:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.transform.v3.TransformConfig
@@ -142,6 +147,11 @@ data:
                                   header:
                                     key: x-internal-channel
                                     value: "%REQUEST_BODY(channel)%"
+                                  append_action: OVERWRITE_IF_EXISTS_OR_ADD
+                              - append:
+                                  header:
+                                    key: x-internal-client-type
+                                    value: "%REQUEST_BODY(client:type)%"
                                   append_action: OVERWRITE_IF_EXISTS_OR_ADD
                           clear_route_cache: true
                       - name: envoy.filters.http.router

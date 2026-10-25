@@ -24,11 +24,16 @@ spec:
   hostnames:
     - channel.rifqoi.com
   rules:
+    # Body-derived headers can use any HTTPRoute header match, including
+    # RegularExpression -- the APISIX-expression equivalent for matching.
     - matches:
         - headers:
             - name: x-internal-channel
-              type: Exact
-              value: mobile
+              type: RegularExpression
+              value: "^(mobile|ios|android)$"
+            - name: x-internal-client-type
+              type: RegularExpression
+              value: "^(phone|tablet)$"
       backendRefs:
         - name: mobile-svc
           namespace: example
