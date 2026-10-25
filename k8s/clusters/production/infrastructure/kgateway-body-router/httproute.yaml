@@ -31,10 +31,11 @@ spec:
             - name: x-internal-channel
               type: Exact
               value: mobile
+      # PriorityGroups backend: mobile -> other when mobile is unhealthy.
       backendRefs:
-        - name: mobile-svc
-          namespace: example
-          port: 8080
+        - group: gateway.kgateway.dev
+          kind: Backend
+          name: mobile-failover
     - matches:
         - headers:
             - name: x-internal-channel

@@ -1,0 +1,56 @@
+# Per-service health failover: channel=mobile routes to the mobile-failover
+# Backend, a PriorityGroups chain — group 0 (mobile) receives all traffic,
+# group 1 (other) only when group 0 is fully unhealthy. BackendConfigPolicy
+# supplies the active health check that drives the failover.
+# NOTE: priorityGroups is an experimental kgateway API (v1alpha1).
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mobile-backend
+  namespace: kgateway-system
+spec:
+  static:
+    hosts:
+      - host: mobile-svc.example.svc.cluster.local
+        port: 8080
+---
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: other-backend
+  namespace: kgateway-system
+spec:
+  static:
+    hosts:
+      - host: other-svc.example.svc.cluster.local
+        port: 8080
+---
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: Backend
+metadata:
+  name: mobile-failover
+  namespace: kgateway-system
+spec:
+  priorityGroups:
+    - backendRefs:
+        - name: mobile-backend
+    - backendRefs:
+        - name: other-backend
+---
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: BackendConfigPolicy
+metadata:
+  name: mobile-failover-hc
+  namespace: kgateway-system
+spec:
+  targetRefs:
+    - group: gateway.kgateway.dev
+      kind: Backend
+      name: mobile-failover
+  healthCheck:
+    timeout: 1s
+    interval: 2s
+    unhealthyThreshold: 1
+    healthyThreshold: 1
+    http:
+      path: /
