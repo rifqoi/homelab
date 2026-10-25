@@ -53,6 +53,9 @@ spec:
     - name: web-vnc
       port: 6901
       targetPort: web-vnc
+    - name: agent
+      port: 5000
+      targetPort: agent
 ---
 apiVersion: v1
 kind: Service
