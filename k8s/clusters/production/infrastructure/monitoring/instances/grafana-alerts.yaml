@@ -127,6 +127,87 @@ spec:
             refId: B
             type: math
             expression: $A > 0
+    - uid: nongkee-node-down
+      title: Node exporter down (nongkee)
+      condition: B
+      for: 5m
+      noDataState: Alerting
+      execErrState: Error
+      annotations:
+        summary: "node_exporter on nongkee VM is unreachable"
+      labels:
+        severity: critical
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 600
+            to: 0
+          model:
+            refId: A
+            expr: up{job="nongkee-node-exporter"}
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A < 1
+    - uid: nongkee-node-disk-full
+      title: Nongkee disk almost full
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "nongkee filesystem >85% full"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: 1 - (node_filesystem_avail_bytes{job="nongkee-node-exporter",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{job="nongkee-node-exporter",fstype!~"tmpfs|overlay"})
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0.85
+    - uid: nongkee-node-mem-pressure
+      title: Nongkee memory pressure
+      condition: B
+      for: 15m
+      noDataState: NoData
+      execErrState: Error
+      annotations:
+        summary: "nongkee RAM usage >90%"
+      labels:
+        severity: warning
+      data:
+        - refId: A
+          datasourceUid: vmsingle-cluster
+          relativeTimeRange:
+            from: 900
+            to: 0
+          model:
+            refId: A
+            expr: 1 - (node_memory_MemAvailable_bytes{job="nongkee-node-exporter"} / node_memory_MemTotal_bytes{job="nongkee-node-exporter"})
+            instant: true
+            range: false
+        - refId: B
+          datasourceUid: __expr__
+          model:
+            refId: B
+            type: math
+            expression: $A > 0.9
     - uid: nongkee-postgres-down
       title: Postgres exporter down (nongkee)
       condition: B
