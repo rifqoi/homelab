@@ -6,4 +6,5 @@ resources:
   - helmrelease-controller.yaml
   - helmrelease-nongkee-be.yaml
   - helmrelease-lajur.yaml
+  - helmrelease-images.yaml
   - arc-github-token.enc.yaml
