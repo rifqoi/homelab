@@ -1,8 +1,6 @@
-# Alerts -> n8n webhook -> Telegram (telegram bot creds live in n8n).
-# Required n8n side: a workflow with a Webhook trigger at
-#   POST https://n8n.rifqoi.com/webhook/grafana-alerts
-# feeding a Telegram node. Payload is the standard Grafana webhook body
-# ({status, alerts[], title, message, ...}).
+# Alerts -> n8n webhook -> Telegram. The n8n workflow "Grafana Alerts to
+# Telegram" (id grafanaAlertsTG01) receives Grafana webhook posts at the URL
+# below and forwards them via the Telegram account credential (chat 1610326964).
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaContactPoint
 metadata:
@@ -15,7 +13,7 @@ spec:
   name: telegram-n8n
   type: webhook
   settings:
-    url: https://n8n.rifqoi.com/webhook/grafana-alerts
+    url: https://n8n.rifqoi.com/webhook/grafanaAlertsTG01/webhook/grafana-alerts
     httpMethod: POST
 ---
 apiVersion: grafana.integreatly.org/v1beta1
