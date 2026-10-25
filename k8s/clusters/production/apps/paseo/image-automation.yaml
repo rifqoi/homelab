@@ -1,0 +1,58 @@
+# The paseo image is built by rifqoi/images CI as main-<unix-ts>-<shortsha>.
+# Flux scans the registry, picks the newest tag, and commits it into the
+# $imagepolicy markers in deployment.yaml.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: paseo
+  namespace: omnigent
+spec:
+  image: registry.rifqoi.com/paseo
+  interval: 5m
+  secretRef:
+    name: regcred-rifqoi-registry-com
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: paseo
+  namespace: omnigent
+spec:
+  imageRepositoryRef:
+    name: paseo
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]+)-[a-f0-9]+$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: paseo
+  namespace: omnigent
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: fluxcdbot
+        email: fluxcdbot@users.noreply.github.com
+      messageTemplate: |
+        paseo: update image
+
+        {{ range .Changed.Changes }}{{ .OldValue }} -> {{ .NewValue }}
+        {{ end }}
+    push:
+      branch: main
+  update:
+    path: ./k8s/clusters/production/apps/paseo
+    strategy: Setters

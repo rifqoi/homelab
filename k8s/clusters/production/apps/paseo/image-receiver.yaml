@@ -1,0 +1,17 @@
+# rifqoi/images CI calls this right after pushing a paseo image, so the
+# registry scan happens immediately instead of on the 5m interval. The hook
+# path is sha256(token + name + namespace); CI keeps the full path in the
+# FLUX_RECEIVER_PASEO Actions secret and calls the in-cluster webhook-receiver.
+apiVersion: notification.toolkit.fluxcd.io/v1
+kind: Receiver
+metadata:
+  name: paseo
+  namespace: omnigent
+spec:
+  type: generic
+  secretRef:
+    name: image-receiver-token
+  resources:
+    - apiVersion: image.toolkit.fluxcd.io/v1
+      kind: ImageRepository
+      name: paseo

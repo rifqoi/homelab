@@ -10,9 +10,22 @@ in-place migration. The claim is mounted as both `/home/paseo` and
 and agent configuration remain available after the image switch. The legacy
 Omnigent artifact PVC is retained but is no longer mounted.
 
-Paseo's official image does not include agent CLIs. `Dockerfile` adds Codex,
-Claude Code, and OpenCode; it is built on `atlas` and pushed to the private
-registry as `registry.rifqoi.com/paseo:latest`.
+Paseo's official image does not include agent CLIs. The Dockerfile lives in
+the private `rifqoi/images` repo (`paseo/Dockerfile`) and adds Codex, Claude
+Code, OpenCode, Devin, `oc`/`kubectl`, and the GitHub CLI. Pushing to that repo
+builds `registry.rifqoi.com/paseo:main-<unix-ts>-<shortsha>` on the in-cluster
+ARC runners. `image-automation.yaml` makes Flux pick the newest `main-*` tag and
+commit it into the `$imagepolicy` markers in `deployment.yaml`, which rolls the
+Pod. Do not edit those image tags by hand.
+
+The GitHub CLI is not logged in by default. Log in once with OAuth; the state
+lives in `/home/paseo/.config/gh` on the home volume and survives restarts. Run
+it as the `paseo` user, because `kubectl exec` is root and root-owned files
+under `/home/paseo` break the daemon until the next restart re-chowns them:
+
+```text
+kubectl -n omnigent exec -it deploy/paseo -c paseo -- gosu paseo gh auth login
+```
 
 The public endpoint is `https://paseo.rifqoi.com`, protected by the SOPS
 encrypted `PASEO_PASSWORD` Secret. Paseo uses its own password connection;

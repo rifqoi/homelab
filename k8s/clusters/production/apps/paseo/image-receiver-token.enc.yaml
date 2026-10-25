@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: image-receiver-token
+    namespace: omnigent
+type: Opaque
+stringData:
+    token: ENC[AES256_GCM,data:1k8NLTwFFbt7QkfHl50US/ORtN9i7kxtOOEPcgS/mRVnREh7DwpwyzC7nqYnWbtr23otlmNVHt6tXYJ6fqsoCg==,iv:VZwYnMS2F+SAncWYQ5Vy4SU+2cbcn3sV38egkvnPISo=,tag:fhgzi/xkPko/amDMvGLQsg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBTK2ZiOWlWNFlMK2RzTk9T
+            M1hRdGxhWG9ENUNNSE9ZRktoeXBES0J1QVhRCmhZcDFIWVI0MjlITnY1OUlUQjZI
+            UkRXbzVseDRMRjYva0dlUnRmMjE5NEEKLS0tIEZCSnNCMUNtcjV0NTVHYjViNlRu
+            SkMyRDBrWUNtcVNTZHZuWm11bWJxdm8Ke6t9FYrR66xBNB7LqunQeLLwLWV9pjV+
+            TGt2c/mWmmxRKx6Mj1+EDD8h9dSgn0WzUThKu3qQdqkwoafkYYE/JA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-25T01:24:07Z"
+    mac: ENC[AES256_GCM,data:YTj8jmV4rdz32gnbaWMaIXs4uNzrNRqEfUvScnGixL8xxTbU11gByubqWaHjV8hv+prPZEQSqSj7KAZJe6Tdk0w4eKrDteihEKsp7BE5sBVUmEvNd7EKu+OVMXxuxuvgtwVqck22DZ6Z534IocHlP+XapxxlGCqcZcFoEfjov1U=,iv:f830YkucmKVZvD4pyIEdz4bEC2L0gVfp15cqmTVDnYM=,tag:uwfl4l3E3b2xQ0P0sJSI+A==,type:str]
+    version: 3.13.3
