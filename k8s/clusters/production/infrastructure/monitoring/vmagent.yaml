@@ -11,10 +11,9 @@ spec:
   # in every namespace.
   selectAllByDefault: true
   remoteWrite:
-    # Atlas LAN IP (the host serving grafana.home.local). The Prometheus on
-    # Atlas must run with --web.enable-remote-write-receiver
-    # (features.monitoring.prometheus.remoteWriteReceiver).
-    - url: http://192.168.31.12:9090/api/v1/write
+    # In-cluster VMSingle is the metrics store. Atlas Grafana queries it via
+    # the kgateway HTTPRoute at vmsingle.rifqoi.com.
+    - url: http://vmsingle-homelab.monitoring.svc:8429/api/v1/write
   extraArgs:
     remoteWrite.label: cluster=production
   resources:

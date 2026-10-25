@@ -1,0 +1,19 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMSingle
+metadata:
+  name: homelab
+  namespace: monitoring
+spec:
+  retentionPeriod: "3"
+  storage:
+    storageClassName: zfs-iscsi-retain
+    resources:
+      requests:
+        storage: 20Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
