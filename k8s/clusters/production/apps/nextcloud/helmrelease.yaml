@@ -1,0 +1,89 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud
+  namespace: flux-system
+spec:
+  interval: 1h
+  targetNamespace: nextcloud
+  chart:
+    spec:
+      chart: nextcloud
+      version: "9.4.1"
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+  values:
+    image:
+      flavor: apache
+    ingress:
+      enabled: true
+      className: cilium
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: nextcloud.rifqoi.com
+        lbipam.cilium.io/ips: "192.168.31.135"
+      path: /
+      pathType: Prefix
+      tls:
+        - secretName: rifqoi-com-tls
+          hosts:
+            - nextcloud.rifqoi.com
+    nextcloud:
+      host: nextcloud.rifqoi.com
+      # Leave these blank to create the admin account in the web wizard.
+      username: ""
+      password: ""
+      trustedDomains:
+        - nextcloud.rifqoi.com
+      extraEnv:
+        - name: OVERWRITEHOST
+          value: nextcloud.rifqoi.com
+        - name: OVERWRITEPROTOCOL
+          value: https
+        - name: OVERWRITECLIURL
+          value: https://nextcloud.rifqoi.com
+      strategy:
+        type: Recreate
+    internalDatabase:
+      enabled: false
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      host: nextcloud-pg-rw
+      database: nextcloud
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-pg-app
+        usernameKey: username
+        passwordKey: password
+    persistence:
+      enabled: true
+      existingClaim: nextcloud-data
+      accessMode: ReadWriteOnce
+      size: 100Gi
+    service:
+      type: ClusterIP
+      port: 80
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 60
+      successThreshold: 1
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: "2000m"

@@ -6,6 +6,5 @@ resources:
   - certificate.yaml
   - pvc.yaml
   - cluster-cnpg.yaml
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
+  - helmrepository.yaml
+  - helmrelease.yaml
