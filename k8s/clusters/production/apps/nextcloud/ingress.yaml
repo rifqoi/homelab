@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: nextcloud.rifqoi.com
+spec:
+  ingressClassName: cilium
+  tls:
+    - secretName: rifqoi-com-tls
+      hosts:
+        - nextcloud.rifqoi.com
+  rules:
+    - host: nextcloud.rifqoi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nextcloud
+                port:
+                  name: http
