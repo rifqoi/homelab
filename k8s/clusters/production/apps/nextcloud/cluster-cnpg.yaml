@@ -1,0 +1,37 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nextcloud-pg
+  namespace: nextcloud
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.9
+  storage:
+    size: 20Gi
+    storageClass: zfs-iscsi-retain
+  bootstrap:
+    initdb:
+      database: nextcloud
+      owner: nextcloud
+      dataChecksums: true
+      encoding: UTF8
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      effective_cache_size: "768MB"
+      work_mem: "16MB"
+      maintenance_work_mem: "64MB"
+      max_connections: "100"
+      wal_level: "replica"
+      max_wal_size: "1GB"
+      min_wal_size: "80MB"
+    pg_hba:
+      - host nextcloud nextcloud all md5
+  enableSuperuserAccess: false
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"

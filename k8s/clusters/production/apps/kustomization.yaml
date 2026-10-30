@@ -9,6 +9,7 @@ resources:
   - immich
   - nongkee-be
   - n8n
+  - nextcloud
   - garage-ui
   - ck-x
   - paseo
