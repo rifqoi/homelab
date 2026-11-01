@@ -17,3 +17,5 @@ resources:
   - buildkit
   - lajur-dev
   - lajur-preview
+  - kelasivana-dev
+  - kelasivana-preview

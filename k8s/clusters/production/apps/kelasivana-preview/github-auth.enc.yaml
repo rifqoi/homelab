@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: github-auth
+type: Opaque
+stringData:
+    username: ENC[AES256_GCM,data:cmXd5g==,iv:uIPeVToU7nRMTxf974e4EOkdWnDRpW+8+aVQWXNshKk=,tag:uATqV5v+W0So3/kXArhVfQ==,type:str]
+    password: ENC[AES256_GCM,data:WLz/LOa62bWuFM7vtHaCBqP7gLZd0ripcUo/HTR/2SSnMJv00p7fTA==,iv:rq2G2waQKQS4NU6D8pDHyRsjAJAmaA2d9oz5wGcmfHk=,tag:KpPtivR9RbiDiKKbjvzBCg==,type:str]
+sops:
+    age:
+        - recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBSclRyQ20vVUhXRjJmN3JJ
+            MTFrSGRsMi82S2VFSUdkTm9yWlV3bGtFbHlrCm9IZTdOMjZpbGVOd2M4V1NzUVF2
+            TDhkZlQ2R3hUckpLR0w2WTRNT1dzUVkKLS0tIHFhQTg2R0NpQTZYcHBmanp2aEM4
+            U3hGYlE5ejlIVGZBZFdVQlR1WGF4N3MK0NkB3jH4OC6/Hs4HGzWrBW+Kml5d6gw0
+            4DmB+tUvwL+pQ+9UuORcPJjtuekpiJpxqosWt71RVog5jGjFO5xHUQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-11-01T13:47:11Z"
+    mac: ENC[AES256_GCM,data:4vJQtmLK1jmaXogMZ6LPqDKQ/+kxNTrnJVcF8gyhwqxHOqct9TO8nRqpIkk1i8rMO5pFM2TMP+gLUSk97c+Qw5cbRrDlgK3usZG9NDIYvGQ5JZ18gNLJ+8FKD/0l8Hui/oKitmnB2rsaQs66CBSIyeBJujDg2MgilDUictdplfI=,iv:uBLbeK6tKmuO3vbuwg2o7TPvVDX+VCx+ERbnm5T3XiU=,tag:vV8XuCnS8TQefoUJ5twjDw==,type:str]
+    encrypted_regex: ^(data|stringData)$
+    version: 3.10.2

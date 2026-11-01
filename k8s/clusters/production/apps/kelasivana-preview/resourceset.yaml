@@ -1,0 +1,156 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: kelasivana-preview
+spec:
+  serviceAccountName: flux
+  inputsFrom:
+    - kind: ResourceSetInputProvider
+      name: kelasivana-pull-requests
+  resources:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      metadata:
+        name: kelasivana-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+      spec:
+        name: pr_<< inputs.id >>
+        owner: kelasivana
+        cluster:
+          name: kelasivana-preview-pg
+        databaseReclaimPolicy: delete
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: kelasivana-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+        annotations:
+          kelasivana.rifqoi.com/branch: << inputs.branch | quote >>
+          kelasivana.rifqoi.com/sha: << inputs.sha | quote >>
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: kelasivana-pr-<< inputs.id >>
+        template:
+          metadata:
+            labels:
+              app: kelasivana-pr-<< inputs.id >>
+          spec:
+            imagePullSecrets:
+              - name: regcred-rifqoi-registry-com
+            initContainers:
+              - name: migrate
+                image: registry.rifqoi.com/kelasivana:<< inputs.sha >>
+                command:
+                  - node
+                  - scripts/migrate.mjs
+                env:
+                  - name: DB_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-preview-pg-app
+                        key: username
+                  - name: DB_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-preview-pg-app
+                        key: password
+                  - name: DATABASE_URL
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@kelasivana-preview-pg-rw:5432/pr_<<
+                      inputs.id >>
+            containers:
+              - name: kelasivana
+                image: registry.rifqoi.com/kelasivana:<< inputs.sha >>
+                ports:
+                  - name: http
+                    containerPort: 3000
+                env:
+                  - name: DB_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-preview-pg-app
+                        key: username
+                  - name: DB_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-preview-pg-app
+                        key: password
+                  - name: DATABASE_URL
+                    value: postgres://$(DB_USER):$(DB_PASSWORD)@kelasivana-preview-pg-rw:5432/pr_<<
+                      inputs.id >>
+                  - name: HEALTHCHECK_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-preview-secret
+                        key: healthcheck-token
+                  - name: NODE_ENV
+                    value: production
+                  - name: PUBLIC_APP_URL
+                    value: https://kelasivana-pr-<< inputs.id >>.rifqoi.com
+                  - name: ORIGIN
+                    value: https://kelasivana-pr-<< inputs.id >>.rifqoi.com
+                  - name: PAYMENTS_PROVIDER
+                    value: mock
+                  - name: MEDIA_PROVIDER
+                    value: mock
+                  - name: ANALYTICS_ENABLED
+                    value: "false"
+                readinessProbe:
+                  exec:
+                    command:
+                      - node
+                      - -e
+                      - fetch('http://127.0.0.1:3000/api/health/ready',{headers:{authorization:'Bearer
+                        '+process.env.HEALTHCHECK_TOKEN}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                resources:
+                  requests:
+                    cpu: 25m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi
+                startupProbe:
+                  httpGet:
+                    path: /api/health/live
+                    port: http
+                  periodSeconds: 2
+                  failureThreshold: 30
+                livenessProbe:
+                  httpGet:
+                    path: /api/health/live
+                    port: http
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+    - apiVersion: v1
+      kind: Service
+      metadata:
+        name: kelasivana-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+      spec:
+        selector:
+          app: kelasivana-pr-<< inputs.id >>
+        ports:
+          - name: http
+            port: 80
+            targetPort: http
+    - apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: kelasivana-pr-<< inputs.id >>
+        namespace: << inputs.provider.namespace >>
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: kelasivana-pr-<< inputs.id >>.rifqoi.com
+      spec:
+        parentRefs:
+          - name: shared
+            namespace: kgateway-system
+            sectionName: https
+        hostnames:
+          - kelasivana-pr-<< inputs.id >>.rifqoi.com
+        rules:
+          - backendRefs:
+              - name: kelasivana-pr-<< inputs.id >>
+                port: 80

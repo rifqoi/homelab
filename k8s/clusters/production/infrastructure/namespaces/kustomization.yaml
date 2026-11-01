@@ -17,3 +17,5 @@ resources:
   - lajur-dev
   - lajur-preview
   - kgateway-system
+  - kelasivana-dev
+  - kelasivana-preview

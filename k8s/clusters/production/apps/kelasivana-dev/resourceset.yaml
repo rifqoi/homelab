@@ -1,0 +1,95 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: kelasivana
+spec:
+  inputsFrom:
+    - kind: ResourceSetInputProvider
+      name: kelasivana-image
+  resources:
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: kelasivana
+        namespace: << inputs.provider.namespace >>
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: kelasivana
+        template:
+          metadata:
+            labels:
+              app: kelasivana
+          spec:
+            imagePullSecrets:
+              - name: regcred-rifqoi-registry-com
+            initContainers:
+              - name: migrate
+                image: registry.rifqoi.com/kelasivana:<< inputs.tag >>@<< inputs.digest >>
+                command:
+                  - node
+                  - scripts/migrate.mjs
+                env:
+                  - name: DATABASE_URL
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-dev-pg-app
+                        key: uri
+            containers:
+              - name: kelasivana
+                image: registry.rifqoi.com/kelasivana:<< inputs.tag >>@<< inputs.digest >>
+                ports:
+                  - name: http
+                    containerPort: 3000
+                env:
+                  - name: DATABASE_URL
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-dev-pg-app
+                        key: uri
+                  - name: HEALTHCHECK_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: kelasivana-dev-secret
+                        key: healthcheck-token
+                  - name: NODE_ENV
+                    value: production
+                  - name: PUBLIC_APP_URL
+                    value: https://kelasivana-dev.rifqoi.com
+                  - name: ORIGIN
+                    value: https://kelasivana-dev.rifqoi.com
+                  - name: PAYMENTS_PROVIDER
+                    value: mock
+                  - name: MEDIA_PROVIDER
+                    value: mock
+                  - name: ANALYTICS_ENABLED
+                    value: "false"
+                readinessProbe:
+                  exec:
+                    command:
+                      - node
+                      - -e
+                      - fetch('http://127.0.0.1:3000/api/health/ready',{headers:{authorization:'Bearer
+                        '+process.env.HEALTHCHECK_TOKEN}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 128Mi
+                  limits:
+                    cpu: 500m
+                    memory: 512Mi
+                startupProbe:
+                  httpGet:
+                    path: /api/health/live
+                    port: http
+                  periodSeconds: 2
+                  failureThreshold: 30
+                livenessProbe:
+                  httpGet:
+                    path: /api/health/live
+                    port: http
+                  periodSeconds: 10
+                  timeoutSeconds: 3

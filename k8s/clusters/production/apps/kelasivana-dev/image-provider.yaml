@@ -1,0 +1,16 @@
+# Tracks the digest behind registry.rifqoi.com/kelasivana:dev, pushed by the
+# kelasivana "Deploy dev" workflow. A new digest rolls the ResourceSet below.
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: kelasivana-image
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1m"
+spec:
+  type: OCIArtifactTag
+  url: oci://registry.rifqoi.com/kelasivana
+  secretRef:
+    name: regcred-rifqoi-registry-com
+  filter:
+    includeTag: "^dev$"
+    limit: 1
