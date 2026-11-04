@@ -1,0 +1,30 @@
+# TrafficPolicy driving the body-based routing. With parseAs AsJson the
+# rustformation module exposes each top-level JSON body field to the
+# template context, so {{"{{"}} channel {{"}}"}} renders body.channel and
+# {{"{{"}} a.b {{"}}"}} renders a nested field. A `set` entry always
+# either overwrites the header with the rendered value or removes it when
+# the render is empty/failed, and a non-JSON body fails the request with
+# 400 — client-supplied copies of the internal headers cannot spoof routing.
+# Each extraction may set `template` to override the generated template verbatim. The
+# patched rustformation module in the envoywrapper image clears the route
+# cache after this transformation, so the header-matched rules in
+# ../../httproute.yaml re-resolve with these headers.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: TrafficPolicy
+metadata:
+  name: body-extract
+  namespace: kgateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: channel-route
+  transformation:
+    request:
+      set:
+        {{- range .Values.extractions }}
+        - name: {{ .header | quote }}
+          value: {{ .template | default (printf "{{ %s }}" .body) | quote }}
+        {{- end }}
+      body:
+        parseAs: AsJson

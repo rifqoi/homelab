@@ -11,8 +11,10 @@ Envoy OSS approaches below extract `channel` into an internal header and
 **clear Envoy's route cache** so the final backend decision uses that header.
 The agentgateway alternative transforms the header *before* route selection.
 A plain OSS `TrafficPolicy` transformation can extract the field, but does not
-expose the required `clearRouteCache` setting; do not use it alone for
-body-based routing.
+expose the required `clearRouteCache` setting; the deployed
+[`../kgateway-body-router/`](../kgateway-body-router/) setup therefore runs a
+patched build of kgateway's rustformation dynamic module that clears the
+route cache after every request transformation (see below).
 
 ## Common HTTPRoute
 
@@ -143,43 +145,54 @@ Deployment and bootstrap, but its generated HTTP listeners still come from
 kgateway xDS; verify how to inject the filter before choosing that option.
 Never directly edit the live Envoy config: reconciliation will replace it.
 
-The deployed option is a **managed hybrid gateway** in
+The deployed option is a **fully managed gateway** in
 [`../kgateway-body-router/`](../kgateway-body-router/), reconciled by Flux.
-A normal managed `body-router` Gateway gets a kgateway-generated
-Deployment/Service, but `GatewayParameters.deploymentOverlay` repoints the
-`envoy-config` volume at our own bootstrap ConfigMap. That bootstrap keeps
-the generated pieces (node identity bound to the gateway, `xds_cluster`
-with the `credential_injector` SA-JWT — the token file is shipped as a
-second ConfigMap key, same as the generated one) and adds a static :443
-listener holding the RBAC + transform + router filter chain. Its route
-table comes from kgateway RDS for the listener's section name (`https`),
-and upstreams come over CDS/EDS — so `httproute.yaml` is real, live
-Gateway API config (verified end-to-end on the cluster).
+A dedicated `body-router` GatewayClass carries `GatewayParameters` that swap
+the envoy container image for `registry.rifqoi.com/envoywrapper` — upstream
+`envoy-wrapper` with a patched `librust_module.so` (built in
+`rifqoi/images` `envoywrapper/`). kgateway's built-in `rustformation`
+dynamic module — the one that powers `TrafficPolicy`
+`transformation` — is patched to call `clear_route_cache` after a request
+transformation, so headers set from the JSON body re-trigger route
+selection. Everything else is stock kgateway: generated bootstrap,
+listeners, SDS/TLS, and policy attachment.
 
-Two details that mattered: `lds_config` must be **omitted** from the
-bootstrap so kgateway doesn't also inject its own filter-less listeners,
-and the RDS `route_config_name` is the listener **section name** (`https`)
-for TLS listeners — `listener~<port>` is only used for plain HTTP chains.
+A chart-generated `TrafficPolicy` `body-extract` targets the `channel-route`
+HTTPRoute and sets one internal header per `values.extractions` entry using
+`transformation.request.set` with `body.parseAs: AsJson`. Because the policy
+targets the HTTPRoute, **per-route extraction is now possible**: each
+HTTPRoute can carry its own TrafficPolicy with its own field set. One
+caveat: the policy config is resolved from the route matched *before* the
+body is read, so routes sharing a hostname/path prefix all start from the
+same initial match — only the header re-match differs.
 
 ### Configuration surface
 
 The component is packaged as a local Helm chart
 (`../kgateway-body-router/chart/`) applied via `helmrelease.yaml`. The
 chart owns the gateway plumbing (GatewayParameters, GatewayClass, Gateway,
-bootstrap ConfigMap); `chart/values.yaml` is the single edit point:
+extraction TrafficPolicy); `chart/values.yaml` is the single edit point:
 
 ```yaml
 hostname: channel.rifqoi.com
+image:
+  registry: registry.rifqoi.com
+  repository: envoywrapper
+  tag: main-...               # managed by Flux image automation
 extractions:
-  - body: channel          # %REQUEST_BODY(channel)%
+  - body: channel             # template: {{ channel }}
     header: x-internal-channel
-  - body: phone_number
+  - body: phone_number        # template: {{ phone_number }}
     header: x-internal-phone-number
 ```
 
-Each `extractions` entry generates **both** the transform
-`headers_mutations` entry and an RBAC deny policy against client-supplied
-copies of that header — add a field, get the spoof guard free.
+Each `extractions` entry generates a `transformation.request.set` entry on
+the TrafficPolicy. `body` is a dotted path into the parsed JSON body;
+`template` optionally overrides the whole generated template. A `set`
+entry always either overwrites the header with the rendered value or
+removes it on empty/failed render, and non-JSON bodies fail the
+transformation with a 400 — so client-supplied copies of the internal
+headers cannot spoof routing; no separate RBAC guard is needed.
 
 Alongside the chart, plain manifests hold the app-side config:
 
@@ -188,13 +201,19 @@ Alongside the chart, plain manifests hold the app-side config:
   (`x-internal-channel: .+` -> `other-svc`,
   `x-internal-phone-number: .+` -> `indosat-svc`) and a `DirectResponse`
   400 for bodies with neither field.
+- `redirectroute.yaml` — HTTP -> HTTPS redirect on the :80 listener.
 - `referencegrant.yaml` — permits the `kgateway-system` HTTPRoute to
   reference backend Services in `example`.
 - `backend.yaml` — a `Backend` `priorityGroups` failover chain (see below).
+- `image-automation.yaml` — `ImageRepository`/`ImagePolicy`/
+  `ImageUpdateAutomation` tracking `registry.rifqoi.com/envoywrapper`
+  `main-*` tags into the `chart/values.yaml` tag marker.
 
 To add a new body field: append to `values.extractions`, add match rules in
-`httproute.yaml`. Bump `chart/Chart.yaml`'s `version` so Flux detects the
-content change and performs a Helm upgrade.
+`httproute.yaml`. The HelmRelease uses `reconcileStrategy: Revision`, so
+values/template changes trigger an upgrade on the next source revision —
+no `Chart.yaml` version bump needed (though the chart version is still
+bumped on notable changes).
 
 ### Per-service health failover
 
@@ -216,29 +235,32 @@ failover without a mesh, an extra hop, or Enterprise.
 
 ### Limitations
 
-- **Static filter chain, not kgateway-managed** — the :443 listener lives
-  in our bootstrap ConfigMap, not in kgateway's generated xDS listener.
-  kgateway policies that would land in the listener filter chain
-  (TrafficPolicy timeouts, header modifiers, etc.) do **not** apply here;
-  reimplement what you need in the static filters.
-- **Transform filter maturity** — Envoy documents `envoy.filters.http.transform`
-  as having limited production exposure and an unknown security posture.
-  Buffer every request body; set body size limits appropriate to the app.
-- **Missing/malformed fields** — a body that lacks every extracted field
-  (or isn't JSON) produces no headers and hits the 400 `DirectResponse`
-  catch-all. Single-field bodies are fine; only "neither field" fails.
-- **Extraction is listener-wide** — every request on the gateway runs all
-  extractions. Routing can't be made field-selective per route because
-  extraction happens before route selection (it must, to inform it).
-  True per-route extraction (annotation-driven like APISIX) would need the
-  kgateway plugin fork.
-- **TLS cert rotation needs a restart** — the wildcard secret is
-  file-mounted; Envoy reads it at startup. `kubectl rollout restart
-  deploy/body-router` after cert-manager rotates it.
-- **Bootstrap is a snapshot of the generated format** — node identity,
-  `xds_cluster` wiring, and the SDS token file are copied from kgateway
-  2.4.7's generated bootstrap. Re-diff against a fresh generated
-  bootstrap on every kgateway upgrade.
+- **Forked dynamic module** — `librust_module.so` is patched in
+  `rifqoi/images` `envoywrapper/` and must be rebased on every kgateway
+  upgrade; its ABI must match the Envoy version shipped in the upstream
+  `envoy-wrapper` image for that kgateway release. Treat kgateway bumps as
+  blocked on a new envoywrapper build.
+- **Route cache cleared on every transformed request** — the patched module
+  clears the route cache after each request transformation, so every
+  request on this gateway pays a second route-table lookup. Cheap, but not
+  free; it is scoped to the `body-router` GatewayClass, not the shared
+  gateway.
+- **Image is body-router only** — the patched image is pinned on the
+  `body-router` GatewayClass' GatewayParameters; the `kgateway` class keeps
+  running the upstream envoy-wrapper and stock transformation semantics.
+- **Body buffering** — extracting fields requires buffering the whole
+  request body before forwarding. Non-JSON bodies fail the transform with
+  a 400 before route selection. Set body size limits appropriate to the
+  app; streaming/upload traffic does not belong on this gateway.
+- **Missing fields** — a JSON body that lacks an extracted field renders
+  empty, the `set` removes the internal header, and the request hits the
+  `DirectResponse` catch-all. Single-field bodies are fine; only "neither
+  field" fails.
+- **Initial match precedes extraction** — which TrafficPolicy (and route
+  timeouts/retries/etc.) applies is decided by the route matched *before*
+  the body is read. Routes sharing a hostname/path prefix all start from
+  the same initial match; only the header re-match after extraction
+  differs.
 - **`priorityGroups` is experimental** — marked subject to breaking changes
   in v1alpha1. Expect the shape to move on upgrades.
 - **Failover detection latency** — the health-check interval/thresholds in
@@ -247,23 +269,20 @@ failover without a mesh, an extra hop, or Enterprise.
 - **`httproute.yaml` header fallbacks are value fallbacks, not health
   fallbacks** — `channel: anything -> other` is a static match fallback;
   only `priorityGroups` responds to *health*.
-- **Flux only sees chart-version bumps** — editing `chart/values.yaml`
-  alone doesn't change the chart digest in some Flux paths; bump
-  `Chart.yaml` `version` when shipping values changes so the HelmRelease
-  upgrades.
-- **Spoofing requires the RBAC guard** — without it a client could send
-  `x-internal-channel`/`x-internal-phone-number` directly and skip the
-  body entirely; keep both lists in sync by only ever adding headers via
-  `extractions`, never by hand.
+- **Empty or `null` bodies fail with 400** — with `parseAs: AsJson`, a
+  request without a JSON body (e.g. GET) leaves the body fields undeclared
+  and rustformation rejects it with a local 400, as does malformed JSON.
+  A valid JSON object that lacks a field renders it empty, which removes
+  the header and lets the request continue to the fallbacks. Top-level
+  fields are referenced as `{{ channel }}`, nested ones as `{{ a.b }}`;
+  `{{ body.channel }}` does not work (`body()` is the raw-body function).
 
-Envoy documents this transform filter as having limited production exposure
-and an unknown security posture. Verify the exact proxy image includes it,
-test JSON parse errors, empty/missing values, spoofed headers, buffering limits
-and body passthrough. In particular, fail closed or remove untrusted routing
-headers if the JSON cannot be parsed. Keep the filter scoped to this
-application's traffic.
-Do not add the fragment to the shared listener without considering other apps
-(websockets, streaming uploads and non-JSON requests).
+Body-based routing still buffers and parses every request body on this
+gateway. Test JSON parse errors, empty/missing values, spoofed headers,
+buffering limits and body passthrough before rollout, and keep the
+policy scoped to this application's routes. Do not point body-dependent
+routes at the shared gateway — it runs the stock module without the
+route-cache clear, so extracted headers would never reach route selection.
 
 ## Supported OSS alternative: agentgateway
 
