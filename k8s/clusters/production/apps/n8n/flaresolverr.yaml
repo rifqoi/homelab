@@ -1,0 +1,47 @@
+# Solves Cloudflare JS challenges for unosystem.net (anti-bot added Nov 2026).
+# Cluster-internal only — no route/ingress. Called by the n8n workflow via a
+# per-execution session so cf cookies/UA stay consistent across requests.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaresolverr
+  namespace: n8n
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flaresolverr
+  template:
+    metadata:
+      labels:
+        app: flaresolverr
+    spec:
+      containers:
+        - name: flaresolverr
+          image: ghcr.io/flaresolverr/flaresolverr:latest
+          ports:
+            - name: http
+              containerPort: 8191
+          env:
+            - name: LOG_LEVEL
+              value: info
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaresolverr
+  namespace: n8n
+spec:
+  selector:
+    app: flaresolverr
+  ports:
+    - name: http
+      port: 8191
+      targetPort: 8191

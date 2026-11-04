@@ -8,3 +8,4 @@ resources:
   - pvc.yaml
   - ocirepository.yaml
   - helmrelease.yaml
+  - flaresolverr.yaml
