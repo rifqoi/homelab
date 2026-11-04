@@ -7,3 +7,4 @@ resources:
   - redirectroute.yaml
   - backend.yaml
   - referencegrant.yaml
+  - listenerpolicy.yaml

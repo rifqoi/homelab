@@ -1,0 +1,23 @@
+# JSON access logs for the body-router :443 listener. Emits the extracted
+# channel header + status + latency as JSON to stdout — the OTel collector
+# can turn these into per-channel metrics via a count connector.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: ListenerPolicy
+metadata:
+  name: body-router-accesslog
+  namespace: kgateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: body-router
+      sectionName: https
+  default:
+    httpSettings:
+      accessLog:
+        - fileSink:
+            path: /dev/stdout
+            jsonFormat:
+              channel: "%REQ(x-internal-channel)%"
+              status: "%RESPONSE_CODE%"
+              latency_ms: "%DURATION%"
