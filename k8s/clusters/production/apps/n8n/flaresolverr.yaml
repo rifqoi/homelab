@@ -28,10 +28,19 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 512Mi
             limits:
-              cpu: "1"
-              memory: 1Gi
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        # Chrome crashes under the default 64Mi shm
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
 ---
 apiVersion: v1
 kind: Service
