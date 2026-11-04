@@ -1,0 +1,19 @@
+# Redirects plain HTTP to HTTPS on the body-router gateway's :80 listener,
+# matching what the old static bootstrap listener did.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: body-router-https-redirect
+  namespace: kgateway-system
+spec:
+  parentRefs:
+    - name: body-router
+      sectionName: http
+  hostnames:
+    - channel.rifqoi.com
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

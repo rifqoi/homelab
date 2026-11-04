@@ -1,0 +1,58 @@
+# The envoywrapper image is built by rifqoi/images CI as main-<unix-ts>-<shortsha>.
+# Flux scans the registry, picks the newest tag, and commits it into the
+# $imagepolicy marker in chart/values.yaml.
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: envoywrapper
+  namespace: kgateway-system
+spec:
+  image: registry.rifqoi.com/envoywrapper
+  interval: 5m
+  secretRef:
+    name: regcred-rifqoi-registry-com
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: envoywrapper
+  namespace: kgateway-system
+spec:
+  imageRepositoryRef:
+    name: envoywrapper
+  filterTags:
+    pattern: '^main-(?P<ts>[0-9]+)-[a-f0-9]+$'
+    extract: '$ts'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: body-router
+  namespace: kgateway-system
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: fluxcdbot
+        email: fluxcdbot@users.noreply.github.com
+      messageTemplate: |
+        body-router: update envoywrapper image
+
+        {{ range .Changed.Changes }}{{ .OldValue }} -> {{ .NewValue }}
+        {{ end }}
+    push:
+      branch: main
+  update:
+    path: ./k8s/clusters/production/infrastructure/kgateway-body-router
+    strategy: Setters

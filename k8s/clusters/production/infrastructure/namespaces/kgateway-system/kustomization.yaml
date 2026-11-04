@@ -10,3 +10,12 @@ patches:
       - op: replace
         path: /metadata/name
         value: kgateway-system
+  # The base secret's namespace stays `default`; retarget it so the
+  # body-router envoy pods can pull registry.rifqoi.com images.
+  - target:
+      kind: Secret
+      name: regcred-rifqoi-registry-com
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: kgateway-system

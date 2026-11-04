@@ -8,6 +8,9 @@ spec:
   chart:
     spec:
       chart: ./k8s/clusters/production/infrastructure/kgateway-body-router/chart
+      # Upgrade on every source revision so values/template changes in the
+      # git chart dir apply without a Chart.yaml version bump.
+      reconcileStrategy: Revision
       sourceRef:
         kind: GitRepository
         name: flux-system

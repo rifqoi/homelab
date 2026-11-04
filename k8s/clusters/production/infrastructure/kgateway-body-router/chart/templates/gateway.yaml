@@ -1,9 +1,11 @@
 # MANAGED gateway: kgateway creates the Deployment/Service/SA for us.
-# The deploymentOverlay repoints the generated `envoy-config` volume at our
-# bootstrap ConfigMap, so the proxy boots our static listener+filters but
-# keeps the envoyinit-injected xDS JWT. The wildcard TLS secret is mounted
-# as a file for the static listener. Gateway API v1.0 has no per-Gateway
-# parametersRef, so a dedicated GatewayClass carries these GatewayParameters.
+# The envoy container runs the envoywrapper image — upstream envoy-wrapper
+# with a patched rustformation dynamic module that clears the route cache
+# after a request transformation, so headers set from the JSON body
+# re-trigger route selection. TLS is served natively by kgateway via SDS
+# from the kgw-wildcard-tls secret (no file mount, no restart on rotation).
+# Gateway API v1.0 has no per-Gateway infrastructure.parametersRef, so a
+# dedicated GatewayClass carries these GatewayParameters.
 apiVersion: gateway.kgateway.dev/v1alpha1
 kind: GatewayParameters
 metadata:
@@ -11,24 +13,14 @@ metadata:
   namespace: kgateway-system
 spec:
   kube:
-    deploymentOverlay:
-      spec:
-        template:
-          spec:
-            volumes:
-              - name: envoy-config
-                configMap:
-                  name: body-router-envoy
-    podTemplate:
-      extraVolumes:
-        - name: tls
-          secret:
-            secretName: kgw-wildcard-tls
     envoyContainer:
-      extraVolumeMounts:
-        - name: tls
-          mountPath: /etc/envoy/tls
-          readOnly: true
+      image:
+        registry: {{ .Values.image.registry }}
+        repository: {{ .Values.image.repository }}
+        tag: {{ .Values.image.tag | quote }}
+    podTemplate:
+      imagePullSecrets:
+        - name: regcred-rifqoi-registry-com
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
@@ -50,6 +42,14 @@ metadata:
 spec:
   gatewayClassName: body-router
   listeners:
+    # Plain HTTP only exists to redirect to HTTPS (see http-redirect route).
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: {{ .Values.hostname }}
+      allowedRoutes:
+        namespaces:
+          from: All
     - name: https
       protocol: HTTPS
       port: 443

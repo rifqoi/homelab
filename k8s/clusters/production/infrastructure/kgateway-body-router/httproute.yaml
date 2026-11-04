@@ -1,7 +1,8 @@
-# Real kgateway-managed routes for the body-router. The static Envoy listener
-# subscribes to these via RDS ("listener~443"): it extracts `channel` from the
-# JSON body into x-internal-channel and clears the route cache, so the
-# second route resolution hits one of the header-matched rules below.
+# Real kgateway-managed routes for the body-router. The TrafficPolicy
+# `body-extract` (chart/templates/trafficpolicy.yaml) extracts fields from the
+# JSON body into x-internal-* headers, and the patched rustformation module in
+# the envoywrapper image clears the route cache, so the second route
+# resolution hits one of the header-matched rules below.
 # TODO: replace web-svc/mobile-svc with the real Services.
 apiVersion: gateway.kgateway.dev/v1alpha1
 kind: DirectResponse
@@ -103,8 +104,9 @@ spec:
         - name: indosat-svc
           namespace: example
           port: 8080
-    # Fallback for requests with neither extracted field (empty/non-JSON
-    # body): fail closed.
+    # Fallback for requests with neither extracted field (empty body or
+    # fields absent): fail closed. Non-JSON bodies already 400 inside the
+    # transformation, before route selection.
     - filters:
         - type: ExtensionRef
           extensionRef:
