@@ -276,6 +276,18 @@ failover without a mesh, an extra hop, or Enterprise.
   the header and lets the request continue to the fallbacks. Top-level
   fields are referenced as `{{ channel }}`, nested ones as `{{ a.b }}`;
   `{{ body.channel }}` does not work (`body()` is the raw-body function).
+- **Spoofing is handled by `set` semantics** — rustformation `set`
+  overwrites a client-supplied internal header when the render is
+  non-empty and removes it when empty, so `x-internal-*` headers cannot
+  be spoofed.
+- **Kgateway upgrades require an image rebuild** — the proxy runs
+  `registry.rifqoi.com/envoywrapper` (upstream `envoy-wrapper` + a patched
+  `librust_module.so` built in `rifqoi/images/envoywrapper`). On a
+  kgateway bump: update the base image tag and the kgateway source pin,
+  re-apply `patches/0001-rustformation-clear-route-cache.patch` (build
+  fails if it no longer applies — the correct outcome), rebuild, and let
+  Flux image automation roll the new tag. The Rust SDK tag follows
+  upstream per release, keeping ABI aligned with the Envoy version.
 
 Body-based routing still buffers and parses every request body on this
 gateway. Test JSON parse errors, empty/missing values, spoofed headers,
@@ -352,6 +364,8 @@ References:
 - [Kgateway 2.4 version matrix](https://kgateway.dev/docs/envoy/latest/reference/versions/)
 - [Kgateway self-managed gateways](https://kgateway.dev/docs/envoy/latest/setup/customize/envoy/selfmanaged/)
 - [Kgateway custom bootstrap scope](https://kgateway.dev/docs/envoy/latest/setup/customize/envoy/custom-bootstrap/)
+- [Envoywrapper image source (rifqoi/images)](https://github.com/rifqoi/images/tree/main/envoywrapper) — patched rustformation dynamic module and Dockerfile
+- [Extending AI gateways with Rust transformations in kgateway](https://www.cncf.io/blog/2026/05/15/extending-ai-gateways-with-rust-custom-transformations-in-kgateway/) — CNCF walkthrough of the rustformation dynamic-module pattern
 - [Upstream kgateway discussion of body routing and route-cache clearing](https://github.com/kgateway-dev/kgateway/issues/11026)
 - [Agentgateway native content-based routing](https://agentgateway.dev/docs/kubernetes/latest/llm/content-routing/)
 - [Kgateway and agentgateway controller split](https://github.com/kgateway-dev/kgateway/blob/main/README.md)
