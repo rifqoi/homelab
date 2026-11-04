@@ -269,11 +269,13 @@ failover without a mesh, an extra hop, or Enterprise.
 - **`httproute.yaml` header fallbacks are value fallbacks, not health
   fallbacks** — `channel: anything -> other` is a static match fallback;
   only `priorityGroups` responds to *health*.
-- **Template syntax assumed** — extraction templates are generated as
-  `{{ <dotted.path> }}` against the parsed JSON body (top-level fields are
-  injected into the template context by the module). Confirm against the
-  patched image and adjust `extractions[].template` overrides or the
-  chart template if the module expects a different accessor.
+- **Empty or `null` bodies fail with 400** — with `parseAs: AsJson`, a
+  request without a JSON body (e.g. GET) leaves the body fields undeclared
+  and rustformation rejects it with a local 400, as does malformed JSON.
+  A valid JSON object that lacks a field renders it empty, which removes
+  the header and lets the request continue to the fallbacks. Top-level
+  fields are referenced as `{{ channel }}`, nested ones as `{{ a.b }}`;
+  `{{ body.channel }}` does not work (`body()` is the raw-body function).
 
 Body-based routing still buffers and parses every request body on this
 gateway. Test JSON parse errors, empty/missing values, spoofed headers,

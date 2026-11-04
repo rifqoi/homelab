@@ -8,7 +8,7 @@ image:
   registry: registry.rifqoi.com
   repository: envoywrapper
   # Initial placeholder until a real main-* tag is published and picked up.
-  tag: main-0-0000000 # {"$imagepolicy": "kgateway-system:envoywrapper:tag"}
+  tag: main-1793761951-73e8bae # {"$imagepolicy": "kgateway-system:envoywrapper:tag"}
 
 # JSON body fields extracted into internal routing headers by the
 # TrafficPolicy transformation. `body` is a dotted path into the parsed
