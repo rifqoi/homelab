@@ -152,8 +152,30 @@ The cluster has a single etcd member, so this takes the whole API down.
    Talos disaster recovery: wipe EPHEMERAL and
    `talosctl bootstrap --recover-from=<copied member/snap/db> --recover-skip-hash-check`.
 
-Omni has no etcd backups yet (`omnictl get etcdbackup` -> `s3 store is not
-initialized`). **TODO:** point `etcdBackup` in the Omni config at garage S3.
+### etcd backups (set up after this incident)
+
+Omni takes hourly etcd snapshots of `talos-prod-cluster` and stores them in
+garage:
+
+- `--etcd-backup-s3` in `modules/container/omni.nix` turns on the S3 store.
+- The store's bucket, endpoint and key live in Omni, not in the repo:
+  resource `EtcdBackupS3Configs` id `etcd-backup-s3-conf`, bucket
+  `omni-etcd-backups`, endpoint `https://s3.garage.rifqoi.com`, region
+  `garage`, with the dedicated garage key `omni-etcd-backup`.
+- `features.backupConfiguration.interval: 1h` in the cluster template sets
+  the schedule.
+- Retention: the bucket has a lifecycle rule `expire-etcd-backups-7d`
+  (7 days; incomplete multipart uploads are dropped after 1 day). garage
+  applies it in a daily sweep. At ~84MB per snapshot that's ~14GB.
+
+```bash
+omnictl get etcdbackup -l omni.sidero.dev/cluster=talos-prod-cluster
+omnictl get etcdbackupoverallstatus -o yaml   # configurationerror should be ""
+```
+
+garage runs on atlas, so these backups cover etcd corruption, not losing
+atlas. To restore, follow Omni's "restore etcd from backup" docs, which
+create the cluster from a chosen `EtcdBackup` snapshot.
 
 ### Bumping nixpkgs on atlas
 
@@ -173,6 +195,22 @@ initialized`). **TODO:** point `etcdBackup` in the Omni config at garage S3.
   `virtualisation.libvirtd.onShutdown = "shutdown"`. The old default,
   `suspend`, saves ~28G of guest RAM and resumes the VMs with stale clocks
   and dropped iSCSI sessions.
+
+### Pods stuck in ContainerCreating after a full atlas reboot
+
+After the VMs come back, iSCSI attaches can time out for ~25min with
+`timed out waiting for external-attacher of org.democratic-csi.zfs-generic-iscsi`.
+The PVCs are still Bound and the targets on atlas are fine. The
+democratic-csi controller just hasn't re-acquired its leader lease yet.
+Check that before digging into iSCSI:
+
+```bash
+kubectl get events -A --sort-by=.lastTimestamp | grep -E "FailedAttach|LeaderElection" | tail
+sudo targetcli ls /iscsi | grep -c linux-iscsi.k8s   # on atlas, should match the PV count
+```
+
+Once the attacher logs `became leader`, the attaches go through and the app
+pods recover on their own (DB clients crash-loop until Postgres is up).
 
 ## Snapshots and backups from this incident
 
