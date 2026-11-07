@@ -407,6 +407,14 @@
   # costs about 1% of a core in ksmd.
   systemd.tmpfiles.rules = ["w /sys/kernel/mm/ksm/pages_to_scan - - - - 2000"];
 
+  # atlas has no disk swap and the guests nearly fill RAM. Compressed swap in
+  # RAM absorbs short spikes (e.g. KSM catching up after guest reboots) instead
+  # of the OOM killer taking out omni, pocket-id and the registry.
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+  };
+
   # Trust rifqoi as a nix user so this host can accept build derivations
   # offloaded from the WSL workstation (nix remote builder / distributed builds).
   nix.settings.trusted-users = ["root" "rifqoi"];
