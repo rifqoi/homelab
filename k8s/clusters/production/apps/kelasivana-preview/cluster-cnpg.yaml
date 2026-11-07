@@ -4,6 +4,9 @@ metadata:
   name: kelasivana-preview-pg
 spec:
   instances: 1
+  # A single instance cannot satisfy minAvailable: 1, so the primary PDB only
+  # blocks node drains (e.g. Omni Talos upgrades) without adding availability.
+  enablePDB: false
   storage:
     size: 5Gi
     storageClass: zfs-iscsi-retain

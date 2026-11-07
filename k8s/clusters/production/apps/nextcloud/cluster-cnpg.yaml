@@ -5,6 +5,9 @@ metadata:
   namespace: nextcloud
 spec:
   instances: 1
+  # A single instance cannot satisfy minAvailable: 1, so the primary PDB only
+  # blocks node drains (e.g. Omni Talos upgrades) without adding availability.
+  enablePDB: false
   imageName: ghcr.io/cloudnative-pg/postgresql:16.9
   storage:
     size: 20Gi
