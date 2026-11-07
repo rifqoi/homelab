@@ -394,6 +394,12 @@
     '';
     qemu = {
     };
+    # Shut guests down cleanly on host shutdown instead of the default
+    # suspend, which saves ~28GiB of guest RAM to disk and resumes the Talos
+    # VMs with stale clocks and dropped iSCSI sessions.
+    onShutdown = "shutdown";
+    parallelShutdown = 5;
+    shutdownTimeout = 300;
   };
 
   # Kernel Same-page Merging: dedupe identical memory pages across the
@@ -414,11 +420,6 @@
     enable = true;
     memoryPercent = 25;
   };
-
-  # NixOS 26.11 defaults to dbus-broker, and switching D-Bus implementations
-  # live is refused by the switch inhibitor. Keep the old daemon until the
-  # next planned reboot.
-  services.dbus.implementation = "dbus";
 
   # Trust rifqoi as a nix user so this host can accept build derivations
   # offloaded from the WSL workstation (nix remote builder / distributed builds).
