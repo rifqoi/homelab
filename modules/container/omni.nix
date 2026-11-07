@@ -63,6 +63,10 @@ in {
         "--kubernetes-registry=ghcr.io/siderolabs/kubelet"
         "--eula-accept-name=Muhammad Rifqi Al Furqon"
         "--eula-accept-email=alfurqon.rifqi@gmail.com"
+        # Cluster etcd backups go to the omni-etcd-backups bucket on garage-s3.
+        # The bucket, endpoint and key live in Omni's EtcdBackupS3Configs
+        # resource (omnictl), not here.
+        "--etcd-backup-s3"
       ];
     };
 
