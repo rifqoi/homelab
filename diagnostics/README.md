@@ -1,5 +1,11 @@
 # homelab
 
+Incident write-ups:
+
+- [atlas-incident-2026-11-07.md](atlas-incident-2026-11-07.md): paused VM, host
+  OOM during Talos upgrades, the CNPG PDB drain hang, and the etcd WAL bit-flip
+  recovery. Likely cause: non-ECC RAM on atlas.
+
 ## ZFS and Disko Safety Note
 
 Do not add a `fileSystems` mount for a ZFS dataset that does not already exist.
@@ -18,6 +24,11 @@ Recommended order:
 When performing cluster template sync operations (such as adding patches, extensions, or other configuration changes), ensure proper node maintenance:
 
 **⚠️ IMPORTANT:** If nodes are not properly cordoned and drained before updates, the upgrade sequence will fail with context deadline exceeded errors and enter an upgrade loop (constantly restarting). This can cause service disruptions and require manual intervention to recover.
+
+Since Talos 1.13, Omni cordons and drains each node itself before rebooting
+it for a Talos upgrade, and PDBs with 0 allowed disruptions block that drain.
+See "Omni drain hangs on a Talos upgrade" in
+[atlas-incident-2026-11-07.md](atlas-incident-2026-11-07.md).
 
 **Before updating:**
 1. Cordon the node(s) being updated: `kubectl cordon <node-name>`
