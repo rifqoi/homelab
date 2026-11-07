@@ -308,11 +308,9 @@
             "8.8.8.8"
             "1.1.1.1"
             "id.cloudflare.com"
-            {
-              "google.com" = {
-                asn = 15169;
-              };
-            }
+            # ping_exporter >= 1.3 only takes plain string targets; the old
+            # `{ "google.com" = { asn = 15169; }; }` label form fails to start.
+            "google.com"
           ];
         };
       };
@@ -394,6 +392,12 @@
     '';
     qemu = {
     };
+    # Shut guests down cleanly on host shutdown instead of the default
+    # suspend, which saves ~28GiB of guest RAM to disk and resumes the Talos
+    # VMs with stale clocks and dropped iSCSI sessions.
+    onShutdown = "shutdown";
+    parallelShutdown = 5;
+    shutdownTimeout = 300;
   };
 
   # Kernel Same-page Merging: dedupe identical memory pages across the
