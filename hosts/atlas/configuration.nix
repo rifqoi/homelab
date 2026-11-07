@@ -122,6 +122,26 @@
     autoSnapshot.enable = true;
   };
 
+  # qemu opens guest disks with O_DIRECT (cache='none', set by the Omni
+  # libvirt provider). With direct=standard, ZFS verifies the guest buffer
+  # after the write; a guest that touches the buffer mid-flight fails the
+  # check (zed class=dio_verify_wr, EIO) and libvirt pauses the VM. That
+  # paused talos-prod-cluster-workers-hblqnd on 2026-11-06. direct=disabled
+  # turns O_DIRECT into a normal buffered write. disko options only apply at
+  # dataset creation, so set it on every boot before libvirtd starts guests.
+  systemd.services.zfs-vm-disable-direct-io = {
+    description = "Disable ZFS Direct I/O on VM image datasets";
+    after = ["zfs-import.target" "zfs.target"];
+    wants = ["zfs-import.target" "zfs.target"];
+    before = ["libvirtd.service"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${config.boot.zfs.package}/bin/zfs set direct=disabled rpool/vm rpool/vm-images";
+      RemainAfterExit = true;
+    };
+  };
+
   networking.hostName = "atlas";
   networking.hostId = "6b53000e";
 
