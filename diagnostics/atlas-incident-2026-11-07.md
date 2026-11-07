@@ -164,9 +164,9 @@ garage:
   `garage`, with the dedicated garage key `omni-etcd-backup`.
 - `features.backupConfiguration.interval: 1h` in the cluster template sets
   the schedule.
-- Retention: the bucket has a lifecycle rule `expire-etcd-backups-7d`
-  (7 days; incomplete multipart uploads are dropped after 1 day). garage
-  applies it in a daily sweep. At ~84MB per snapshot that's ~14GB.
+- Retention: the bucket has a lifecycle rule `expire-etcd-backups-3d`
+  (3 days; incomplete multipart uploads are dropped after 1 day). garage
+  applies it in a daily sweep. At ~84MB per snapshot that's ~6GB.
 
 ```bash
 omnictl get etcdbackup -l omni.sidero.dev/cluster=talos-prod-cluster
