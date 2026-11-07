@@ -308,11 +308,9 @@
             "8.8.8.8"
             "1.1.1.1"
             "id.cloudflare.com"
-            {
-              "google.com" = {
-                asn = 15169;
-              };
-            }
+            # ping_exporter >= 1.3 only takes plain string targets; the old
+            # `{ "google.com" = { asn = 15169; }; }` label form fails to start.
+            "google.com"
           ];
         };
       };
