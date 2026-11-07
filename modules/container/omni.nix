@@ -84,4 +84,13 @@ in {
       cmd = ["--config-file=/config.yaml"];
     };
   };
+
+  # The provider exits immediately when Omni is not listening on :443 yet,
+  # and five quick failures hit systemd's start limit, leaving it dead after
+  # an Omni restart. Retry slowly and without a limit instead.
+  systemd.services.podman-omni-libvirt-provider = {
+    after = ["podman-omni.service"];
+    unitConfig.StartLimitIntervalSec = 0;
+    serviceConfig.RestartSec = "10s";
+  };
 }
