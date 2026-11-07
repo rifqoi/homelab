@@ -5,7 +5,7 @@
   ...
 }: let
   omniDataDir = "/var/lib/omni";
-  omniVersion = "v1.6.1";
+  omniVersion = "v1.13.2";
 
   libvirtConfig = pkgs.writeText "libvirt-config" ''
     libvirt:
@@ -56,7 +56,14 @@ in {
       ];
 
       # Change to ghcr.io because of docker rate limits
-      cmd = ["--config-path=/omni-config.yaml" "--kubernetes-registry=ghcr.io/siderolabs/kubelet"];
+      # Omni >= 1.13 has no EULA page in the UI and refuses to start until
+      # the EULA (https://siderolabs.com/eula/) is accepted via these flags.
+      cmd = [
+        "--config-path=/omni-config.yaml"
+        "--kubernetes-registry=ghcr.io/siderolabs/kubelet"
+        "--eula-accept-name=Muhammad Rifqi Al Furqon"
+        "--eula-accept-email=alfurqon.rifqi@gmail.com"
+      ];
     };
 
     containers.omni-libvirt-provider = {
@@ -65,7 +72,7 @@ in {
       #   passwordFile = config.sops.secrets.registry_password.path;
       #   registry = "https://registry.rifqoi.com";
       # };
-      image = "ghcr.io/siderolabs/omni-infra-provider-libvirt";
+      image = "ghcr.io/siderolabs/omni-infra-provider-libvirt:v0.3.0";
       volumes = [
         "${libvirtConfig}:/config.yaml"
         "/var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock:rw"
