@@ -400,6 +400,20 @@
   # near-identical Talos guest VMs to reclaim host RAM (host runs ~28GiB of
   # guests on 31GiB; KSM typically recovers several GiB of shared pages).
   hardware.ksm.enable = true;
+  # The kernel default (100 pages per 20ms, ~20MB/s) needs ~25min to rescan
+  # the guests. After a Talos upgrade reboots a guest into a new build, its
+  # pages stop matching the others, and at that rate atlas ran out of memory
+  # and OOM-killed omni, pocket-id and the registry (2026-11-07). 2000 pages
+  # costs about 1% of a core in ksmd.
+  systemd.tmpfiles.rules = ["w /sys/kernel/mm/ksm/pages_to_scan - - - - 2000"];
+
+  # atlas has no disk swap and the guests nearly fill RAM. Compressed swap in
+  # RAM absorbs short spikes (e.g. KSM catching up after guest reboots) instead
+  # of the OOM killer taking out omni, pocket-id and the registry.
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+  };
 
   # Trust rifqoi as a nix user so this host can accept build derivations
   # offloaded from the WSL workstation (nix remote builder / distributed builds).
