@@ -415,6 +415,11 @@
     memoryPercent = 25;
   };
 
+  # NixOS 26.11 defaults to dbus-broker, and switching D-Bus implementations
+  # live is refused by the switch inhibitor. Keep the old daemon until the
+  # next planned reboot.
+  services.dbus.implementation = "dbus";
+
   # Trust rifqoi as a nix user so this host can accept build derivations
   # offloaded from the WSL workstation (nix remote builder / distributed builds).
   nix.settings.trusted-users = ["root" "rifqoi"];
