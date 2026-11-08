@@ -71,18 +71,30 @@ spec:
               value: '[{"name":"Default","description":"Default namespace","is_public":true,"update":true}]'
             - name: BOOTSTRAP_ENDPOINTS
               value: '[{"name":"Public","description":"Public endpoint","enable_auth":false,"enable_auth_query":false,"enable_auth_oauth":false,"is_public":true,"update":true}]'
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /health
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /health
               port: http
             initialDelaySeconds: 60
             periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             requests:
               cpu: 100m
