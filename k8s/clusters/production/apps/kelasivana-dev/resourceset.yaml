@@ -53,8 +53,9 @@ spec:
                       secretKeyRef:
                         name: kelasivana-dev-secret
                         key: healthcheck-token
+                  # This dedicated development namespace includes sample-scoped catalog entries.
                   - name: NODE_ENV
-                    value: production
+                    value: development
                   - name: PUBLIC_APP_URL
                     value: https://kelasivana-dev.rifqoi.com
                   - name: ORIGIN
