@@ -30,17 +30,20 @@ spec:
               cpu: 100m
               memory: 512Mi
             limits:
+              # All 4 schedules fire within the same minute -> 4 concurrent
+              # Chromium sessions. 2Gi OOMKilled the pod mid-run (2026-11-09).
               cpu: "2"
-              memory: 2Gi
+              memory: 4Gi
           volumeMounts:
             - name: shm
               mountPath: /dev/shm
       volumes:
-        # Chrome crashes under the default 64Mi shm
+        # Chrome crashes under the default 64Mi shm. Memory-backed shm counts
+        # toward the container limit, so keep it well under 4Gi.
         - name: shm
           emptyDir:
             medium: Memory
-            sizeLimit: 512Mi
+            sizeLimit: 1Gi
 ---
 apiVersion: v1
 kind: Service
