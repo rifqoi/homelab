@@ -19,3 +19,5 @@ resources:
   - lajur-preview
   - kelasivana-dev
   - kelasivana-preview
+components:
+  - components/cnpg-scheduling

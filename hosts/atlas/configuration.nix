@@ -5,7 +5,9 @@
   modulesPath,
   sops-nix,
   ...
-}: {
+}: let
+  atlasTalosVmWatchdog = pkgs.writeShellScriptBin "atlas-talos-vm-watchdog" (builtins.readFile ../../diagnostics/atlas-talos-vm-watchdog.sh);
+in {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -189,7 +191,7 @@
 
   # Work around the onboard eno2 transmit-queue stall observed after load.
   # Keep TSO disabled across reboots; GSO/GRO remain unchanged.
-  environment.systemPackages = [pkgs.ethtool];
+  environment.systemPackages = [pkgs.ethtool atlasTalosVmWatchdog];
   systemd.services.disable-eno2-tso = {
     description = "Disable eno2 TCP segmentation offload";
     wantedBy = ["multi-user.target"];
@@ -398,6 +400,45 @@
     onShutdown = "shutdown";
     parallelShutdown = 5;
     shutdownTimeout = 300;
+  };
+
+  # Recover a Talos worker whose QEMU process is stuck in uninterruptible ZFS
+  # I/O. The watchdog only targets worker guests, requires a three-minute D
+  # state confirmation window, and rate-limits reboot requests. It never
+  # deletes PVCs or force-stops a guest; the normal Kubernetes controllers
+  # handle pod and RWO-volume recovery after the guest reboot.
+  systemd.services.atlas-talos-vm-watchdog = {
+    description = "Recover Talos workers stuck in host-side I/O";
+    after = ["libvirtd.service" "zfs-vm-disable-direct-io.service"];
+    wants = ["libvirtd.service" "zfs-vm-disable-direct-io.service"];
+    wantedBy = ["multi-user.target"];
+    path = [
+      pkgs.bash
+      pkgs.coreutils
+      pkgs.gawk
+      pkgs.gnugrep
+      pkgs.libvirt
+      pkgs.procps
+      pkgs.util-linux
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${atlasTalosVmWatchdog}/bin/atlas-talos-vm-watchdog";
+      StateDirectory = "atlas-talos-vm-watchdog";
+      StateDirectoryMode = "0700";
+      TimeoutStartSec = 100;
+      User = "root";
+    };
+  };
+
+  systemd.timers.atlas-talos-vm-watchdog = {
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = "5min";
+      OnUnitActiveSec = "1min";
+      RandomizedDelaySec = "10s";
+      Persistent = true;
+    };
   };
 
   # Kernel Same-page Merging: dedupe identical memory pages across the

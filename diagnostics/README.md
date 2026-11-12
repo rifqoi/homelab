@@ -53,6 +53,29 @@ This ensures zero-downtime updates and prevents scheduling of new pods on nodes 
 
 Democratic-CSI provides Kubernetes persistent volumes backed by iSCSI targets. The iSCSI targets are backed by ZFS volumes and managed by `targetcli`.
 
+## Atlas Talos VM watchdog
+
+Atlas installs `atlas-talos-vm-watchdog.service` with a one-minute timer. It
+checks the QEMU process for every `talos-prod-cluster-workers-*` guest and
+requires the process to remain in uninterruptible `D` state for three minutes
+before requesting a guest-agent reboot. This targets the host-side ZFS/QEMU
+stall that can make Cilium, Democratic-CSI, and CNPG probes fail together.
+
+The watchdog is deliberately host-local because Atlas does not keep a
+Kubernetes kubeconfig. It only reboots a worker guest, never deletes pods or
+PVCs, and rate-limits recovery attempts to once per 30 minutes per guest. The
+normal Kubernetes controllers then reattach RWO volumes and reschedule
+workloads. Inspect recovery with:
+
+```bash
+systemctl status atlas-talos-vm-watchdog.timer
+journalctl -u atlas-talos-vm-watchdog.service
+```
+
+The watchdog is a mitigation, not a replacement for reducing Atlas memory
+overcommit or investigating recurring ZFS I/O stalls. Deploy the Atlas NixOS
+configuration before expecting the timer to exist on the host.
+
 ### Troubleshooting After Host Reboot
 
 When the storage host reboots, verify the iSCSI target configuration with these checks:
