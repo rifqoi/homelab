@@ -9,3 +9,4 @@ resources:
   - ocirepository.yaml
   - helmrelease.yaml
   - flaresolverr.yaml
+  - flaresolverr-restart.yaml
