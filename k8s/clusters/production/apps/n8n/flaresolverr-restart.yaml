@@ -1,0 +1,70 @@
+# Daily restart of flaresolverr before the 05:30-06:00 WIB reservation window.
+# Chromium sessions degrade after ~2 days uptime (Chrome stops launching with
+# "session not created" / launch timeouts), which failed the scheduled runs
+# on 2026-11-11/12. A fresh pod each morning prevents the degradation.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flaresolverr-restart
+  namespace: n8n
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: flaresolverr-restart
+  namespace: n8n
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["flaresolverr"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: flaresolverr-restart
+  namespace: n8n
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: flaresolverr-restart
+subjects:
+  - kind: ServiceAccount
+    name: flaresolverr-restart
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: flaresolverr-restart
+  namespace: n8n
+spec:
+  # 05:00 WIB — 30min before the first reservation trigger, fresh Chrome
+  # for the whole staggered window.
+  schedule: "0 5 * * *"
+  timeZone: "Asia/Jakarta"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: flaresolverr-restart
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:1.35
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - deployment/flaresolverr
+                - -n
+                - n8n
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
