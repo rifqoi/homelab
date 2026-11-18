@@ -112,13 +112,18 @@ spec:
         initialDelaySeconds: 30
         periodSeconds: 10
         timeoutSeconds: 5
-        failureThreshold: 5
+        # 10 failures x ~10s = ~100s grace. Chrome-burst CPU contention
+        # elsewhere in the cluster stalls n8n past the old ~50s window
+        # and kills it mid-execution (2026-11-17 crash).
+        failureThreshold: 10
       resources:
         requests:
           memory: "512Mi"
           cpu: "250m"
         limits:
-          memory: "1Gi"
+          # 2Gi: each FlareSolverr HTML payload (~200KB) flows through the
+          # event loop x5 users; 1Gi invites GC stalls under contention.
+          memory: "2Gi"
           cpu: "1000m"
     # ── Workers / webhook (single-instance setup, disabled) ────────
     worker:
