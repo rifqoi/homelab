@@ -13,6 +13,7 @@ resources:
   - garage-ui
   - ck-x
   - paseo
+  - paseo-others
   - metamcp
   - buildkit
   - lajur-dev

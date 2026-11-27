@@ -1,0 +1,18 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: paseo-others
+  namespace: paseo-others
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: paseo-others.rifqoi.com
+spec:
+  parentRefs:
+    - name: shared
+      namespace: kgateway-system
+      sectionName: https
+  hostnames:
+    - paseo-others.rifqoi.com
+  rules:
+    - backendRefs:
+        - name: paseo-others
+          port: 6767
