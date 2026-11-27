@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paseo-others-home
+  namespace: paseo-others
+  labels:
+    app.kubernetes.io/name: paseo-others
+    app.kubernetes.io/component: home
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: zfs-iscsi-retain

@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paseo-others
+  namespace: paseo-others
+  labels:
+    app.kubernetes.io/name: paseo-others
+    app.kubernetes.io/component: daemon
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: paseo-others
+      app.kubernetes.io/component: daemon
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: paseo-others
+        app.kubernetes.io/component: daemon
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: paseo
+          image: ghcr.io/getpaseo/paseo:0.17.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 6767
+              protocol: TCP
+          env:
+            - name: HOME
+              value: /home/paseo
+            - name: PASEO_HOME
+              value: /home/paseo/.paseo
+            - name: PASEO_LISTEN
+              value: 0.0.0.0:6767
+            - name: PASEO_WEB_UI_ENABLED
+              value: "true"
+            - name: PASEO_HOSTNAMES
+              value: paseo-others.rifqoi.com
+            - name: PASEO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paseo-others-secrets
+                  key: PASEO_PASSWORD
+          volumeMounts:
+            - name: home
+              mountPath: /home/paseo
+            - name: workspace
+              mountPath: /workspace
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+      volumes:
+        - name: home
+          persistentVolumeClaim:
+            claimName: paseo-others-home
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: paseo-others-workspace
